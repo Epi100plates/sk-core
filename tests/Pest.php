@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Tests\DuskTestCase;
 use Tests\TestCase;
 
 /*
@@ -10,12 +11,15 @@ use Tests\TestCase;
 |--------------------------------------------------------------------------
 |
 | Every feature test that writes data is executed twice — once on the JSON store
-| and once on MySQL — via the `stores` dataset. `useStore()` switches the active
-| driver and re-binds the repositories.
+| and once on MySQL — via the `stores` dataset. `usingStore()` switches the
+| active driver and re-binds the repositories.
+|
+| The Dusk browser suite lives in tests/Browser and has its own base class.
 |
 */
 
 uses(TestCase::class)->in('Feature', 'Unit');
+uses(DuskTestCase::class)->in('Browser');
 
 dataset('stores', ['json', 'mysql']);
 

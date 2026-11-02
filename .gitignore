@@ -30,3 +30,9 @@ packages.json
 /backups
 /_runtime
 /old-app
+
+.env.dusk*
+
+/storage/app/dusk-data
+/storage/app/private
+

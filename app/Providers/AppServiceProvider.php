@@ -143,14 +143,17 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', static function (Request $request): Limit {
             $login = (string) $request->input('login', '');
 
-            return Limit::perMinutes(15, 5)->by(mb_strtolower($login).'|'.$request->ip());
+            return Limit::perMinutes(
+                (int) config('security.login_decay_minutes', 15),
+                (int) config('security.login_attempts', 5),
+            )->by(mb_strtolower($login).'|'.$request->ip());
         });
 
         // 60 mutations per minute for a signed-in employee.
         RateLimiter::for('mutations', static function (Request $request): Limit {
             $user = $request->user();
 
-            return Limit::perMinute(60)->by($user instanceof UserRecord ? (string) $user->id : (string) $request->ip());
+            return Limit::perMinute((int) config('security.mutation_attempts_per_minute', 60))->by($user instanceof UserRecord ? (string) $user->id : (string) $request->ip());
         });
     }
 }

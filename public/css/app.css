@@ -2,6 +2,11 @@
    One stylesheet for the whole app (defect D-35: 500–800 lines of CSS copied
    into every PHP file). No inline styles anywhere, so the CSP can stay strict. */
 
+html {
+    /* Keep anchor/scroll-into-view targets above the fixed bottom navigation. */
+    scroll-padding-bottom: 5.5rem;
+}
+
 :root {
     --serwis-brand: #0d3b66;
     --serwis-brand-light: #12508d;
@@ -298,8 +303,10 @@
         width: 100%;
     }
 
-    .app-body {
-        padding-bottom: calc(var(--serwis-bottom-nav-height) + 0.5rem);
+    /* The fixed bottom navigation overlays the end of the page; the padding lives
+       on the content container so the last button can always be scrolled clear of it. */
+    .app-main {
+        padding-bottom: calc(var(--serwis-bottom-nav-height) + 1.5rem);
     }
 }
 

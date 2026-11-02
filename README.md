@@ -56,11 +56,25 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 249 testów: json + mysql
+php artisan test                 # 250 testów: json + mysql
+php artisan dusk                 # 9 scenariuszy przeglądarkowych (patrz ADR 0011)
 ```
 
-Stan na 2026-11-02: **249 testów zielonych w obu trybach magazynu**, Pint czysty, PHPStan poziom 6 bez błędów.
+Stan na 2026-11-02: **250 testów zielonych w obu trybach magazynu** + **9 scenariuszy Dusk**,
+Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
+
+### Testy przeglądarkowe (Dusk)
+
+`php artisan dusk` nie uruchamia serwera sam. Potrzebne są dwa okna:
+
+```bash
+php artisan serve --host=127.0.0.1 --port=8000      # z DATA_STORE_PATH z .env.dusk.local
+php artisan dusk --without-tty
+```
+
+ChromeDriver musi być w `vendor/laravel/dusk/bin/chromedriver-win.exe` (pobrany ręcznie
+dla wersji Chrome, bo `dusk:chrome-driver` wymaga CA w PHP CLI).
 
 ## Wdrożenie na hosting współdzielony
 

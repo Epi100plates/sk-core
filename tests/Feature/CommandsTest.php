@@ -13,6 +13,7 @@ use App\Domain\Enums\Role;
 use App\Domain\Enums\ServiceStatus;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +59,7 @@ it('verifies that all manifest icons exist', function () {
 it('verifies that photo metadata matches the files', function () {
     $this->useStore('json');
     // The private disk is faked so a developer's real photos cannot influence the result.
-    Illuminate\Support\Facades\Storage::fake('local');
+    Storage::fake('local');
 
     $this->artisan('photos:verify')->assertExitCode(0);
 });

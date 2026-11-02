@@ -19,16 +19,17 @@
 | F5 | historia, hasło urządzenia, wydruki A4, anulowanie | ✅ | `PrintTest`, `CancelServiceTest`, `FieldLabelsTest` |
 | F6 | manifest, ikony GD, service worker, offline, brak PII w cache | ✅ | `SecurityTest`, `runtime-verification.md` (Cache Storage) |
 | F7 | nagłówki/CSP, rate limit, audyt IP/UA, kopie zapasowe | ✅ (log redaction: patrz ryzyko) | `SecurityTest`, `AuthTest`, `CommandsTest` |
-| F8 | parzystość, e2e/a11y | ⚠️ raport parzystości gotowy; Dusk/axe nie uruchomione | `parity-report.md` |
+| F8 | parzystość, e2e/a11y | ⚠️ raport parzystości gotowy; **Dusk: 9 scenariuszy zielonych**; axe jeszcze nie uruchomione | `parity-report.md`, `tests/Browser/*` |
 | F9 | deployment/runbooki | ⚠️ runbooki i `build-release.ps1` gotowe; brak stagingu właściciela | `runbook-*.md`, `deploy/htaccess-fallback.txt` |
 | F10 | dokumentacja, backlog | ✅ | `README.md`, `docs/user-guide.md`, `docs/aegis/backlog.md` |
 
 ## Bramki (ostatni przebieg)
 
 ```
-vendor/bin/pint --test                    PASS (144 pliki)
+vendor/bin/pint --test                    PASS (151 plików)
 vendor/bin/phpstan analyse                OK (poziom 6, bez błędów)
-php artisan test                          249 testów, 900 asercji (json + mysql)
+php artisan test                          250 testów, 903 asercje (json + mysql)
+php artisan dusk                          9 scenariuszy, 33 asercje (Chromium 156)
 php artisan store:check                   json: OK / mysql: OK
 php artisan icons:check                   OK (5 ikon)
 php artisan photos:verify                 OK
@@ -37,7 +38,7 @@ php artisan backup:database               ZIP z danymi JSON utworzony
 
 ## Pozostało (kolejne sesje)
 
-1. **Dusk + axe** (F8.2/F8.3): dodać `tests/Browser/*` i axe-core do repo; uruchomić na ChromeDriverze.
+1. **axe-core** (F8.3): wstrzyknąć axe do testów Dusk i wyeliminować błędy krytyczne na 5 widokach (Dusk już działa).
 2. **Staging właściciela** (F9.1–T9.5): wgranie paczki, `/__install`, smoke test, próba rollbacku.
 3. **Import danych**, gdy pojawi się zrzut (`legacy:import` + `legacy:verify`).
 4. **Log redaction** (T7.2): procesor Monologa maskujący telefon/hasło, jeśli w logach pojawią się dane.
@@ -47,9 +48,10 @@ php artisan backup:database               ZIP z danymi JSON utworzony
 
 - R1/R2: realny schemat i możliwości hostingu nadal nieznane (brak dostępu) — runbooki zakładają oba warianty.
 - R17: tryb JSON przy dwóch jednoczesnych zapisach — pokryty testem dwuprocesowym; przy >5000 zleceń `store:check` sugeruje MySQL.
-- R12: brak ChromeDrivera blokuje Dusk.
+- R12: Dusk działa, ale ChromeDriver trzeba instalować ręcznie (binarka win64); `dusk:chrome-driver` nie działa bez CA w PHP CLI.
 
 ## Historia (skrót)
 
 - 2026-11-02: szkielet + domena + magazyny JSON/MySQL (F0–F2), 248 testów zielonych w obu trybach.
 - 2026-11-02: ekrany pracy, zdjęcia, wydruki, PWA, bezpieczeństwo (F3–F7), weryfikacja w Chromium 1366×768 i 390×844; 6 poprawek UI z przeglądarki (m.in. puste pole „model” w edycji, poziomy scroll na telefonie).
+- 2026-11-02: testy Dusk (9 scenariuszy) i 3 poprawki z nich: odstep nad dolna nawigacja na telefonie, usuniete zbedne okno potwierdzenia przy wydaniu, konfigurowalny limit logowania (LOGIN_ATTEMPTS) dla srodowiska testowego.

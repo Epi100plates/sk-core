@@ -4,7 +4,7 @@
 |---|---|
 | **Data** | 2026-11-02 |
 | **Zakres** | F-01…F-57 (funkcje) i D-01…D-58 (defekty) z planu |
-| **Wynik bramek** | `php artisan test`: **249 testów, 900 asercji, zielone** w trybie `json` i `mysql`; Pint czysty; PHPStan poziom 6 bez błędów |
+| **Wynik bramek** | `php artisan test`: **250 testów, 903 asercje, zielone** w trybie `json` i `mysql`; `php artisan dusk`: **9 scenariuszy, zielone** (Chromium + ChromeDriver); Pint czysty (151 plików); PHPStan poziom 6 bez błędów |
 | **Środowisko** | PHP 8.4.27, MariaDB 10.4.32 (`serwis_test`), Chromium (390×844 i 1366×768) |
 
 Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (Chromium),
@@ -144,8 +144,8 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 
 ## 4. Czego nie dało się zweryfikować w tej iteracji
 
-- **Laravel Dusk** (e2e w PHP) — scenariusze nie są jeszcze napisane; weryfikacja przeglądarkowa wykonana
-  Chromium przez narzędzie audytu (ADR 0011). Wymaga ChromeDrivera.
+- **Laravel Dusk** — 9 scenariuszy zielonych (`php artisan dusk`, ADR 0011). ChromeDriver pobrany
+  ręcznie jako binarka win64; `php artisan dusk:chrome-driver` nie działa na tej maszynie (brak CA w PHP CLI).
 - **axe-core** — plik nie jest dołączony do repo; audyt a11y ograniczony do przeglądu semantyki
   (landmarki, etykiety, `aria-*`, focus trap w dialogu) i braku poziomego scrolla.
 - **Log redaction** — kanał `daily` i zasada „bez PII w logach” są skonfigurowane, ale nie ma

@@ -88,8 +88,7 @@
 
                 <div class="app-card-header border-top-0">
                     <a class="btn btn-link" href="{{ route('services.show', $service) }}">Anuluj</a>
-                    <button class="btn btn-success" type="submit"
-                            data-confirm="Potwierdź wydanie laptopa klientowi.">Potwierdź wydanie</button>
+                    <button class="btn btn-success" type="submit">Potwierdź wydanie</button>
                 </div>
             </form>
         </div>

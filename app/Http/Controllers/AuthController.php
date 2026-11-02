@@ -35,7 +35,10 @@ final class AuthController extends Controller
 
         $key = mb_strtolower($credentials['login']).'|'.$request->ip();
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
+        $maxAttempts = (int) config('security.login_attempts', 5);
+        $decaySeconds = (int) config('security.login_decay_minutes', 15) * 60;
+
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($key);
 
             return back()
@@ -44,7 +47,7 @@ final class AuthController extends Controller
         }
 
         if (! Auth::attempt($credentials)) {
-            RateLimiter::hit($key, 15 * 60);
+            RateLimiter::hit($key, $decaySeconds);
 
             return back()
                 ->withInput($request->only('login'))
