@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Logging\RedactLogRecords;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -63,6 +64,8 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
+            // Customer data must never reach a log file (defect D-38).
+            'tap' => [RedactLogRecords::class],
         ],
 
         'daily' => [
@@ -71,6 +74,8 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+            // Daily rotation (F-51) plus phone/password masking (defect D-38).
+            'tap' => [RedactLogRecords::class],
         ],
 
         'slack' => [

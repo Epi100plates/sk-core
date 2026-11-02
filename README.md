@@ -56,11 +56,11 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 250 testów: json + mysql
+php artisan test                 # 254 testy: json + mysql
 php artisan dusk                 # 9 scenariuszy przeglądarkowych (patrz ADR 0011)
 ```
 
-Stan na 2026-11-02: **250 testów zielonych w obu trybach magazynu** + **9 scenariuszy Dusk**,
+Stan na 2026-11-02: **254 testy zielone w obu trybach magazynu** + **9 scenariuszy Dusk**,
 Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
 

@@ -4,7 +4,7 @@
 |---|---|
 | **Data** | 2026-11-02 |
 | **Zakres** | F-01…F-57 (funkcje) i D-01…D-58 (defekty) z planu |
-| **Wynik bramek** | `php artisan test`: **250 testów, 903 asercje, zielone** w trybie `json` i `mysql`; `php artisan dusk`: **9 scenariuszy, zielone** (Chromium + ChromeDriver); Pint czysty (151 plików); PHPStan poziom 6 bez błędów |
+| **Wynik bramek** | `php artisan test`: **254 testy, 915 asercji, zielone** w trybie `json` i `mysql`; `php artisan dusk`: **9 scenariuszy, zielone** (Chromium + ChromeDriver); Pint czysty (154 pliki); PHPStan poziom 6 bez błędów |
 | **Środowisko** | PHP 8.4.27, MariaDB 10.4.32 (`serwis_test`), Chromium (390×844 i 1366×768) |
 
 Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (Chromium),
@@ -60,7 +60,7 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 | F-48 | jeden UI: sidebar ≥1024 px, dolna nawigacja <1024 px | E (1366×768 i 390×844, brak poziomego scrolla) |
 | F-49 | brak wykrywania User-Agenta | T: `SecurityTest` (lista tras), przegląd kodu |
 | F-50 | audyt: jeden wpis na zmianę | T: `AcceptServiceTest`, `UpdateServiceTest`, `PhotosTest`, `CancelServiceTest` |
-| F-51 | logi dzienne, bez PII | konfiguracja `config/logging.php` + przegląd kodu (patrz §4) |
+| F-51 | logi dzienne, bez PII | T: `LogRedactionTest` (procesor na kanałach `single` i `daily`, maskowanie telefonu i hasła) |
 | F-52 | instalator CLI + web z tokenem | T: `CommandsTest` (idempotencja), `SecurityTest` (trasa bez tokenu → 404) |
 | F-53 | dane demo tylko poza produkcją | T: `CommandsTest` (30 zleceń, wyjątek w produkcji) |
 | F-54 | `photos:verify [--fix]` | T: `CommandsTest`, kod komendy |
@@ -109,7 +109,7 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 | D-35 | jeden `app.css` + Bootstrap | przegląd widoków: brak bloków `<style>` |
 | D-36 | jedna historia migracji | `database/migrations/*` (4 pliki), `migrate:fresh` w testach MySQL |
 | D-37 | tylko `.env` + `config/*` | brak `database.php` w repo |
-| D-38 | audyt w magazynie, brak duplikatów, brak PII w logach | T: `AcceptServiceTest` (1 zdarzenie), `LogRedactor` (patrz §4) |
+| D-38 | audyt w magazynie, brak duplikatów, brak PII w logach | T: `AcceptServiceTest` (1 zdarzenie), `LogRedactionTest` (maskowanie telefonu i hasła) |
 | D-39 | testy i CI | `.github/workflows/ci.yml` |
 | D-40 | paginacja serwerowa | T: `QueueTest` (paginacja 50) |
 | D-41 | jeden UI, jedna akcja na operację | przegląd tras (`routes/web.php`) |
@@ -147,9 +147,7 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 - **Laravel Dusk** — 9 scenariuszy zielonych (`php artisan dusk`, ADR 0011). ChromeDriver pobrany
   ręcznie jako binarka win64; `php artisan dusk:chrome-driver` nie działa na tej maszynie (brak CA w PHP CLI).
 - **axe-core** — plik nie jest dołączony do repo; audyt a11y ograniczony do przeglądu semantyki
-  (landmarki, etykiety, `aria-*`, focus trap w dialogu) i braku poziomego scrolla.
-- **Log redaction** — kanał `daily` i zasada „bez PII w logach” są skonfigurowane, ale nie ma
-  automatycznego filtra Monologa; kod nie loguje telefonów ani haseł (przegląd `app/`).
+  (landmarki, etykiety, `aria-*`, focus trap w dialogu) i braku poziomego scrolla (test Dusk).
 - **Hosting właściciela** (PHP 8.2, `.htaccess`, cron, limit uploadu) — wymaga testu na staging (T0.2).
 - **Import danych produkcyjnych** — brak zrzutu; importer przetestowany na fiksturze
   (`tests/Fixtures/legacy-dump.sql`).

@@ -18,7 +18,7 @@
 | F4 | zdjęcia: `PhotoStore` (GD, miniatury, SHA-256), kontroler z polityką, galeria/lightbox, `photos:verify` | ✅ | `PhotosTest`, `runtime-verification.md` |
 | F5 | historia, hasło urządzenia, wydruki A4, anulowanie | ✅ | `PrintTest`, `CancelServiceTest`, `FieldLabelsTest` |
 | F6 | manifest, ikony GD, service worker, offline, brak PII w cache | ✅ | `SecurityTest`, `runtime-verification.md` (Cache Storage) |
-| F7 | nagłówki/CSP, rate limit, audyt IP/UA, kopie zapasowe | ✅ (log redaction: patrz ryzyko) | `SecurityTest`, `AuthTest`, `CommandsTest` |
+| F7 | nagłówki/CSP, rate limit, audyt IP/UA, kopie zapasowe, maskowanie logów | ✅ | `SecurityTest`, `AuthTest`, `CommandsTest` |
 | F8 | parzystość, e2e/a11y | ⚠️ raport parzystości gotowy; **Dusk: 9 scenariuszy zielonych**; axe jeszcze nie uruchomione | `parity-report.md`, `tests/Browser/*` |
 | F9 | deployment/runbooki | ⚠️ runbooki i `build-release.ps1` gotowe; brak stagingu właściciela | `runbook-*.md`, `deploy/htaccess-fallback.txt` |
 | F10 | dokumentacja, backlog | ✅ | `README.md`, `docs/user-guide.md`, `docs/aegis/backlog.md` |
@@ -28,7 +28,7 @@
 ```
 vendor/bin/pint --test                    PASS (151 plików)
 vendor/bin/phpstan analyse                OK (poziom 6, bez błędów)
-php artisan test                          250 testów, 903 asercje (json + mysql)
+php artisan test                          254 testy, 915 asercji (json + mysql)
 php artisan dusk                          9 scenariuszy, 33 asercje (Chromium 156)
 php artisan store:check                   json: OK / mysql: OK
 php artisan icons:check                   OK (5 ikon)
