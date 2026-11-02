@@ -1,0 +1,18 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app
+        - database
+        - routes
+    excludePaths:
+        - app/Models/*.php
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Laravel magic: model attributes and container string resolution are
+        # typed by Larastan, the remaining notices are noise at level 6.
+        - '#Access to an undefined property#'
+        - '#Call to an undefined method Illuminate\\#'

@@ -1,0 +1,12 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "old-app",
+        "vendor",
+        "storage",
+        "_runtime",
+        "docs",
+        "bootstrap/cache",
+        "public"
+    ]
+}

@@ -1,0 +1,18 @@
+# Wariant zapasowy wdrożenia (plan 11.1, punkt 3) — gdy hosting nie pozwala
+# wystawić katalogu `public/` jako webroota dla /serwis.
+#
+# Skopiuj ten plik jako `.htaccess` do katalogu aplikacji (nad `public/`) TYLKO
+# wtedy, gdy cała aplikacja leży w `public_html/serwis`. W normalnym wariancie
+# (public/ podłączone jako webroot) ten plik nie jest potrzebny.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Dane, konfiguracja i biblioteki nigdy nie mogą być dostępne z przeglądarki.
+<FilesMatch "^\.env|^\.env\..*|^composer\.(json|lock)$|^artisan$|^phpunit\.xml$|^pint\.json$|^phpstan\.neon$">
+    Require all denied
+</FilesMatch>
+
+RedirectMatch 404 ^/(storage|vendor|bootstrap|database|tests|docs|deploy)(/|$)

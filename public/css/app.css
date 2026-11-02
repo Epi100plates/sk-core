@@ -1,0 +1,314 @@
+/* Studio-Komp Serwis — application layer on top of Bootstrap 5.
+   One stylesheet for the whole app (defect D-35: 500–800 lines of CSS copied
+   into every PHP file). No inline styles anywhere, so the CSP can stay strict. */
+
+:root {
+    --serwis-brand: #0d3b66;
+    --serwis-brand-light: #12508d;
+    --serwis-bg: #f4f6f8;
+    --serwis-surface: #ffffff;
+    --serwis-border: #dde3ea;
+    --serwis-shadow: 0 1px 2px rgba(16, 32, 48, 0.08);
+    --serwis-bottom-nav-height: 4.25rem;
+}
+
+.app-body {
+    background-color: var(--serwis-bg);
+    min-height: 100vh;
+    padding-bottom: 0;
+}
+
+.app-header {
+    background-color: var(--serwis-brand);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    box-shadow: var(--serwis-shadow);
+}
+
+.app-header a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.app-brand {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.app-header .form-control {
+    border: 0;
+    min-width: 0;
+}
+
+.app-header .btn-light {
+    white-space: nowrap;
+}
+
+.app-shell {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 0.75rem 1.5rem;
+}
+
+.app-sidebar {
+    display: none;
+    width: 15rem;
+    flex: 0 0 15rem;
+    background: var(--serwis-surface);
+    border: 1px solid var(--serwis-border);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    position: sticky;
+    top: 5rem;
+}
+
+.app-sidebar .nav-link {
+    color: #24384d;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.app-sidebar .nav-link.active,
+.app-sidebar .nav-link:hover {
+    background-color: rgba(13, 59, 102, 0.08);
+    color: var(--serwis-brand);
+}
+
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.app-card {
+    background: var(--serwis-surface);
+    border: 1px solid var(--serwis-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--serwis-shadow);
+}
+
+.app-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--serwis-border);
+}
+
+.app-card-body {
+    padding: 1rem;
+}
+
+.service-card {
+    border-left: 4px solid transparent;
+}
+
+.service-card.is-express {
+    border-left-color: #dc3545;
+}
+
+.service-card.is-final {
+    background-color: #f8f9fa;
+}
+
+.service-meta {
+    color: #5a6b7d;
+    font-size: 0.875rem;
+}
+
+.service-issue {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.app-bottom-nav {
+    position: fixed;
+    inset: auto 0 0 0;
+    display: flex;
+    background: var(--serwis-surface);
+    border-top: 1px solid var(--serwis-border);
+    z-index: 1030;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.app-bottom-nav a,
+.app-bottom-nav button {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.45rem 0.25rem;
+    font-size: 0.7rem;
+    color: #33475b;
+    text-decoration: none;
+    background: none;
+    border: 0;
+    min-height: var(--serwis-bottom-nav-height);
+}
+
+.app-bottom-nav .active {
+    color: var(--serwis-brand);
+    font-weight: 600;
+}
+
+.app-bottom-nav .nav-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.offline-banner {
+    background: #842029;
+    color: #fff;
+    text-align: center;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 0.5rem;
+}
+
+.photo-thumb {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid var(--serwis-border);
+    cursor: zoom-in;
+    background: #eef1f4;
+}
+
+.photo-item {
+    position: relative;
+}
+
+.photo-item form {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.15rem;
+}
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(8, 16, 24, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.lightbox[hidden] {
+    display: none;
+}
+
+.lightbox img {
+    max-width: 100%;
+    max-height: calc(100vh - 6rem);
+    object-fit: contain;
+    border-radius: 0.5rem;
+}
+
+.lightbox-controls {
+    position: absolute;
+    inset: auto 0 1rem 0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    color: #fff;
+    align-items: center;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+}
+
+/* A .visually-hidden span inside a horizontally scrolled table would otherwise
+   be positioned against the viewport and widen the whole document on phones. */
+.table-responsive {
+    position: relative;
+}
+
+.history-list {    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.history-item {
+    border-left: 3px solid var(--serwis-border);
+    padding: 0 0 0.85rem 0.85rem;
+    margin-left: 0.35rem;
+}
+
+.history-item:last-child {
+    padding-bottom: 0;
+}
+
+.history-diff {
+    font-size: 0.85rem;
+    color: #46586b;
+}
+
+.definition-list dt {
+    font-weight: 600;
+    color: #46586b;
+}
+
+.definition-list dd {
+    margin-bottom: 0.65rem;
+}
+
+.text-pre-wrap {
+    white-space: pre-line;
+}
+
+@media (min-width: 1024px) {
+    .app-sidebar {
+        display: block;
+    }
+
+    .app-shell {
+        padding: 1.25rem 1rem 2rem;
+    }
+
+    .app-bottom-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-header .search-form {
+        order: 3;
+        width: 100%;
+    }
+
+    .app-body {
+        padding-bottom: calc(var(--serwis-bottom-nav-height) + 0.5rem);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .photo-thumb {
+        transition: transform 120ms ease-in-out;
+    }
+
+    .photo-thumb:hover {
+        transform: scale(1.02);
+    }
+}
