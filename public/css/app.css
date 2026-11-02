@@ -15,6 +15,34 @@ html {
     --serwis-border: #dde3ea;
     --serwis-shadow: 0 1px 2px rgba(16, 32, 48, 0.08);
     --serwis-bottom-nav-height: 4.25rem;
+
+    /* Bootstrap's default blues/greys fail the WCAG AA contrast check on white
+       (axe: color-contrast, serious). These darker tones pass 4.5:1. */
+    --bs-link-color: #0a58ca;
+    --bs-link-hover-color: #084298;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #0a58ca;
+    --bs-btn-border-color: #0a58ca;
+    --bs-btn-hover-bg: #0a58ca;
+    --bs-btn-hover-border-color: #0a58ca;
+    --bs-btn-active-bg: #084298;
+    --bs-btn-active-border-color: #084298;
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: #495057;
+    --bs-btn-border-color: #495057;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #495057;
+}
+
+.btn-outline-danger {
+    --bs-btn-color: #b02a37;
+    --bs-btn-border-color: #b02a37;
+    --bs-btn-hover-bg: #b02a37;
+    --bs-btn-hover-border-color: #b02a37;
 }
 
 .app-body {
@@ -32,7 +60,9 @@ html {
     box-shadow: var(--serwis-shadow);
 }
 
-.app-header a {
+/* Link styling must not leak onto buttons: a `.btn-light` with white text fails
+   the WCAG contrast check (axe: color-contrast, serious). */
+.app-header a:not(.btn) {
     color: #fff;
     text-decoration: none;
 }

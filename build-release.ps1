@@ -57,6 +57,9 @@ try {
     Remove-Item (Join-Path $stage 'storage/app/data') -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item (Join-Path $stage 'storage/logs/*.log') -Force -ErrorAction SilentlyContinue
 
+    # axe-core służy tylko testom dostępności (Dusk) — nie jedzie na produkcję.
+    Remove-Item (Join-Path $stage 'public/js/axe.min.js') -Force -ErrorAction SilentlyContinue
+
     Copy-Item -Path (Join-Path $root '.env.example') -Destination (Join-Path $stage '.env.example') -Force
     Copy-Item -Path (Join-Path $root 'deploy/htaccess-fallback.txt') -Destination (Join-Path $stage 'deploy-htaccess.txt') -Force
 

@@ -14,7 +14,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-sm-8 col-md-6 col-lg-4">
             <div class="text-center mb-4">
-                <p class="h4 mb-1">{{ config('app.name') }}</p>
+                <h1 class="h4 mb-1">{{ config('app.name') }}</h1>
                 <p class="service-meta mb-0">Zaloguj się, aby pracować z kolejką napraw.</p>
             </div>
 

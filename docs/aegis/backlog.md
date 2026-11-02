@@ -18,5 +18,5 @@ Pozycje z planu (B1–B14) z aktualnym stanem realizacji. Nic z tej listy nie bl
 | B12 | Import danych ze starej aplikacji — uruchomienie, gdy pojawi się zrzut | **kod gotowy i przetestowany na fiksturze** (`legacy:import`, `legacy:verify`) | 0,5 dnia |
 | B13 | Eksport zestawienia wydań (CSV/PDF) do rozliczeń | odłożone | 1–2 dni |
 | B14 | Przypisanie zlecenia do technika (kolumna + filtr „moje zlecenia”) | odłożone | 1–2 dni |
-| B15 | Testy e2e Dusk + axe-core w repo (ADR 0011) | scenariusze opisane, brak plików | 2–3 dni |
+| B15 | Testy e2e Dusk + axe-core w repo (ADR 0011) | **zrobione** — 15 scenariuszy, 6 audytów axe bez błędów critical/serious; do zrobienia: job CI z Chrome | 0,5 dnia |
 | B16 | Livewire 3 zamiast Blade (jeśli właściciel tego wymaga — ADR 0004) | wymaga decyzji i złagodzenia CSP | 4–6 dni |

@@ -51,3 +51,28 @@ Pliki leżą w katalogu roboczym narzędzia audytu (poza repozytorium):
 4. Historia pokazywała surowe wartości statusów (`pending → in_progress`) — tłumaczone na etykiety.
 5. Migawka zdarzenia `accepted` zawierała puste pola (`— → —`) — pomijane.
 6. Ceny w formularzu wydania pokazywane z przecinkiem (`199,99`).
+
+## Audyt dostępności (axe-core przez Dusk)
+
+| Widok | critical | serious | Uwaga |
+|---|---|---|---|
+| `/login` | 0 | 0 | po poprawce: `<h1>` zamiast `<p class="h4">` |
+| kolejka | 0 | 0 | po poprawce: kontrast `btn-light` w nagłówku |
+| formularz przyjęcia | 0 | 0 | — |
+| karta zlecenia | 0 | 0 | po poprawce: przyciemnione `btn-outline-primary` / `-secondary` (AA) |
+| panel kont | 0 | 0 | — |
+| formularz wydania | 0 | 0 | — |
+
+Test: `php artisan dusk --filter=A11yTest` (6 scenariuszy). axe jest plikiem
+`public/js/axe.min.js` ładowanym przez `<script src>` (CSP nie pozwala na inline) i jest
+wykluczony z paczki wdrożeniowej.
+
+## Wydajność (Faza 7, T7.4)
+
+```
+php artisan bench:queue --services=200 --requests=20
+Zleceń w magazynie 200 · Kart na stronie 50 · p50 69,0 ms · p95 79,5 ms · max 79,5 ms
+```
+
+Pomiar obejmuje zapytanie do repozytorium i render Blade na magazynie JSON (dane tymczasowe,
+bez warstwy HTTP). Cel z planu: p95 < 300 ms — spełniony z dużym zapasem.

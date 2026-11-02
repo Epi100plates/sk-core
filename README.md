@@ -49,18 +49,19 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 | `php artisan photos:verify [--fix]` | spójność metadanych zdjęć z plikami (kwarantanna, miniatury) |
 | `php artisan legacy:import [--dry-run] [--source=] [--uploads=]` | import starej bazy z raportem CSV |
 | `php artisan legacy:verify [--source=]` | porównanie liczności i sum po imporcie |
-| `php artisan backup:database` | ZIP z danymi JSON i zdjęciami albo zrzut SQL + zdjęcia |
+| php artisan backup:database | ZIP z danymi JSON i zdjęciami albo zrzut SQL + zdjęcia |
+| php artisan bench:queue [--services=200] | pomiar czasu renderowania kolejki (p95) na danych tymczasowych |
 
 ## Bramki jakości
 
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 254 testy: json + mysql
-php artisan dusk                 # 9 scenariuszy przeglądarkowych (patrz ADR 0011)
+php artisan test                 # 255 testów: json + mysql
+php artisan dusk                 # 15 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-02: **254 testy zielone w obu trybach magazynu** + **9 scenariuszy Dusk**,
+Stan na 2026-11-02: **255 testów zielonych w obu trybach magazynu** + **15 scenariuszy Dusk (z axe)**,
 Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
 

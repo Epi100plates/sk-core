@@ -167,6 +167,13 @@ it('seeds 30 demo services in a non production environment', function () {
         ->and($counts[ServiceStatus::Released->value] ?? 0)->toBeGreaterThan(0);
 });
 
+it('measures the queue rendering time on temporary data', function () {
+    // Uses its own temporary JSON directory, so the active store is untouched.
+    $this->artisan('bench:queue', ['--services' => 10, '--requests' => 2])
+        ->expectsOutputToContain('p95')
+        ->assertExitCode(0);
+});
+
 it('keeps the admin seeder free of plaintext passwords', function () {
     $this->useStore('json');
     $this->artisan('app:install')->assertExitCode(0);

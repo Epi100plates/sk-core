@@ -4,7 +4,7 @@
 |---|---|
 | **Data** | 2026-11-02 |
 | **Zakres** | F-01…F-57 (funkcje) i D-01…D-58 (defekty) z planu |
-| **Wynik bramek** | `php artisan test`: **254 testy, 915 asercji, zielone** w trybie `json` i `mysql`; `php artisan dusk`: **9 scenariuszy, zielone** (Chromium + ChromeDriver); Pint czysty (154 pliki); PHPStan poziom 6 bez błędów |
+| **Wynik bramek** | `php artisan test`: **255 testów, 917 asercji, zielone** w trybie `json` i `mysql`; `php artisan dusk`: **15 scenariuszy, zielone** (Chromium + ChromeDriver + axe-core); `bench:queue` 200 zleceń: **p95 79,5 ms** (cel 300 ms); Pint czysty (155 plików); PHPStan poziom 6 bez błędów |
 | **Środowisko** | PHP 8.4.27, MariaDB 10.4.32 (`serwis_test`), Chromium (390×844 i 1366×768) |
 
 Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (Chromium),
@@ -52,12 +52,12 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 | F-39 | formularz wydania z datą i dwustopniowym potwierdzeniem | T: `StatusAndReleaseTest`, E (wydanie z telefonu) |
 | F-40 | `released_at` z formularza, `released_by` | T: `StatusAndReleaseTest` (`12:30` lokalnie → `11:30` UTC) |
 | F-41 | zdarzenie `released` z from/to | T: `StatusAndReleaseTest` |
-| F-42 | wydanie z telefonu działa | T: `StatusAndReleaseTest` (User-Agent iPhone), E (390×844) |
+| F-42 | wydanie z telefonu działa | T: `StatusAndReleaseTest` (User-Agent iPhone); E: `MobileReleaseTest` (Dusk, okno 390×844) |
 | F-43 | manifest + komplet ikon + skróty | T: `SecurityTest` (manifest, ikony 200), `CheckIcons` w CI, E (service worker aktywny) |
 | F-44 | offline: powłoka, blokada zapisów, zero danych klientów | T: `SecurityTest` (strona offline), E (offline → strona `/offline`, cache tylko CSS/JS/ikony) |
 | F-45/F-46 | push i sync | — (poza v1, decyzja D5) |
-| F-47 | lightbox: ESC, strzałki, focus trap, swipe | E (dialog `role="dialog"`, powrót focusu, brak błędów konsoli) |
-| F-48 | jeden UI: sidebar ≥1024 px, dolna nawigacja <1024 px | E (1366×768 i 390×844, brak poziomego scrolla) |
+| F-47 | lightbox: ESC, strzałki, focus trap, swipe | E (dialog `role="dialog"`, powrót focusu, brak błędów konsoli); T: `A11yTest` (axe bez błędów critical/serious) |
+| F-48 | jeden UI: sidebar ≥1024 px, dolna nawigacja <1024 px | T: `MobileReleaseTest` (Dusk, brak poziomego scrolla na 390×844), `A11yTest`; E (1366×768 i 390×844) |
 | F-49 | brak wykrywania User-Agenta | T: `SecurityTest` (lista tras), przegląd kodu |
 | F-50 | audyt: jeden wpis na zmianę | T: `AcceptServiceTest`, `UpdateServiceTest`, `PhotosTest`, `CancelServiceTest` |
 | F-51 | logi dzienne, bez PII | T: `LogRedactionTest` (procesor na kanałach `single` i `daily`, maskowanie telefonu i hasła) |
@@ -144,10 +144,19 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
 
 ## 4. Czego nie dało się zweryfikować w tej iteracji
 
-- **Laravel Dusk** — 9 scenariuszy zielonych (`php artisan dusk`, ADR 0011). ChromeDriver pobrany
-  ręcznie jako binarka win64; `php artisan dusk:chrome-driver` nie działa na tej maszynie (brak CA w PHP CLI).
-- **axe-core** — plik nie jest dołączony do repo; audyt a11y ograniczony do przeglądu semantyki
-  (landmarki, etykiety, `aria-*`, focus trap w dialogu) i braku poziomego scrolla (test Dusk).
 - **Hosting właściciela** (PHP 8.2, `.htaccess`, cron, limit uploadu) — wymaga testu na staging (T0.2).
 - **Import danych produkcyjnych** — brak zrzutu; importer przetestowany na fiksturze
   (`tests/Fixtures/legacy-dump.sql`).
+- **UAT z właścicielem** (T8.5) i **próba rollbacku na staging** (T9.6) — wymagają dostępu do hostingu.
+
+Wszystko pozostałe jest zweryfikowane automatycznie:
+
+- **Laravel Dusk** — 15 scenariuszy zielonych (`php artisan dusk`, ADR 0011); ChromeDriver pobrany
+  ręcznie jako binarka win64 (`dusk:chrome-driver` wymaga CA w PHP CLI).
+- **axe-core** — 6 widoków (login, kolejka, formularz przyjęcia, karta zlecenia, panel kont,
+  formularz wydania) **bez błędów critical i serious**. axe jest statycznym plikiem
+  `public/js/axe.min.js` wstrzykiwanym przez `<script src>` (CSP zabrania inline), wykluczonym
+  z paczki wdrożeniowej (`build-release.ps1`).
+- **Wydajność (T7.4)** — `php artisan bench:queue --services=200`: 200 zleceń, 50 kart na stronie,
+  **p95 79,5 ms** przy magazynie JSON (cel z planu: < 300 ms). Pomiar obejmuje zapytanie do
+  repozytorium i render Blade, bez warstwy HTTP.
