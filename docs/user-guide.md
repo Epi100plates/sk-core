@@ -33,7 +33,8 @@ Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie 
   „Do wydania”. Nagłówek etapu ma licznik, a każdy kafelek — kolorowy pasek po lewej
   (grafit = w trakcie, żółty = oczekujące, pomarańczowy = czeka na części, zielony = do wydania).
 - Filtr etapów: kafle z liczbami nad listą. Dotknij etap (np. **Do wydania**) — pokażą się tylko
-  te zlecenia; **Pokaż wszystkie** czyści wybór. Adres z filtrem można wysłać koledze.
+  te zlecenia; dotknij go ponownie (albo **Pokaż wszystkie**) — wróci cała kolejka. Adres
+  z filtrem można wysłać koledze.
 - Na końcu listy: **Ostatnio wydane** (bez przycisków akcji); całe archiwum pod **Wydane**.
 - Na kafelku: **Rozpocznij naprawę / Oznacz do odbioru / Wznów naprawę** (zależnie od statusu)
   oraz **Szczegóły** (pełna karta z historią, zdjęciami i wydrukami).

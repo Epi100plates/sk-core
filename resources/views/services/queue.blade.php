@@ -15,8 +15,10 @@
      search, in the same box, instead of in a card of their own. It stays a
      region, so the server re-renders the counts, the hidden term and the reset
      link together with the list — the filter can never drift away from the list
-     it produced. Without JavaScript the radios still submit and the link clears
-     the choice. --}}
+     it produced. The chosen chip is a toggle: pressing it again drops the filter
+     (`data-filter-toggle`, see app.js), so the reset link is not the only way
+     out. Without JavaScript the radios still submit and the link clears the
+     choice. --}}
 @section('bar')
     <form class="app-bar__filter" method="get" action="{{ route('services.queue') }}"
           data-async-form data-async-on-change>
@@ -28,7 +30,7 @@
                 @foreach ($allStatuses as $status)
                     <label class="stat stat--filter" data-stage="{{ $status->value }}">
                         <input class="stat__input" type="radio" name="status" value="{{ $status->value }}"
-                               @checked($activeFilter === $status)>
+                               data-filter-toggle @checked($activeFilter === $status)>
                         <span class="stat__body">
                             <span class="stat__value">{{ $counts[$status->value] ?? 0 }}</span>
                             <span class="stat__label">{{ $status->label() }}</span>

@@ -607,6 +607,55 @@
         });
     }
 
+    /* A filter chip is a toggle: the same press that turns a stage on turns it
+       off again. A radio cannot be switched off by pressing it once more, so the
+       chip that matches the address bar drops its value instead of re-sending
+       it — the bar is the record of what is on, because every in-place update
+       replaces it (reflectUrl). */
+    function clearFilterByChip(chip) {
+        var url = new URL(window.location.href);
+
+        if (!chip.name || url.searchParams.get(chip.name) !== chip.value) {
+            return false;
+        }
+
+        url.searchParams.delete(chip.name);
+        url.searchParams.delete('page');
+
+        update(url.toString(), { trigger: chip });
+
+        return true;
+    }
+
+    function setupFilterToggles() {
+        document.addEventListener('click', function (event) {
+            var chip = closest(event.target, 'input[type="radio"][data-filter-toggle]');
+
+            if (chip) {
+                clearFilterByChip(chip);
+            }
+        });
+
+        /* Space on a radio that is already chosen fires no click (Chrome), so
+           the keyboard needs the same press handled here — otherwise a filter
+           could be switched on but never off without reaching for the link. */
+        document.addEventListener('keydown', function (event) {
+            if (event.repeat || event.key !== ' ') {
+                return;
+            }
+
+            var chip = closest(event.target, 'input[type="radio"][data-filter-toggle]');
+
+            if (!chip || !chip.checked) {
+                return;
+            }
+
+            if (clearFilterByChip(chip)) {
+                event.preventDefault();
+            }
+        });
+    }
+
     /* One search field, at the top of the page. On the queue it filters the list
        while typing (debounced, no Enter needed); on every other screen Enter
        opens the queue with the same term. An empty field brings the normal queue
@@ -703,6 +752,7 @@
         setupAsyncLinks();
         setupAsyncForms();
         setupAsyncChanges();
+        setupFilterToggles();
         setupLiveSearch();
         scheduleFlashDismissal();
     });

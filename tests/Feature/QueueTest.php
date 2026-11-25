@@ -224,8 +224,9 @@ it('keeps the search, the way out and the stage filter in one bar', function (st
     $user = $this->createUser('jan', Role::Employee);
     $this->acceptService($user, ['device_model' => 'Dell Latitude']);
 
-    $this->actingAsUser($user)->get('/?status=pending')
-        ->assertOk()
+    $response = $this->actingAsUser($user)->get('/?status=pending');
+
+    $response->assertOk()
         // The dark header is gone; one bar carries what it used to hold, and the
         // stage filter is its second row instead of a card of its own.
         ->assertDontSee('class="app-header"', false)
@@ -235,6 +236,11 @@ it('keeps the search, the way out and the stage filter in one bar', function (st
         ->assertSeeInOrder(['app-bar__title', 'Kolejka napraw'], false)
         ->assertSeeInOrder(['app-bar__row--filters', 'queue-filter', 'stat-strip'], false)
         ->assertSee('Pokaż wszystkie');
+
+    // Every chip is a toggle: the script clears the filter when the chosen one is
+    // pressed again (a radio alone cannot be switched off).
+    expect(substr_count((string) $response->getContent(), 'data-filter-toggle'))
+        ->toBe(count(ServiceStatus::activeCases()));
 })->with('stores');
 
 it('carries the same bar on every other screen', function (string $store) {

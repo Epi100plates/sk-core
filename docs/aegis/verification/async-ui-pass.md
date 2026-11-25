@@ -119,3 +119,31 @@ zmienną, więc jej obecność po akcji jest dowodem aktualizacji w miejscu.
 4. **Bardzo wolna sieć** — opóźnienie i anulowanie żądań sprawdzone lokalnie; zachowanie przy
    timeoutach operatora nie było symulowane (po błędzie pojawia się komunikat w `#async-status`,
    a fokus i treść zostają bez zmian).
+
+## Aktualizacja 2026-11-25 (kafelek etapu jako przełącznik)
+
+Zgłoszenie właściciela: „Odklikiwanie na górnej belce żeby wyłącz filtrowanie po tej kategorii
+ma też działać, po kliknięciu w dany kafelek filtr ma się włączać, a po odkliknięciu ma się
+wyłączać”. Radio nie odznacza się od drugiego kliknięcia, więc dotąd jedynym wyjściem był link
+**Pokaż wszystkie**.
+
+**Co doszło:** `data-filter-toggle` na radiach etapów i 40 linii w `app.js`
+(`clearFilterByChip`). Kafelek, którego wartość jest w adresie (a nie „zaznaczony”, bo przeglądarka
+zaznacza radio **przed** wysłaniem zdarzenia `click`), zdejmuje `status` i `page` z adresu
+i odświeża oba regiony tą samą warstwą — fraza `q` zostaje. Spacja na wybranym radiu nie wysyła
+w Chrome zdarzenia `click`, więc klawiatura ma tę samą czynność na `keydown` (z `preventDefault`,
+żeby strona nie skoczyła). Bez JavaScriptu radia nadal wysyłają formularz, a link czyści wybór.
+
+| Akcja (Chrome, `127.0.0.1:8123`, dane deweloperskie) | Wynik |
+|---|---|
+| kafel „W trakcie naprawy” → ten sam kafel | `?status=in_progress` (4 karty) → `/?`, 22 karty, żaden kafelek nie zaznaczony, link „Pokaż wszystkie” zniknął, `__probe` żyje, fokus na radiu `in_progress`, `#async-status` = „22 zlecenia” |
+| to samo po wpisaniu `dell` | `?q=dell&status=pending` (1 karta) → `?q=dell` (6 kart), ukryte `q` nadal `dell`, `__probe` żyje |
+| kafel „Czeka na części” (0 trafień) → ten sam kafel | `?status=awaiting_parts` (0 kart) → `/?`, 22 karty |
+| Spacja na wybranym radiu (klawiatura) | filtr wyłączony, adres `/?`, 22 karty, `scrollY` nadal 0, fokus na tym samym radiu |
+| sieć | jedno żądanie `GET` na kliknięcie (6 kliknięć = 6 żądań), konsola 0 błędów i 0 ostrzeżeń |
+
+Bramki: `php artisan test` **315 passed (1295 assertions)** (json + mysql), `php artisan dusk`
+**17 passed (70 assertions)** (w tym 6 audytów axe), Pint **PASS (159 plików)**, PHPStan poziom 6
+**bez błędów**. Regresję pilnują: `QueueTest` (liczba kafelków z `data-filter-toggle` równa liczbie
+etapów) i `AsyncQueueTest` (klik w wybrany kafel zdejmuje `status` z adresu bez przeładowania).
+

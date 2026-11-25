@@ -56,9 +56,19 @@ final class AsyncQueueTest extends DuskTestCase
                 ->assertQueryStringHas('status', 'in_progress')
                 ->assertScript('window.__serwisProbe === "alive"');
 
-            // "Pokaż wszystkie" brings the whole queue back the same way.
-            $browser->clickLink('Pokaż wszystkie')
+            // The same chip pressed again turns the filter off: a chip that can
+            // only be switched on is a trap.
+            $browser->click('.stat[data-stage="in_progress"]')
                 ->waitForText($pending)
+                ->assertQueryStringMissing('status')
+                ->assertScript('window.__serwisProbe === "alive"');
+
+            // "Pokaż wszystkie" brings the whole queue back the same way.
+            $browser->click('.stat[data-stage="in_progress"]')
+                ->waitUntilMissingText($pending)
+                ->clickLink('Pokaż wszystkie')
+                ->waitForText($pending)
+                ->assertQueryStringMissing('status')
                 ->assertScript('window.__serwisProbe === "alive"');
 
             // Pagination swaps only the list: page two holds the 51st result.

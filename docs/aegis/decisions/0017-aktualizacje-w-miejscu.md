@@ -65,11 +65,20 @@ blokada konta w administracji, dodanie i usunięcie zdjęcia. Skutki były odczu
 8. **Komunikat flash znika sam po 6 sekundach** (tylko sukces i ostrzeżenie; błędy zostają).
    Przy aktualizacji w miejscu stary baner wisiałby nad nowym wynikiem i sugerował, że dotyczy
    właśnie wykonanej czynności.
+9. **Kafelek etapu jest przełącznikiem** (`data-filter-toggle`). Ten sam klik, który włącza filtr,
+   wyłącza go: kafelek, którego wartość jest w adresie, zdejmuje `status` (i `page`) i odświeża oba
+   regiony — fraza `q` zostaje. Adres jest tu źródłem prawdy, a nie właściwość `checked`, bo
+   przeglądarka zaznacza radio **przed** wysłaniem `click`. Spacja na wybranym radiu nie wysyła
+   w Chrome zdarzenia `click`, więc klawiatura ma tę samą czynność na `keydown`; inaczej filtr
+   dałoby się włączyć, ale nie wyłączyć bez sięgania po link. „Pokaż wszystkie” zostaje jako
+   widoczna droga wyjścia i jedyna bez JavaScriptu.
 
 ## Konsekwencje
 
 - **Mniej przeładowań i mniej utraconego kontekstu**: filtr, paginacja, „Dalej”, blokada konta
   i zdjęcia nie przewijają strony na górę, nie gubią fokusu i nie migoczą.
+- **Filtr etapu włącza się i wyłącza tym samym kafelkiem** (także Spacją), a wpisana fraza
+  zostaje — zdejmowana jest tylko wartość `status` i numer strony.
 - **Jeden mechanizm do utrzymania**: nowa lista dodaje region i atrybut, a nie kolejną funkcję
   w `app.js`. Nie ma już drugiego endpointu do trzymania w testach gościa i w polityce nagłówków.
 - **Bez nowych zależności i bez kroku budowania**: nadal vanilla JS w jednym pliku, CSP bez
