@@ -159,3 +159,28 @@ widok (wynik w [runtime-verification.md](runtime-verification.md)).
 > Regresję pilnuje `QueueTest` („labels every fact on a tile so no value stands alone”).
 > `ASSET_VERSION` doszedł do 21.
 
+> **Aktualizacja 2026-11-25 (jeden pasek zamiast nagłówka):** grafitowy nagłówek zniknął —
+> logo przeniosło się do sidebara (znak SK, 28 px), a wszystko, co niósł nagłówek (szukanie,
+> „Przyjmij”, użytkownik, „Wyloguj”), plus tytuł ekranu i filtr etapów, mieści się teraz w jednej
+> karcie `.app-bar` nad listą. Na kolejce tytuł i data stanu warsztatu stoją w pierwszym wierszu
+> paska, filtr etapów jest jego drugim wierszem (chipsy w jednej linii zamiast czterech kolumn),
+> a „Pokaż wszystkie” linkiem w tym samym wierszu. Pozostałe ekrany zachowują swój `page-head` —
+> pasek jest wspólny, tytuł nie. Paska nie przyklejono: sticky pasek z filtrem zabierałby 95 px
+> każdego ekranu przewijania. Decyzja: [0018](../decisions/0018-jeden-pasek-zamiast-naglowka.md).
+>
+> Zmierzone w Chromium 158 (`document.documentElement`, brak poziomego przewijania 360–1600 px):
+>
+> | | przed | po | różnica |
+> | --- | --- | --- | --- |
+> | pierwszy kafelek, 1440×900 | 374 px | 156 px | −218 px |
+> | pierwszy kafelek, 390×844 | 441 px | 252 px | −189 px |
+> | wysokość dokumentu, 390×844 | 1285 px | 1096 px | −189 px |
+> | pasek nad listą, 1440 | 78 + 67 + 142 px | 95 px (dwa wiersze) | −192 px |
+>
+> Wysokość paska według szerokości okna: **195 px** na 360 (tytuł z wyjściem, szukanie pełną
+> szerokością, chipsy w dwóch rzędach), **99 px** na 768 i 1024 (jeden wiersz + chipsy),
+> **95 px** na 1440 i 1600 (data stanu warsztatu wraca od 1200 px). Filtr etapów zajmuje 619 px
+> w jednej linii, więc obok zostaje miejsce na „Pokaż wszystkie”. Regresję pilnuje `QueueTest`
+> („keeps the search, the way out and the stage filter in one bar”, „carries the same bar on
+> every other screen”). `ASSET_VERSION` doszedł do 28.
+

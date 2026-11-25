@@ -23,51 +23,16 @@
     Brak połączenia z internetem — zmiany są zablokowane. Wróć do zasięgu i odśwież stronę.
 </div>
 
-<header class="app-header">
-    <div class="app-header__inner">
-        <a class="app-brand" href="{{ route('services.queue') }}">
-            <img src="{{ asset('brand/studio-komp-logo-trim.png') }}" alt="Studio-Komp — serwis laptopów">
-        </a>
-
-        <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
-              data-live-search>
-            <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
-            <input class="form-control" id="global-search" type="search"
-                   name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
-                   placeholder="Model, telefon, plomba…" autocomplete="off"
-                   inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false"
-                   aria-describedby="global-search-hint">
-            @if (is_string(request('status')))
-                <input type="hidden" name="status" value="{{ request('status') }}">
-            @endif
-            <button class="btn btn-outline-light" type="submit">
-                <x-icon name="search" :size="16" />
-                <span class="visually-hidden">Szukaj</span>
-            </button>
-            <span class="visually-hidden" id="global-search-hint">Od 3 znaków lista filtruje się sama.</span>
-        </form>
-
-        <div class="app-header__actions">
-            <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
-                <x-icon name="plus" :size="16" />
-                <span class="btn-label">Przyjmij</span>
-            </a>
-            @auth
-                <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
-                <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>
-                    @csrf
-                    <button class="app-header__logout" type="submit" aria-label="Wyloguj z aplikacji">
-                        <x-icon name="logout" :size="15" />
-                        <span class="btn-label">Wyloguj</span>
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </div>
-</header>
-
+{{-- No dark header: the brand moved to the sidebar and everything the header
+     carried (search, the way in, the way out) lives in one compact bar above
+     the content. The queue adds its stage filter as a second row of that bar,
+     so the counts and the controls arrive together instead of in two boxes. --}}
 <div class="app-shell">
     <nav class="app-sidebar" aria-label="Nawigacja główna">
+        <a class="app-sidebar__brand" href="{{ route('services.queue') }}">
+            <img src="{{ asset('brand/studio-komp-mark.png') }}" alt="Studio-Komp — serwis laptopów">
+        </a>
+
         <p class="app-sidebar__label eyebrow">Zlecenia</p>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -114,6 +79,53 @@
     </nav>
 
     <main class="app-main" id="main">
+        <div class="app-bar">
+            <div class="app-bar__row">
+                @hasSection('bar-title')
+                    <div class="app-bar__title">@yield('bar-title')</div>
+                @endif
+
+                <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
+                      data-live-search>
+                    <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
+                    <input class="form-control" id="global-search" type="search"
+                           name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
+                           placeholder="Model, telefon, plomba…" autocomplete="off"
+                           inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false"
+                           aria-describedby="global-search-hint">
+                    @if (is_string(request('status')))
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                    @endif
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <x-icon name="search" :size="16" />
+                        <span class="visually-hidden">Szukaj</span>
+                    </button>
+                    <span class="visually-hidden" id="global-search-hint">Od 3 znaków lista filtruje się sama.</span>
+                </form>
+
+                <div class="app-bar__actions">
+                    <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
+                        <x-icon name="plus" :size="16" />
+                        <span class="btn-label">Przyjmij</span>
+                    </a>
+                    @auth
+                        <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
+                        <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>
+                            @csrf
+                            <button class="app-bar__logout" type="submit" aria-label="Wyloguj z aplikacji">
+                                <x-icon name="logout" :size="15" />
+                                <span class="btn-label">Wyloguj</span>
+                            </button>
+                        </form>
+                    @endauth
+                </div>
+            </div>
+
+            @hasSection('bar')
+                <div class="app-bar__row app-bar__row--filters">@yield('bar')</div>
+            @endif
+        </div>
+
         {{-- The async layer swaps this region, so a message from the previous
              action never stays on screen next to the result of the new one. --}}
         <div data-async-region="flash">

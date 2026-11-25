@@ -218,6 +218,39 @@ it('marks the stage strip and the list as async regions', function (string $stor
         ->assertSee('data-async-region="flash"', false);
 })->with('stores');
 
+it('keeps the search, the way out and the stage filter in one bar', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, ['device_model' => 'Dell Latitude']);
+
+    $this->actingAsUser($user)->get('/?status=pending')
+        ->assertOk()
+        // The dark header is gone; one bar carries what it used to hold, and the
+        // stage filter is its second row instead of a card of its own.
+        ->assertDontSee('class="app-header"', false)
+        ->assertSee('class="app-bar"', false)
+        ->assertSee('id="global-search"', false)
+        ->assertSee('aria-label="Wyloguj z aplikacji"', false)
+        ->assertSeeInOrder(['app-bar__title', 'Kolejka napraw'], false)
+        ->assertSeeInOrder(['app-bar__row--filters', 'queue-filter', 'stat-strip'], false)
+        ->assertSee('Pokaż wszystkie');
+})->with('stores');
+
+it('carries the same bar on every other screen', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->get('/services/create')
+        ->assertOk()
+        ->assertSee('class="app-bar"', false)
+        ->assertSee('id="global-search"', false)
+        ->assertSee('aria-label="Wyloguj z aplikacji"', false)
+        // Only the queue has stages to filter, so only it fills the second row.
+        ->assertDontSee('app-bar__row--filters', false);
+})->with('stores');
+
 it('no longer serves a separate list fragment', function (string $store) {
     usingStore($this, $store);
 

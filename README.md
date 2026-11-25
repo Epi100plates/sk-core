@@ -74,17 +74,18 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 311 testów: json + mysql
+php artisan test                 # 315 testów: json + mysql
 php artisan dusk                 # 17 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-25: **311 testów zielonych w obu trybach magazynu** + **17 scenariuszy Dusk (z axe)**,
+Stan na 2026-11-25: **315 testów zielonych w obu trybach magazynu** + **17 scenariuszy Dusk (z axe)**,
 Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
 Wyrównanie wizualne ze stroną firmową: [docs/aegis/verification/visual-alignment.md](docs/aegis/verification/visual-alignment.md).
 Treść, przepływy i bezpieczeństwo (przebudowa ekranów): [docs/aegis/verification/content-and-security-pass.md](docs/aegis/verification/content-and-security-pass.md).
 Kolejka, filtr etapów i jedno wyszukiwanie: [docs/aegis/verification/queue-usability-pass.md](docs/aegis/verification/queue-usability-pass.md).
 Aktualizacje w miejscu (filtr, paginacja, „Dalej”, zdjęcia): [docs/aegis/verification/async-ui-pass.md](docs/aegis/verification/async-ui-pass.md).
+Jeden pasek zamiast nagłówka (szukanie, akcje i filtr etapów w jednej karcie): [ADR 0018](docs/aegis/decisions/0018-jeden-pasek-zamiast-naglowka.md).
 
 ### Testy przeglądarkowe (Dusk)
 
