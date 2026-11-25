@@ -19,6 +19,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Deployment runs under a subdirectory (APP_URL=https://example.com/serwis),
+             and such a URL makes the test HTTP client prefix every request path, so
+             each call 404s. Tests must not inherit the deployment URL. -->
+        <env name="APP_URL" value="http://localhost"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
