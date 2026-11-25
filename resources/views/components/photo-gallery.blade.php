@@ -19,7 +19,10 @@
                           data-confirm="Usunąć to zdjęcie?" data-guard-submit>
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-sm btn-danger" type="submit" aria-label="Usuń zdjęcie {{ $loop->iteration }}">✕</button>
+                        <button class="btn btn-sm btn-light photo-remove" type="submit"
+                                aria-label="Usuń zdjęcie {{ $loop->iteration }}">
+                            <x-icon name="x" :size="13" />
+                        </button>
                     </form>
                 @endif
             </div>

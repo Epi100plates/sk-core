@@ -30,6 +30,12 @@ packages.json
 /backups
 /_runtime
 /old-app
+/_release
+
+# Reference material from the marketing site (source of the brand assets that
+# were copied into public/brand and public/fonts). Kept out of the repository.
+/Piotrekv3
+/Piotrekv3.7z
 
 .env.dusk*
 

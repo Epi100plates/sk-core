@@ -3,9 +3,17 @@
 @section('title', 'Użytkownicy')
 
 @section('content')
-    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
-        <h1 class="h5 mb-0">Użytkownicy</h1>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.users.create') }}">+ Nowe konto</a>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Administracja · {{ $page->total }} kont</span>
+            <h1 class="page-title">Użytkownicy</h1>
+            <p class="page-head__meta">Konta pracowników, techników i administratorów serwisu.</p>
+        </div>
+        <div class="page-head__aside">
+            <a class="btn btn-primary btn-sm" href="{{ route('admin.users.create') }}">
+                <x-icon name="plus" :size="15" /> Nowe konto
+            </a>
+        </div>
     </div>
 
     <div class="app-card mb-3">
@@ -30,9 +38,9 @@
                                 <td>{{ $user->role->label() }}</td>
                                 <td>
                                     @if ($user->isActive)
-                                        <span class="badge text-bg-success">aktywne</span>
+                                        <span class="badge text-bg-info">aktywne</span>
                                     @else
-                                        <span class="badge text-bg-secondary">zablokowane</span>
+                                        <span class="badge text-bg-danger">zablokowane</span>
                                     @endif
                                     @if ($user->mustChangePassword)
                                         <span class="badge text-bg-warning">zmiana hasła</span>

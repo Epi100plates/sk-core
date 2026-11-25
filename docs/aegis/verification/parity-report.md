@@ -141,6 +141,9 @@ Legenda: **T** = test automatyczny (Pest), **E** = weryfikacja w przeglądarce (
    klientowi). Plan dopuszczał „ustawia/odświeża” — wybrano semantykę „ustawia przy pierwszym wydruku”.
 5. **Wersja `reference` w MySQL**: licznik oparty o maksimum numeru w roku; unikalny indeks chroni
    przed duplikatem, ale dwa jednoczesne przyjęcia mogą zakończyć się błędem zapisu (JSON: licznik pod `flock`).
+6. **Warstwa wizualna** (2026-11-25): interfejs przepisany na tokeny marki ze strony firmowej
+   (ADR 0014). Nie zmienia funkcji F-01…F-57 — zmienia wygląd, układ i ikony; dowody i granice:
+   [`visual-alignment.md`](visual-alignment.md).
 
 ## 4. Czego nie dało się zweryfikować w tej iteracji
 

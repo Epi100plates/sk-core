@@ -10,59 +10,64 @@
 @endphp
 
 <article class="app-card service-card mb-3 {{ $service->isExpress ? 'is-express' : '' }} {{ $isFinal ? 'is-final' : '' }}">
-    <div class="app-card-body">
-        <div class="d-flex flex-wrap gap-2 align-items-start justify-content-between mb-2">
-            <div>
-                <h2 class="h6 mb-1">
-                    <a class="text-decoration-none" href="{{ route('services.show', $service) }}">{{ $service->deviceModel }}</a>
-                    @if ($service->isExpress)
-                        <span class="badge text-bg-danger">EXPRESS</span>
-                    @endif
-                    @if ($service->hasIssuedConfirmation())
-                        <span class="badge text-bg-secondary" title="Potwierdzenie przyjęcia zostało wydane">🖨 potwierdzenie wydane</span>
-                    @endif
-                </h2>
-                <p class="service-meta mb-0">
-                    {{ $service->reference }}
-                    @if ($service->sealNumber !== null)
-                        · plomba {{ $service->sealNumber }}
-                    @endif
-                </p>
-            </div>
+    <div class="ticket__bar">
+        <span class="ticket__ref">
+            {{ $service->reference }}
+            @if ($service->sealNumber !== null)
+                · plomba {{ $service->sealNumber }}
+            @endif
+        </span>
+        <span class="ticket__flags">
+            @if ($service->isExpress)
+                <span class="badge badge-express">Express</span>
+            @endif
+            @if ($service->hasIssuedConfirmation())
+                <span class="badge text-bg-secondary" title="Potwierdzenie przyjęcia zostało wydane">
+                    <x-icon name="print" :size="11" /> potwierdzenie wydane
+                </span>
+            @endif
+        </span>
+    </div>
+
+    <div class="ticket__body">
+        <div class="ticket__head">
+            <h2 class="ticket__title">
+                <a href="{{ route('services.show', $service) }}">{{ $service->deviceModel }}</a>
+            </h2>
             <x-status-badge :status="$service->status" />
         </div>
 
-        <dl class="row mb-2 service-meta">
-            <dt class="col-5 col-sm-3">Telefon</dt>
-            <dd class="col-7 col-sm-3 mb-1">{{ $service->displayPhone() }}</dd>
-
-            <dt class="col-5 col-sm-3">Termin</dt>
-            <dd class="col-7 col-sm-3 mb-1">{{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</dd>
-
-            <dt class="col-5 col-sm-3">Cena</dt>
-            <dd class="col-7 col-sm-3 mb-1"><x-money :value="$service->price" /></dd>
-
-            <dt class="col-5 col-sm-3">Koszt części</dt>
-            <dd class="col-7 col-sm-3 mb-1"><x-money :value="$service->cost" /></dd>
+        <dl class="data-rows data-rows--split">
+            <div class="data-row">
+                <dt>Telefon</dt>
+                <dd>{{ $service->displayPhone() }}</dd>
+            </div>
+            <div class="data-row">
+                <dt>Termin</dt>
+                <dd>{{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</dd>
+            </div>
+            <div class="data-row">
+                <dt>Cena / koszt części</dt>
+                <dd><x-money :value="$service->price" /> / <x-money :value="$service->cost" /></dd>
+            </div>
+            <div class="data-row">
+                <dt>Hasło do urządzenia</dt>
+                <dd><x-device-password :password="$service->devicePassword" :field-id="'password-'.$service->id" /></dd>
+            </div>
         </dl>
 
         @unless ($compact)
-            <p class="service-issue mb-2">{{ \Illuminate\Support\Str::limit($service->issue, 180) }}</p>
+            <p class="ticket__issue">{{ \Illuminate\Support\Str::limit($service->issue, 180) }}</p>
         @endunless
 
-        <p class="service-meta mb-2">
-            Hasło do urządzenia:
-            <x-device-password :password="$service->devicePassword" :field-id="'password-'.$service->id" />
-        </p>
-
-        <div class="d-flex flex-wrap gap-2">
+        <div class="ticket__actions">
             <a class="btn btn-sm btn-outline-primary" href="{{ route('services.show', $service) }}">Otwórz</a>
 
             @if (! $isFinal && $next instanceof \App\Domain\Enums\ServiceStatus)
                 @can('advance', $service)
                     <form method="post" action="{{ route('services.advance', $service) }}" data-guard-submit>
                         @csrf
-                        <button class="btn btn-sm btn-primary" type="submit">{{ $service->status->advanceLabel() }} →</button>
+                        <button class="btn btn-sm btn-primary" type="submit">{{ $service->status->advanceLabel() }}</button>
                     </form>
                 @endcan
             @endif
@@ -74,7 +79,7 @@
             @endif
 
             @if ($service->status === \App\Domain\Enums\ServiceStatus::Released && $service->releasedAt !== null)
-                <span class="service-meta align-self-center">
+                <span class="service-meta ms-auto">
                     wydano {{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}
                 </span>
             @endif

@@ -25,8 +25,8 @@ final class ManifestController extends Controller
             'scope' => url('/'),
             'display' => 'standalone',
             'orientation' => 'portrait-primary',
-            'background_color' => '#f4f6f8',
-            'theme_color' => '#0d3b66',
+            'background_color' => '#f4f5f2',
+            'theme_color' => '#2d343a',
             'lang' => 'pl',
             'icons' => [
                 ['src' => asset('icons/icon-96.png').'?v='.$version, 'sizes' => '96x96', 'type' => 'image/png', 'purpose' => 'any'],

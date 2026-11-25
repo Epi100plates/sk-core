@@ -3,14 +3,20 @@
 @section('title', 'Instalacja')
 
 @section('content')
-    <h1 class="h5 mb-3">Instalacja aplikacji</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Instalacja</span>
+            <h1 class="page-title">Aplikacja zainicjowana</h1>
+            <p class="page-head__meta">Jednorazowy ekran instalacji — po ustawieniu konta możesz go wyłączyć.</p>
+        </div>
+    </div>
 
     <div class="app-card">
         <div class="app-card-body">
             <p>
                 Aktywny magazyn danych: <strong>{{ $result->driver }}</strong>
                 @if ($result->schemaCreated)
-                    <span class="badge text-bg-success">schemat gotowy</span>
+                    <span class="badge text-bg-info">schemat gotowy</span>
                 @endif
             </p>
 
@@ -31,7 +37,7 @@
                 aby ta strona przestała istnieć.
             </p>
         </div>
-        <div class="app-card-header border-top-0">
+        <div class="app-card-footer">
             <a class="btn btn-primary" href="{{ route('login') }}">Przejdź do logowania</a>
         </div>
     </div>

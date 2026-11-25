@@ -148,8 +148,8 @@
         </div>
     </div>
 
-    <div class="app-card-header border-top-0">
-        <a class="btn btn-link" href="{{ $isEdit ? route('services.show', $service) : route('services.queue') }}">Anuluj</a>
+    <div class="app-card-footer">
+        <a class="btn btn-link me-auto" href="{{ $isEdit ? route('services.show', $service) : route('services.queue') }}">Anuluj</a>
         <button class="btn btn-primary" type="submit">{{ $submitLabel }}</button>
     </div>
 </form>

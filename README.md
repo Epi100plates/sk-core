@@ -15,6 +15,23 @@ Decyzje architektoniczne: [`docs/aegis/decisions/`](docs/aegis/decisions/).
 - **Bez Node.js i bez Pythona.** W repozytorium nie ma `package.json`, `node_modules` ani `.py`.
 - Testy: **Pest** (feature/unit) w dwóch magazynach danych; jakość: **Pint**, **PHPStan 6** (Larastan).
 
+## Warstwa wizualna
+
+Aplikacja używa tokenów marki ze strony **studio-komp.pl** (decyzja
+[ADR 0014](docs/aegis/decisions/0014-warstwa-wizualna.md)): grafit `#2d343a`, żółty sygnałowy
+`#ffd400`, tło `#f4f5f2`, promień 1 px, włoskowate linie zamiast cieni.
+
+| Element | Gdzie |
+|---|---|
+| Tokeny, komponenty, siatka | `public/css/app.css` (jeden arkusz; Bootstrap dostarcza tylko grid i utility) |
+| Fonty (lokalnie, bez CDN) | `public/fonts`: Schibsted Grotesk (variable) + IBM Plex Mono 400/500, łacina i latin-ext |
+| Logo i znak marki | `public/brand`: wersja na ciemnym tle (nagłówek, logowanie) i znak SK (ikony PWA, wydruki) |
+| Ikony interfejsu | inline SVG w `resources/views/components/icon.blade.php` (1,5 px kreska, `currentColor`) |
+| Wydruki A4 | `public/css/print.css` z tymi samymi tokenami i fontami |
+
+Zmiana CSS/JS wymaga podbicia `ASSET_VERSION` w `.env` — od tego zależą `?v=` w adresach oraz
+cache service workera. Wizualne zasady i granice: [`docs/aegis/verification/visual-alignment.md`](docs/aegis/verification/visual-alignment.md).
+
 ## Magazyn danych (F-57)
 
 Dane trzyma się w jednym z dwóch magazynów, wybieranym w `.env`:
@@ -57,13 +74,14 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 255 testów: json + mysql
+php artisan test                 # 257 testów: json + mysql
 php artisan dusk                 # 15 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-02: **255 testów zielonych w obu trybach magazynu** + **15 scenariuszy Dusk (z axe)**,
+Stan na 2026-11-25: **257 testów zielonych w obu trybach magazynu** + **15 scenariuszy Dusk (z axe)**,
 Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
+Wyrównanie wizualne ze stroną firmową: [`docs/aegis/verification/visual-alignment.md`](docs/aegis/verification/visual-alignment.md).
 
 ### Testy przeglądarkowe (Dusk)
 

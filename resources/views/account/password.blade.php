@@ -3,14 +3,20 @@
 @section('title', 'Hasło')
 
 @section('content')
-    <h1 class="h5 mb-3">Zmiana hasła</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Konto · {{ $user->login }}</span>
+            <h1 class="page-title">Zmiana hasła</h1>
+            <p class="page-head__meta">Minimum 12 znaków. Po zmianie pozostajesz zalogowany.</p>
+        </div>
+    </div>
 
     <form class="app-card" method="post" action="{{ route('account.password.update') }}" data-guard-submit>
         @csrf
         @method('PUT')
 
         <div class="app-card-body">
-            <p class="service-meta">
+            <p class="service-meta mb-3">
                 Konto: <strong>{{ $user->login }}</strong> ({{ $user->role->label() }})
             </p>
 
@@ -40,8 +46,8 @@
             </div>
         </div>
 
-        <div class="app-card-header border-top-0">
-            <a class="btn btn-link" href="{{ route('services.queue') }}">Wróć do kolejki</a>
+        <div class="app-card-footer">
+            <a class="btn btn-link me-auto" href="{{ route('services.queue') }}">Wróć do kolejki</a>
             <button class="btn btn-primary" type="submit">Zmień hasło</button>
         </div>
     </form>

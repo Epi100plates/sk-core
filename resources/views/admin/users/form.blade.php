@@ -3,7 +3,13 @@
 @section('title', $user === null ? 'Nowe konto' : 'Edycja konta')
 
 @section('content')
-    <h1 class="h5 mb-3">{{ $user === null ? 'Nowe konto pracownika' : 'Edycja konta '.$user->login }}</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Administracja · konta</span>
+            <h1 class="page-title">{{ $user === null ? 'Nowe konto pracownika' : 'Edycja konta '.$user->login }}</h1>
+            <p class="page-head__meta">Hasło startowe przekaż pracownikowi — zmieni je przy pierwszym logowaniu.</p>
+        </div>
+    </div>
 
     <form class="app-card" method="post"
           action="{{ $user === null ? route('admin.users.store') : route('admin.users.update', $user) }}"
@@ -72,8 +78,8 @@
             </div>
         </div>
 
-        <div class="app-card-header border-top-0">
-            <a class="btn btn-link" href="{{ route('admin.users.index') }}">Anuluj</a>
+        <div class="app-card-footer">
+            <a class="btn btn-link me-auto" href="{{ route('admin.users.index') }}">Anuluj</a>
             <button class="btn btn-primary" type="submit">{{ $user === null ? 'Utwórz konto' : 'Zapisz zmiany' }}</button>
         </div>
     </form>

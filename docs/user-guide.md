@@ -13,7 +13,8 @@ Po 5 nieudanych próbach logowanie jest zablokowane na 15 minut.
 
 ## Przyjęcie laptopa (3 dotknięcia)
 
-1. Przycisk **+ Przyjmij** (na telefonie: „Przyjmij” na dolnym pasku).
+1. Przycisk **Przyjmij** w nagłówku (na telefonie: „Przyjmij” na dolnym pasku) albo
+   **Przyjmij laptopa** nad kolejką.
 2. Wypełnij: telefon klienta, model, usterkę, termin realizacji (domyślnie jutro 15:00).
    Opcjonalnie: numer seryjny, hasło do urządzenia, numer plomby, uwagi, cena, koszt części.
 3. Zaznacz **Express**, jeśli zlecenie ma priorytet, oraz **Wydrukuj potwierdzenie przyjęcia**,
@@ -30,7 +31,8 @@ Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie 
 - Na górze lista aktywnych zleceń: najpierw **express**, potem „w trakcie naprawy”,
   „oczekujące”, „czeka na części”, „do wydania”.
 - Na końcu listy: **Ostatnio wydane** (bez przycisków akcji).
-- Filtry statusu: zaznacz i kliknij **Zastosuj filtr** — link można wysłać koledze.
+- Filtry statusu: kafle z liczbami nad listą. Dotknij status (np. **Do wydania**), a potem
+  **Zastosuj filtr** — adres z filtrem można wysłać koledze.
 - Na karcie: **Rozpocznij naprawę / Oznacz do odbioru / Wznów naprawę** (zależnie od statusu).
 
 ## Wyszukiwanie

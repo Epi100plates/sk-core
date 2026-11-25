@@ -88,6 +88,24 @@ final class FieldLabels
 
     public static function formatDate(mixed $value): string
     {
+        $date = self::toDisplayDate($value);
+
+        return $date instanceof \DateTimeInterface ? $date->format('d.m.Y H:i') : self::fallback($value);
+    }
+
+    /**
+     * Date without the time — for weekday/day group headers, where "01:00" would
+     * only be an artefact of the UTC midnight.
+     */
+    public static function formatDay(mixed $value): string
+    {
+        $date = self::toDisplayDate($value);
+
+        return $date instanceof \DateTimeInterface ? $date->format('d.m.Y') : self::fallback($value);
+    }
+
+    private static function toDisplayDate(mixed $value): ?\DateTimeInterface
+    {
         try {
             if ($value instanceof CarbonImmutable) {
                 $date = $value;
@@ -96,13 +114,18 @@ final class FieldLabels
             } elseif (is_scalar($value)) {
                 $date = CarbonImmutable::parse((string) $value, 'UTC');
             } else {
-                return '—';
+                return null;
             }
         } catch (Throwable) {
-            return is_scalar($value) ? (string) $value : '—';
+            return null;
         }
 
-        return $date->timezone(self::displayTimezone())->format('d.m.Y H:i');
+        return $date->timezone(self::displayTimezone());
+    }
+
+    private static function fallback(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '—';
     }
 
     public static function displayTimezone(): string

@@ -28,6 +28,13 @@ it('formats winter dates with the winter offset', function () {
         ->toBe('15.01.2026 16:00');
 });
 
+it('formats a day header without a misleading time', function () {
+    config(['app.display_timezone' => 'Europe/Warsaw']);
+
+    // Midnight UTC is 01:00 in Warsaw; a day group must not show that as the release time.
+    expect(FieldLabels::formatDay('2026-11-02 00:00:00'))->toBe('02.11.2026');
+});
+
 it('translates field names for the history panel', function () {
     expect(FieldLabels::label('planned_at'))->toBe('Termin realizacji')
         ->and(FieldLabels::label('cost'))->toBe('Koszt części')

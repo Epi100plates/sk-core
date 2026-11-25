@@ -23,7 +23,7 @@ final class MobileReleaseTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser, 'dusk-employee', 'DuskHaslo1234')
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'HP EliteBook 840')

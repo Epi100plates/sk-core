@@ -3,9 +3,18 @@
 @section('title', 'Edycja '.$service->reference)
 
 @section('content')
-    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
-        <h1 class="h5 mb-0">Edycja zlecenia {{ $service->reference }}</h1>
-        <x-status-badge :status="$service->status" />
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Edycja zlecenia · {{ $service->reference }}</span>
+            <h1 class="page-title">{{ $service->deviceModel }}</h1>
+            <p class="page-head__meta">
+                Każda zmiana trafia do historii zlecenia.
+            </p>
+        </div>
+        <div class="page-head__aside">
+            <x-status-badge :status="$service->status" />
+            <a class="btn btn-sm btn-outline-secondary" href="{{ route('services.show', $service) }}">Wróć do zlecenia</a>
+        </div>
     </div>
 
     <x-service-form

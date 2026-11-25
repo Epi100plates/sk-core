@@ -3,31 +3,56 @@
 @section('title', 'Wydanie '.$service->reference)
 
 @section('content')
-    <h1 class="h5 mb-3">Wydanie zlecenia {{ $service->reference }}</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Wydanie zlecenia · {{ $service->reference }}</span>
+            <h1 class="page-title">Protokół wydania</h1>
+            <p class="page-head__meta">
+                Potwierdź dane, uzupełnij cenę końcową i wydaj sprzęt klientowi.
+            </p>
+        </div>
+        <div class="page-head__aside">
+            <x-status-badge :status="$service->status" />
+        </div>
+    </div>
 
     <div class="row g-3">
         <div class="col-12 col-lg-7">
+            <aside class="docket mb-3" aria-label="Podsumowanie zlecenia">
+                <p class="docket__label">
+                    <span>Zlecenie serwisowe</span>
+                    <span>Wydanie</span>
+                </p>
+                <p class="docket__reference">{{ $service->reference }}</p>
+                <dl class="docket__rows">
+                    <div class="docket__row">
+                        <dt>Model</dt>
+                        <dd>{{ $service->deviceModel }}</dd>
+                    </div>
+                    <div class="docket__row">
+                        <dt>Telefon</dt>
+                        <dd>{{ $service->displayPhone() }}</dd>
+                    </div>
+                    <div class="docket__row">
+                        <dt>Usterka</dt>
+                        <dd>{{ \Illuminate\Support\Str::limit($service->issue, 90) }}</dd>
+                    </div>
+                    <div class="docket__row">
+                        <dt>Przyjęto</dt>
+                        <dd>{{ \App\Domain\FieldLabels::formatDate($service->acceptedAt) }}</dd>
+                    </div>
+                </dl>
+            </aside>
+
             <form method="post" action="{{ route('services.release.store', $service) }}" class="app-card"
                   data-guard-submit data-offline-blocked>
                 @csrf
 
                 <div class="app-card-header">
-                    <h2 class="h6 mb-0">Protokół wydania</h2>
-                    <x-status-badge :status="$service->status" />
+                    <h2 class="h6">Dane wydania</h2>
                 </div>
 
                 <div class="app-card-body">
-                    <dl class="row definition-list">
-                        <dt class="col-5 col-sm-4">Model</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->deviceModel }}</dd>
-
-                        <dt class="col-5 col-sm-4">Telefon</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->displayPhone() }}</dd>
-
-                        <dt class="col-5 col-sm-4">Usterka</dt>
-                        <dd class="col-7 col-sm-8 text-pre-wrap">{{ $service->issue }}</dd>
-                    </dl>
-
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label class="form-label" for="released_at">Data wydania <span class="text-danger">*</span></label>
@@ -86,8 +111,8 @@
                     </div>
                 </div>
 
-                <div class="app-card-header border-top-0">
-                    <a class="btn btn-link" href="{{ route('services.show', $service) }}">Anuluj</a>
+                <div class="app-card-footer">
+                    <a class="btn btn-link me-auto" href="{{ route('services.show', $service) }}">Anuluj</a>
                     <button class="btn btn-success" type="submit">Potwierdź wydanie</button>
                 </div>
             </form>
@@ -96,7 +121,7 @@
         <div class="col-12 col-lg-5">
             <section class="app-card" aria-labelledby="release-photos">
                 <div class="app-card-header">
-                    <h2 class="h6 mb-0" id="release-photos">Zdjęcia</h2>
+                    <h2 class="h6" id="release-photos">Zdjęcia</h2>
                 </div>
                 <div class="app-card-body">
                     <x-photo-gallery :photos="$photos" :service="$service" group="release-photos" />

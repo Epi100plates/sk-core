@@ -3,7 +3,15 @@
 @section('title', 'Przyjęcie laptopa')
 
 @section('content')
-    <h1 class="h5 mb-3">Przyjęcie laptopa</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Nowe zlecenie</span>
+            <h1 class="page-title">Przyjęcie laptopa</h1>
+            <p class="page-head__meta">
+                Telefon i model są obowiązkowe. Termin oraz ceny możesz poprawić później w karcie zlecenia.
+            </p>
+        </div>
+    </div>
 
     <x-service-form
         :service="null"

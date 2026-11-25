@@ -8,31 +8,36 @@
         $next = $service->status->nextStatus();
     @endphp
 
-    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
-        <div>
-            <h1 class="h5 mb-1">
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">
+                Zlecenie serwisowe · przyjęto {{ \App\Domain\FieldLabels::formatDate($service->acceptedAt) }}
+            </span>
+            <h1 class="page-title">
                 {{ $service->deviceModel }}
                 @if ($service->isExpress)
-                    <span class="badge text-bg-danger">EXPRESS</span>
+                    <span class="badge badge-express align-middle ms-1">Express</span>
                 @endif
             </h1>
-            <p class="service-meta mb-0">
+            <p class="page-head__meta">
                 {{ $service->reference }}
                 @if ($service->sealNumber !== null)
                     · plomba {{ $service->sealNumber }}
                 @endif
-                · przyjęto {{ \App\Domain\FieldLabels::formatDate($service->acceptedAt) }}
+                · {{ $service->displayPhone() }}
             </p>
         </div>
-        <x-status-badge :status="$service->status" />
+        <div class="page-head__aside">
+            <x-status-badge :status="$service->status" />
+        </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <div class="page-actions">
         @if (! $isFinal && $next instanceof \App\Domain\Enums\ServiceStatus)
             @can('advance', $service)
                 <form method="post" action="{{ route('services.advance', $service) }}" data-guard-submit>
                     @csrf
-                    <button class="btn btn-primary" type="submit">{{ $service->status->advanceLabel() }} →</button>
+                    <button class="btn btn-primary" type="submit">{{ $service->status->advanceLabel() }}</button>
                 </form>
             @endcan
         @endif
@@ -47,13 +52,15 @@
             @endcan
         @endif
 
+        <span class="page-actions__grow"></span>
+
         @can('print', $service)
             <a class="btn btn-outline-secondary" href="{{ route('print.acceptance', $service) }}" target="_blank" rel="noopener">
-                🖨 Potwierdzenie przyjęcia
+                <x-icon name="print" :size="15" /> Potwierdzenie przyjęcia
             </a>
             @if ($service->status === \App\Domain\Enums\ServiceStatus::Released)
                 <a class="btn btn-outline-secondary" href="{{ route('print.release', $service) }}" target="_blank" rel="noopener">
-                    🖨 Protokół wydania
+                    <x-icon name="print" :size="15" /> Protokół wydania
                 </a>
             @endif
         @endcan
@@ -63,54 +70,75 @@
         <div class="col-12 col-lg-7">
             <section class="app-card mb-3" aria-labelledby="service-data">
                 <div class="app-card-header">
-                    <h2 class="h6 mb-0" id="service-data">Dane zlecenia</h2>
+                    <h2 class="h6" id="service-data">Dane zlecenia</h2>
                     @if ($service->hasIssuedConfirmation())
-                        <span class="badge text-bg-secondary">🖨 potwierdzenie wydane
-                            {{ \App\Domain\FieldLabels::formatDate($service->confirmationIssuedAt) }}</span>
+                        <span class="badge text-bg-secondary">
+                            <x-icon name="print" :size="11" />
+                            Potwierdzenie wydane
+                            {{ \App\Domain\FieldLabels::formatDate($service->confirmationIssuedAt) }}
+                        </span>
                     @endif
                 </div>
                 <div class="app-card-body">
-                    <dl class="row definition-list mb-0">
-                        <dt class="col-5 col-sm-4">Telefon</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->displayPhone() }}</dd>
-
-                        <dt class="col-5 col-sm-4">Model</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->deviceModel }}</dd>
-
-                        <dt class="col-5 col-sm-4">Numer seryjny</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->serialNumber ?? '—' }}</dd>
-
-                        <dt class="col-5 col-sm-4">Usterka</dt>
-                        <dd class="col-7 col-sm-8 text-pre-wrap">{{ $service->issue }}</dd>
-
-                        <dt class="col-5 col-sm-4">Hasło do urządzenia</dt>
-                        <dd class="col-7 col-sm-8 font-monospace">{{ $service->devicePassword ?? '—' }}</dd>
-
-                        <dt class="col-5 col-sm-4">Termin realizacji</dt>
-                        <dd class="col-7 col-sm-8">{{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</dd>
-
-                        <dt class="col-5 col-sm-4">Cena / koszt części</dt>
-                        <dd class="col-7 col-sm-8">
-                            <x-money :value="$service->price" /> / <x-money :value="$service->cost" />
-                        </dd>
-
-                        <dt class="col-5 col-sm-4">Uwagi</dt>
-                        <dd class="col-7 col-sm-8 text-pre-wrap">{{ $service->notes ?? '—' }}</dd>
-
-                        <dt class="col-5 col-sm-4">Plomba</dt>
-                        <dd class="col-7 col-sm-8">{{ $service->sealNumber ?? '—' }}</dd>
+                    <dl class="data-rows">
+                        <div class="data-row">
+                            <dt>Telefon</dt>
+                            <dd>{{ $service->displayPhone() }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Model</dt>
+                            <dd>{{ $service->deviceModel }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Numer seryjny</dt>
+                            <dd>{{ $service->serialNumber ?? '—' }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Usterka</dt>
+                            <dd class="text-pre-wrap">{{ $service->issue }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Hasło do urządzenia</dt>
+                            <dd class="font-monospace">
+                                <x-device-password :password="$service->devicePassword" :field-id="'service-password'" />
+                            </dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Termin realizacji</dt>
+                            <dd>{{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Cena dla klienta</dt>
+                            <dd><x-money :value="$service->price" /></dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Koszt części</dt>
+                            <dd><x-money :value="$service->cost" /></dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Uwagi</dt>
+                            <dd class="text-pre-wrap">{{ $service->notes ?? '—' }}</dd>
+                        </div>
+                        <div class="data-row">
+                            <dt>Plomba</dt>
+                            <dd>{{ $service->sealNumber ?? '—' }}</dd>
+                        </div>
 
                         @if ($service->releasedAt !== null)
-                            <dt class="col-5 col-sm-4">Data wydania</dt>
-                            <dd class="col-7 col-sm-8">{{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}</dd>
+                            <div class="data-row">
+                                <dt>Data wydania</dt>
+                                <dd>{{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}</dd>
+                            </div>
                         @endif
 
                         @if ($service->cancelledAt !== null)
-                            <dt class="col-5 col-sm-4">Anulowane</dt>
-                            <dd class="col-7 col-sm-8">
-                                {{ \App\Domain\FieldLabels::formatDate($service->cancelledAt) }} —
-                                {{ $service->cancellationReason ?? 'bez powodu' }}
-                            </dd>
+                            <div class="data-row">
+                                <dt>Anulowane</dt>
+                                <dd>
+                                    {{ \App\Domain\FieldLabels::formatDate($service->cancelledAt) }} —
+                                    {{ $service->cancellationReason ?? 'bez powodu' }}
+                                </dd>
+                            </div>
                         @endif
                     </dl>
                 </div>
@@ -118,7 +146,7 @@
 
             <section class="app-card mb-3" aria-labelledby="service-photos">
                 <div class="app-card-header">
-                    <h2 class="h6 mb-0" id="service-photos">Zdjęcia ({{ count($photos) }})</h2>
+                    <h2 class="h6" id="service-photos">Zdjęcia ({{ count($photos) }})</h2>
                 </div>
                 <div class="app-card-body">
                     <x-photo-gallery :photos="$photos" :service="$service" :editable="! $isFinal" />
@@ -141,8 +169,17 @@
         <div class="col-12 col-lg-5">
             <section class="app-card mb-3" aria-labelledby="service-history">
                 <div class="app-card-header">
-                    <h2 class="h6 mb-0" id="service-history">Historia zmian</h2>
-                    <span class="service-meta">{{ $events->total }} wpisów</span>
+                    <h2 class="h6" id="service-history">Historia zmian</h2>
+                    <span class="service-meta">
+                        {{ $events->total }}
+                        @if ($events->total === 1)
+                            wpis
+                        @elseif ($events->total % 10 >= 2 && $events->total % 10 <= 4 && ($events->total % 100 < 10 || $events->total % 100 >= 20))
+                            wpisy
+                        @else
+                            wpisów
+                        @endif
+                    </span>
                 </div>
                 <div class="app-card-body">
                     @if ($events->isEmpty())
@@ -196,7 +233,7 @@
             @can('cancel', $service)
                 <section class="app-card" aria-labelledby="service-cancel">
                     <div class="app-card-header">
-                        <h2 class="h6 mb-0" id="service-cancel">Anulowanie</h2>
+                        <h2 class="h6" id="service-cancel">Anulowanie</h2>
                     </div>
                     <div class="app-card-body">
                         <form method="post" action="{{ route('services.cancel', $service) }}"

@@ -24,7 +24,7 @@ final class AcceptanceTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser, 'dusk-employee', 'DuskHaslo1234')
                 ->assertSee('Kolejka napraw')
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'Dell Latitude 5420')
@@ -59,7 +59,7 @@ final class AcceptanceTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser)
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'Lenovo ThinkPad T490')
@@ -87,7 +87,7 @@ final class AcceptanceTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser)
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'Wydany laptop testowy')

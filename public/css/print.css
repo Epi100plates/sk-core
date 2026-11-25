@@ -1,5 +1,103 @@
 /* A4 printouts (feature F-55): acceptance confirmation and release protocol.
+   Aligned with the marketing site ("precyzja"): workshop documentation, hairline
+   rules, calibrated signal yellow and graphite chrome. Self-contained on purpose:
+   the print pages load bootstrap.min.css + print.css only, never app.css, so the
+   fonts and the brand tokens are declared here as well.
    The screen view shows the sheet; @media print removes navigation and buttons. */
+
+/* ------------------------------------------------------------------ fonts */
+
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('../fonts/schibsted-grotesk-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('../fonts/schibsted-grotesk-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-400.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-ext-400.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-500.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-ext-500.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ----------------------------------------------------------------- tokens */
+
+:root {
+    --ink: #242a30;
+    --graphite: #2d343a;
+    --graphite-2: #3a424a;
+    --paper: #ffffff;
+    --surface: #f4f5f2;
+    --surface-2: #e9ebe6;
+    --line: #dcdfd9;
+    --line-strong: #c6cabf;
+    --muted: #5f645e;
+    --yellow: #ffd400;
+    --on-dark: #f5f6f3;
+    --on-dark-muted: #b3b9b4;
+    --dark-line: #434c54;
+
+    --font-sans: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --radius: 1px;
+}
+
+/* ------------------------------------------------------------------- base */
 
 @page {
     size: A4;
@@ -7,104 +105,284 @@
 }
 
 .print-body {
-    background: #eef1f4;
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    color: #16202b;
+    background: var(--surface-2);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 10pt;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
 }
+
+/* ---------------------------------------------------------------- toolbar */
 
 .print-toolbar {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     justify-content: center;
-    padding: 0.75rem;
-    background: #0d3b66;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--paper);
 }
 
 .print-toolbar a,
 .print-toolbar button {
-    background: #ffffff;
-    color: #0d3b66;
-    border: 0;
-    border-radius: 0.375rem;
-    padding: 0.4rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
     text-decoration: none;
-    font-size: 0.9rem;
     cursor: pointer;
 }
 
+.print-toolbar a:hover,
+.print-toolbar button:hover {
+    border-color: var(--ink);
+}
+
+.print-toolbar a:focus,
+.print-toolbar button:focus {
+    outline: 2px solid #242a30;
+    outline-offset: 2px;
+}
+
+.print-toolbar a:focus-visible,
+.print-toolbar button:focus-visible {
+    outline: 2px solid #242a30;
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ sheet */
+
 .print-sheet {
-    background: #ffffff;
+    /* The header band bleeds to the sheet edges through --sheet-pad; print sets
+       it to 0 so the band simply fills the A4 text area. */
+    --sheet-pad: 12mm;
+
+    box-sizing: border-box;
     width: 210mm;
     min-height: 297mm;
     margin: 0.75rem auto 2rem;
-    padding: 12mm;
-    box-shadow: 0 1px 6px rgba(16, 32, 48, 0.25);
-    box-sizing: border-box;
+    padding: var(--sheet-pad);
+    background: var(--paper);
+    box-shadow: 0 1px 6px rgba(36, 42, 48, 0.16);
+    color: var(--ink);
+    font-size: 10pt;
+    line-height: 1.5;
 }
 
-.print-sheet h1 {
-    font-size: 18pt;
-    margin: 0 0 2mm;
-}
+/* ----------------------------------------------------------------- header */
 
-.print-sheet h2 {
-    font-size: 11pt;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #46586b;
-    margin: 6mm 0 2mm;
-}
-
-.print-sheet .print-header {
+.print-header {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid #c9d3dd;
-    padding-bottom: 3mm;
+    gap: 3mm 6mm;
+    margin: calc(-1 * var(--sheet-pad)) calc(-1 * var(--sheet-pad)) 0;
+    padding: 5mm var(--sheet-pad);
+    border-bottom: 1px solid var(--dark-line);
+    background: var(--graphite);
+    color: var(--on-dark);
+    /* Keep the graphite band on paper even when "background graphics" is off. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
-.print-sheet .print-meta {
-    font-size: 9pt;
-    color: #46586b;
+.print-brand {
+    display: flex;
+    align-items: center;
+    gap: 3.5mm;
+    min-width: 0;
+}
+
+.print-mark {
+    display: block;
+    flex: none;
+    width: 12mm;
+    height: 12mm;
+    /* The mark's own square is exactly --graphite, so the hairline keeps the
+       tile readable inside the band instead of dissolving into it. */
+    border: 1px solid var(--dark-line);
+}
+
+.print-brand__name {
+    color: var(--on-dark);
+    font-size: 12pt;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+/* The single signal-yellow accent of the document. Ink on yellow, never white
+   on yellow — and if the band itself is dropped by the browser, the reference
+   stays legible because this chip carries its own background and ink text. */
+.print-ref {
+    flex: none;
+    margin: 0;
+    padding: 2mm 3.5mm;
+    background: var(--yellow);
+    color: var(--ink);
     text-align: right;
 }
 
+.print-ref__label,
+.print-ref__value {
+    display: block;
+}
+
+.print-ref__label {
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 7pt;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.print-ref__value {
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 12pt;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+}
+
+/* Title row: the document title and the dates sit on paper, not on the band,
+   so the document stays readable when the band does not print. */
+.print-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2mm 8mm;
+    padding: 6mm 0 3mm;
+    border-bottom: 1px solid var(--line-strong);
+}
+
+.print-heading h1 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 20pt;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.print-meta {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8pt;
+    line-height: 1.55;
+    text-align: right;
+}
+
+.print-meta__line {
+    display: block;
+}
+
+.print-meta__value {
+    color: var(--ink);
+    font-weight: 500;
+}
+
+/* --------------------------------------------------------------- sections */
+
+.print-sheet h2 {
+    margin: 7mm 0 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8pt;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- tables */
+
 .print-sheet table {
     width: 100%;
+    margin: 2.5mm 0 0;
+    border-top: 1px solid var(--line-strong);
     border-collapse: collapse;
-    font-size: 10pt;
+    font-size: 9.5pt;
 }
 
 .print-sheet th,
 .print-sheet td {
+    padding: 1.9mm 0;
+    border-bottom: 1px solid var(--line);
     text-align: left;
-    padding: 1.6mm 2mm;
-    border-bottom: 1px solid #e3e8ed;
     vertical-align: top;
 }
 
 .print-sheet th {
-    width: 38mm;
-    color: #46586b;
-    font-weight: 600;
+    width: 42mm;
+    padding-right: 5mm;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.55;
+    text-transform: uppercase;
 }
 
-.print-sheet .print-signatures {
+.print-sheet td {
+    color: var(--ink);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.print-sheet .text-pre-wrap {
+    white-space: pre-line;
+}
+
+/* ------------------------------------------------------- note, signatures */
+
+.print-note {
+    margin: 6mm 0 0;
+    max-width: 150mm;
+    color: var(--muted);
+    font-size: 8pt;
+    line-height: 1.55;
+}
+
+.print-signatures {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 10mm;
-    margin-top: 20mm;
-    font-size: 9pt;
-    color: #46586b;
+    margin: 16mm 0 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
-.print-sheet .signature-line {
-    border-top: 1px solid #46586b;
-    padding-top: 2mm;
-    width: 65mm;
-    text-align: center;
+.signature-line {
+    flex: 1 1 55mm;
+    padding-top: 2.5mm;
+    border-top: 1px solid var(--ink);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
 }
+
+/* ------------------------------------------------------------------ print */
 
 @media print {
     .print-body {
@@ -116,29 +394,83 @@
     }
 
     .print-sheet {
+        --sheet-pad: 0;
+
         width: auto;
         min-height: 0;
         margin: 0;
         padding: 0;
         box-shadow: none;
     }
+
+    .print-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Keep a section heading with its table instead of stranding it. */
+    .print-sheet h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .print-signatures {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
 }
+
+/* ------------------------------------------------------- narrow screens */
 
 @media screen and (max-width: 820px) {
     /* A4 does not fit a phone screen; show the same document scaled to width so
        the preview does not force horizontal scrolling. Printing still uses A4. */
     .print-sheet {
+        --sheet-pad: 6mm;
+
         width: 100%;
         min-height: 0;
-        padding: 6mm;
+        margin: 0.5rem auto 1rem;
     }
 
-    .print-sheet .print-header {
+    .print-header {
         flex-direction: column;
-        gap: 2mm;
+        align-items: flex-start;
     }
 
-    .print-sheet .print-meta {
+    .print-ref {
         text-align: left;
+    }
+
+    .print-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .print-meta {
+        text-align: left;
+    }
+
+    .print-sheet h2 {
+        margin-top: 6mm;
+    }
+
+    .print-sheet th {
+        width: 32mm;
+        padding-right: 3mm;
+    }
+
+    .print-note {
+        max-width: none;
+    }
+
+    .print-signatures {
+        flex-direction: column;
+        gap: 12mm;
+        margin-top: 12mm;
+    }
+
+    .signature-line {
+        flex: 1 1 auto;
     }
 }

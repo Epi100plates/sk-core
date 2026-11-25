@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Kolejka') · {{ config('app.name') }}</title>
     <link rel="manifest" href="{{ route('manifest') }}">
-    <meta name="theme-color" content="#0d3b66">
+    <meta name="theme-color" content="#2d343a">
     <meta name="color-scheme" content="light">
     <link rel="icon" href="{{ asset('icons/icon-96.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
+    <link rel="preload" href="{{ asset('fonts/schibsted-grotesk-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/schibsted-grotesk-latin-ext.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ config('app.asset_version') }}">
     @stack('styles')
@@ -22,27 +24,36 @@
 </div>
 
 <header class="app-header">
-    <div class="container-fluid d-flex flex-wrap align-items-center gap-2 py-2">
-        <a class="app-brand d-flex align-items-center gap-2 me-auto" href="{{ route('services.queue') }}">
-            <span aria-hidden="true">🛠</span>
-            <span>{{ config('app.name') }}</span>
+    <div class="app-header__inner">
+        <a class="app-brand" href="{{ route('services.queue') }}">
+            <img src="{{ asset('brand/studio-komp-logo-trim.png') }}" alt="Studio-Komp — serwis laptopów">
+            <span class="visually-hidden">Kolejka napraw</span>
         </a>
 
-        <form class="search-form d-flex gap-1" method="get" action="{{ route('services.search') }}" role="search">
+        <form class="app-search" method="get" action="{{ route('services.search') }}" role="search">
             <label class="visually-hidden" for="global-search">Szukaj zlecenia</label>
-            <input class="form-control form-control-sm" id="global-search" type="search"
+            <input class="form-control" id="global-search" type="search"
                    name="q" value="{{ request()->routeIs('services.search') ? request('q') : '' }}"
                    placeholder="Telefon, plomba, model…" minlength="3" required>
-            <button class="btn btn-sm btn-light" type="submit">Szukaj</button>
+            <button class="btn btn-outline-light" type="submit">
+                <x-icon name="search" :size="16" />
+                <span class="visually-hidden">Szukaj</span>
+            </button>
         </form>
 
-        <div class="d-flex align-items-center gap-2">
-            <a class="btn btn-sm btn-light" href="{{ route('services.create') }}">+ Przyjmij</a>
+        <div class="app-header__actions">
+            <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
+                <x-icon name="plus" :size="16" />
+                <span class="btn-label">Przyjmij</span>
+            </a>
             @auth
-                <span class="d-none d-md-inline small">{{ auth()->user()->getAuthName() }}</span>
+                <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
                 <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>
                     @csrf
-                    <button class="btn btn-sm btn-outline-light" type="submit">Wyloguj</button>
+                    <button class="app-header__logout" type="submit" aria-label="Wyloguj z aplikacji">
+                        <x-icon name="logout" :size="15" />
+                        <span class="btn-label">Wyloguj</span>
+                    </button>
                 </form>
             @endauth
         </div>
@@ -51,46 +62,60 @@
 
 <div class="app-shell">
     <nav class="app-sidebar" aria-label="Nawigacja główna">
+        <p class="app-sidebar__label eyebrow">Kolejka</p>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.queue') ? 'active' : '' }}"
                    href="{{ route('services.queue') }}" @if(request()->routeIs('services.queue')) aria-current="page" @endif>
-                    <span aria-hidden="true">📋</span> Kolejka
+                    <x-icon name="queue" :size="17" /> Kolejka
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.create') ? 'active' : '' }}"
                    href="{{ route('services.create') }}">
-                    <span aria-hidden="true">➕</span> Przyjmij laptopa
+                    <x-icon name="plus" :size="17" /> Przyjmij laptopa
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.search') ? 'active' : '' }}"
                    href="{{ route('services.search') }}">
-                    <span aria-hidden="true">🔍</span> Szukaj
+                    <x-icon name="search" :size="17" /> Szukaj
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.released') ? 'active' : '' }}"
                    href="{{ route('services.released') }}">
-                    <span aria-hidden="true">📦</span> Wydane
-                </a>
-            </li>
-            @can('viewAny', App\Domain\Data\UserRecord::class)
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                       href="{{ route('admin.users.index') }}">
-                        <span aria-hidden="true">👥</span> Użytkownicy
-                    </a>
-                </li>
-            @endcan
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('account.password') ? 'active' : '' }}"
-                   href="{{ route('account.password') }}">
-                    <span aria-hidden="true">🔑</span> Hasło
+                    <x-icon name="package" :size="17" /> Wydane
                 </a>
             </li>
         </ul>
+
+        @can('viewAny', App\Domain\Data\UserRecord::class)
+            <p class="app-sidebar__label eyebrow">Administracja</p>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
+                       href="{{ route('admin.users.index') }}">
+                        <x-icon name="users" :size="17" /> Użytkownicy
+                    </a>
+                </li>
+            </ul>
+        @endcan
+
+        <p class="app-sidebar__label eyebrow">Konto</p>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('account.password') ? 'active' : '' }}"
+                   href="{{ route('account.password') }}">
+                    <x-icon name="key" :size="17" /> Zmień hasło
+                </a>
+            </li>
+        </ul>
+
+        <p class="app-sidebar__foot">
+            {{ config('app.name') }}<br>
+            Magazyn danych: {{ config('persistence.driver') }}
+        </p>
     </nav>
 
     <main class="app-main" id="main">
@@ -100,21 +125,22 @@
 </div>
 
 <nav class="app-bottom-nav" aria-label="Nawigacja dolna">
-    <a href="{{ route('services.queue') }}" class="{{ request()->routeIs('services.queue') ? 'active' : '' }}">
-        <span class="nav-icon" aria-hidden="true">📋</span> Kolejka
+    <a href="{{ route('services.queue') }}" class="{{ request()->routeIs('services.queue') ? 'active' : '' }}"
+       @if(request()->routeIs('services.queue')) aria-current="page" @endif>
+        <x-icon name="queue" :size="18" /> Kolejka
     </a>
     <a href="{{ route('services.create') }}" class="{{ request()->routeIs('services.create') ? 'active' : '' }}">
-        <span class="nav-icon" aria-hidden="true">➕</span> Przyjmij
+        <x-icon name="plus" :size="18" /> Przyjmij
     </a>
     <a href="{{ route('services.search') }}" class="{{ request()->routeIs('services.search') ? 'active' : '' }}">
-        <span class="nav-icon" aria-hidden="true">🔍</span> Szukaj
+        <x-icon name="search" :size="18" /> Szukaj
     </a>
     <a href="{{ route('services.released') }}" class="{{ request()->routeIs('services.released') ? 'active' : '' }}">
-        <span class="nav-icon" aria-hidden="true">📦</span> Wydane
+        <x-icon name="package" :size="18" /> Wydane
     </a>
     @can('viewAny', App\Domain\Data\UserRecord::class)
         <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-            <span class="nav-icon" aria-hidden="true">👥</span> Konta
+            <x-icon name="users" :size="18" /> Konta
         </a>
     @endcan
 </nav>

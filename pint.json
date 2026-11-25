@@ -2,9 +2,11 @@
     "preset": "laravel",
     "exclude": [
         "old-app",
+        "Piotrekv3",
         "vendor",
         "storage",
         "_runtime",
+        "_release",
         "docs",
         "bootstrap/cache",
         "public"

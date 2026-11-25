@@ -19,6 +19,9 @@ var PRECACHE_URLS = [
     '/css/bootstrap.min.css',
     '/css/app.css',
     '/css/print.css',
+    '/fonts/schibsted-grotesk-latin.woff2',
+    '/fonts/schibsted-grotesk-latin-ext.woff2',
+    '/fonts/ibm-plex-mono-latin-500.woff2',
     '/js/bootstrap.bundle.min.js',
     '/js/app.js',
     '/js/lightbox.js',
@@ -100,6 +103,7 @@ self.addEventListener('fetch', function (event) {
     }
 
     var isShellAsset = url.pathname.indexOf('/css/') === 0
+        || url.pathname.indexOf('/fonts/') === 0
         || url.pathname.indexOf('/js/') === 0
         || url.pathname.indexOf('/icons/') === 0
         || url.pathname === '/offline';

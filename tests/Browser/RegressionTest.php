@@ -24,7 +24,7 @@ final class RegressionTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser)
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'Asus ZenBook 14')
@@ -38,7 +38,7 @@ final class RegressionTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($before): void {
             $browser->visit('/services/'.$before->id.'/edit')
-                ->waitForText('Edycja zlecenia')
+                ->waitForText('Zapisz zmiany')
                 ->press('Zapisz zmiany')
                 ->waitForText('Brak zmian');
         });
@@ -63,7 +63,7 @@ final class RegressionTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($phone): void {
             $this->login($browser)
-                ->clickLink('+ Przyjmij laptopa')
+                ->clickLink('Przyjmij laptopa')
                 ->waitForText('Przyjęcie laptopa')
                 ->type('phone', $phone)
                 ->type('device_model', 'Acer Aspire 5')
@@ -76,7 +76,7 @@ final class RegressionTest extends DuskTestCase
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/released')
-                ->waitForText('Archiwum wydanych')
+                ->waitForText('Wydane zlecenia')
                 ->assertSee('Acer Aspire 5');
         });
     }
@@ -109,7 +109,7 @@ final class RegressionTest extends DuskTestCase
             $this->assertFalse((bool) $cacheHasCustomerData, 'Cache PWA zawiera dane klientów.');
 
             $browser->press('Wyloguj')
-                ->waitForText('Zaloguj się, aby pracować z kolejką napraw.');
+                ->waitForText('Konto zakłada administrator serwisu.');
         });
     }
 }

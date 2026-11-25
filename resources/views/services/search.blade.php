@@ -3,17 +3,26 @@
 @section('title', 'Szukaj')
 
 @section('content')
-    <h1 class="h5 mb-3">Szukaj zlecenia</h1>
+    <div class="page-head">
+        <div class="page-head__main">
+            <span class="eyebrow">Szukaj w zleceniach</span>
+            <h1 class="page-title">Wyszukiwanie</h1>
+            <p class="page-head__meta">
+                Telefon, plomba, model, numer seryjny albo usterka — wystarczą 3 znaki. Szukamy także w archiwum wydanych.
+            </p>
+        </div>
+    </div>
 
-    <form class="app-card mb-3" method="get" action="{{ route('services.search') }}">
+    <form class="app-card mb-3" method="get" action="{{ route('services.search') }}" role="search">
         <div class="app-card-body">
-            <label class="form-label" for="q">Telefon, plomba, model, numer seryjny lub usterka</label>
-            <div class="d-flex flex-wrap gap-2">
+            <label class="form-label" for="q">Szukana fraza</label>
+            <div class="toolbar">
                 <input class="form-control" id="q" name="q" type="search" value="{{ $term }}"
                        minlength="3" placeholder="np. 505 123 456 albo PLO-001-2024" required>
-                <button class="btn btn-primary" type="submit">Szukaj</button>
+                <button class="btn btn-primary" type="submit">
+                    <x-icon name="search" :size="15" /> Szukaj
+                </button>
             </div>
-            <p class="service-meta mb-0 mt-2">Wystarczą 3 znaki. Szukamy także wśród wydanych zleceń.</p>
         </div>
     </form>
 
@@ -28,7 +37,9 @@
             action-label="Przyjmij nowe zlecenie"
             :action-url="route('services.create')" />
     @else
-        <p class="service-meta">Znaleziono {{ $page->total }} zleceń dla „{{ $term }}”.</p>
+        <p class="service-meta">
+            Znaleziono {{ $page->total }} zleceń dla „{{ $term }}”.
+        </p>
 
         @foreach ($page->items as $service)
             <x-service-card :service="$service" />

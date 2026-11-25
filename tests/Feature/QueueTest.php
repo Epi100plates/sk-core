@@ -112,8 +112,8 @@ it('counts services per status on the queue page', function (string $store) {
     $response = $this->actingAsUser($user)->get('/');
 
     $response->assertOk()
-        ->assertSee('Oczekujące:')
-        ->assertSee('2');
+        ->assertSee('Oczekujące')
+        ->assertSee('<span class="stat__value">2</span>', false);
 })->with('stores');
 
 it('paginates the queue at 50 services', function (string $store) {
