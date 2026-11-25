@@ -46,19 +46,19 @@ Na stronie i w aplikacji obowiązuje ta sama zasada „jeden mocny akcent na ekr
 |---|---|---|
 | Nagłówek | grafitowy pasek, prawdziwe logo (PNG przycięte do tuszu), wyszukiwarka w pasku, żółty przycisk „Przyjmij”, mono login | `resources/views/layouts/app.blade.php`, `public/css/app.css` |
 | Nawigacja | sidebar z grupami (Kolejka / Administracja / Konto) i żółtym znacznikiem aktywności; na telefonie grafitowa dolna nawigacja z ikonami SVG | jw., `resources/views/components/icon.blade.php` |
-| Kolejka | pasek statystyk = filtr statusów (liczby są wartościami pól wyboru), karty zleceń w stylu „biletu” (mono numer, status, wiersze danych na liniach) | `resources/views/services/queue.blade.php`, `components/service-card.blade.php` |
+| Kolejka | pasek statystyk = filtr etapów (radio, liczby są wartościami pól), sekcje etapów z nagłówkiem i licznikiem, karty zleceń w stylu „biletu” z 4 px paskiem koloru etapu po lewej | `resources/views/services/queue.blade.php`, `services/_queue-results.blade.php`, `components/service-card.blade.php` |
 | Karta zlecenia | dwukolumnowe wiersze danych (etykieta/wartość), historia jako timeline z kropkami, akcje: żółty „następny etap”, kontur „Edytuj”, grafit „Wydaj” | `resources/views/services/show.blade.php` |
 | Wydanie | żółta karta zlecenia („docket”) z numerem, modelem, telefonem i terminem — odpowiednik karty z hero strony | `resources/views/services/release.blade.php` |
 | Logowanie | podział na grafitowy panel marki (logo + claim) i formularz na papierze; żółty przycisk pełnej szerokości | `resources/views/auth/login.blade.php` |
 | Formularze | pola 44 px, etykiety 12,5 px/600, obramowanie 1 px, czytelny stan błędu, wspólny pasek akcji | `components/service-form.blade.php`, `admin/users/form.blade.php`, `account/password.blade.php` |
-| Pozostałe ekrany | wyszukiwanie, archiwum wydane, panel kont, błąd domenowy, offline, instalacja — wspólny nagłówek strony (eyebrow + tytuł) i pasek filtrów | `services/search.blade.php`, `services/released.blade.php`, `admin/users/index.blade.php`, `errors/domain.blade.php`, `offline.blade.php`, `install/result.blade.php` |
+| Pozostałe ekrany | archiwum wydane, panel kont, błąd domenowy, offline, instalacja — wspólny nagłówek strony (eyebrow + tytuł) i pasek filtrów | `services/released.blade.php`, `admin/users/index.blade.php`, `errors/domain.blade.php`, `offline.blade.php`, `install/result.blade.php` |
 | Wydruki A4 | grafitowy pasek z logo, żółty chip z numerem zlecenia, mono etykiety, linie podpisu; dalej jedna strona A4 | `public/css/print.css`, `resources/views/print/*.blade.php` |
 | Ikony/PWA | ikony generowane ze znaku marki (GD), motyw `#2d343a`, tło `#f4f5f2`, fonty w precache service workera | `app/Console/Commands/GenerateIcons.php`, `app/Http/Controllers/ManifestController.php`, `public/service-worker.js` |
 
 Zrzuty aplikacji: [kolejka — desktop](assets/app-queue-desktop.png),
 [kolejka — telefon](assets/app-queue-mobile.png), [karta zlecenia](assets/app-show-desktop.png),
 [karta zlecenia — telefon](assets/app-show-mobile.png), [wydanie](assets/app-release-desktop.png),
-[logowanie](assets/app-login-desktop.png), [wyszukiwanie](assets/app-search-desktop.png),
+[logowanie](assets/app-login-desktop.png), [wyniki szukania w kolejce](assets/app-queue-search-desktop.png),
 [archiwum](assets/app-released-desktop.png), [wydruk przyjęcia](assets/print-acceptance.png).
 
 ## Dostępność
@@ -123,4 +123,9 @@ widok (wynik w [runtime-verification.md](runtime-verification.md)).
 > karty zlecenia (gęsty wiersz zamiast biletu), historię zmian, formularze i strony błędów —
 > opis i zrzuty w [content-and-security-pass.md](content-and-security-pass.md), decyzja
 > [0015](../decisions/0015-tresc-i-przeplywy.md). Tokeny, fonty i kolory marki z tego dokumentu
-> pozostają aktualne; `ASSET_VERSION` doszedł do 12.
+> pozostają aktualne.
+
+> **Aktualizacja 2026-11-25 (kolejna runda):** kolejka dostała sekcje etapów i kolorowe paski,
+> jedno pole szukania w nagłówku (na żywo) i klikalne kafelki — decyzja
+> [0016](../decisions/0016-kolejka-i-wyszukiwanie.md), weryfikacja w
+> [queue-usability-pass.md](queue-usability-pass.md). `ASSET_VERSION` doszedł do 16.

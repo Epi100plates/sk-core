@@ -81,7 +81,7 @@ it('never shows a released service with an action in the queue', function (strin
         ->assertStatus(422);
 })->with('stores');
 
-it('filters the queue by status and keeps the filter in the URL', function (string $store) {
+it('shows only the chosen stage and offers a way back to the whole queue', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Employee);
@@ -93,13 +93,114 @@ it('filters the queue by status and keeps the filter in the URL', function (stri
             ->with(['status' => ServiceStatus::InProgress->value])
     );
 
-    $response = $this->actingAsUser($user)->get('/?status[]=in_progress');
+    $response = $this->actingAsUser($user)->get('/?status=in_progress');
 
     $response->assertOk()
         ->assertSee('W trakcie')
-        ->assertDontSee('Oczekujacy');
+        ->assertDontSee('Oczekujacy')
+        ->assertSee('Pokaż wszystkie');
 
     expect($pending->id)->not->toBe($inProgress->id);
+})->with('stores');
+
+it('shows every open stage when no stage is chosen', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, ['device_model' => 'Oczekujacy']);
+    app(ServiceRepository::class)->save(
+        $this->acceptService($user, ['device_model' => 'W trakcie'])
+            ->with(['status' => ServiceStatus::InProgress->value])
+    );
+
+    $this->actingAsUser($user)->get('/')
+        ->assertOk()
+        ->assertSee('Oczekujacy')
+        ->assertSee('W trakcie')
+        ->assertDontSee('Pokaż wszystkie');
+})->with('stores');
+
+it('groups the queue under one heading per stage', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, ['device_model' => 'Oczekujacy']);
+    app(ServiceRepository::class)->save(
+        $this->acceptService($user, ['device_model' => 'W trakcie'])
+            ->with(['status' => ServiceStatus::InProgress->value])
+    );
+
+    $response = $this->actingAsUser($user)->get('/');
+
+    $response->assertOk()
+        ->assertSee('queue-stage-in_progress', false)
+        ->assertSee('queue-stage-pending', false)
+        ->assertSee('W trakcie naprawy')
+        ->assertSee('Oczekujące');
+})->with('stores');
+
+it('opens the edit form from the whole tile', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user, ['device_model' => 'Dell Latitude']);
+
+    $this->actingAsUser($user)->get('/')
+        ->assertOk()
+        ->assertSee('data-card-href="'.route('services.edit', $service).'"', false)
+        ->assertSee('Szczegóły');
+})->with('stores');
+
+it('sends a handed-over tile to its card, not to a missing edit form', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $repo = app(ServiceRepository::class);
+
+    $service = $repo->save(
+        $this->acceptService($user, ['device_model' => 'Wydany Dell'])
+            ->with([
+                'status' => ServiceStatus::Released->value,
+                'released_at' => '2026-11-01 10:00:00',
+                'released_by' => $user->id,
+            ])
+    );
+
+    $this->actingAsUser($user)->get('/?q=Wydany')
+        ->assertOk()
+        ->assertSee('data-card-href="'.route('services.show', $service).'"', false);
+})->with('stores');
+
+it('serves the bare list for the live search', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user, ['device_model' => 'Dell Latitude']);
+    $this->acceptService($user, ['device_model' => 'Lenovo ThinkPad']);
+
+    $response = $this->actingAsUser($user)->get('/queue/results?q=Dell');
+
+    $response->assertOk()
+        ->assertHeader('X-Queue-Results', '1')
+        ->assertSee($service->reference)
+        ->assertDontSee('Lenovo ThinkPad')
+        ->assertDontSee('<!DOCTYPE html>', false);
+})->with('stores');
+
+it('keeps the stage filter in the live result fragment', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, ['device_model' => 'Oczekujacy']);
+    app(ServiceRepository::class)->save(
+        $this->acceptService($user, ['device_model' => 'W trakcie'])
+            ->with(['status' => ServiceStatus::InProgress->value])
+    );
+
+    $this->actingAsUser($user)->get('/queue/results?status=in_progress')
+        ->assertOk()
+        ->assertSee('W trakcie')
+        ->assertDontSee('Oczekujacy');
 })->with('stores');
 
 it('counts services per status on the queue page', function (string $store) {

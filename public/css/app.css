@@ -79,6 +79,7 @@
     --graphite: #2d343a;
     --graphite-2: #3a424a;
     --paper: #ffffff;
+    --paper-hover: #fbfbf8;
     --surface: #f4f5f2;
     --surface-2: #e9ebe6;
     --line: #dcdfd9;
@@ -93,6 +94,15 @@
     --dark-line: #434c54;
     --error: #b42318;
     --ok: #1f7a3f;
+
+    /* Stage language for the queue: one accent per workflow step, always paired
+       with the stage name so colour is never the only signal. */
+    --stage-pending: #d3ac00;
+    --stage-progress: #2d343a;
+    --stage-parts: #b26a1e;
+    --stage-ready: #1f7a3f;
+    --stage-released: #97a09a;
+    --stage-cancelled: #b42318;
 
     --font-sans: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
         Arial, sans-serif;
@@ -1151,7 +1161,18 @@ legend {
     line-height: 1.25;
 }
 
-/* The stat strip doubles as the queue filter: the number is the checkbox value. */
+/* A dot ties the chip to the stripe colour of the matching stage below. */
+.stat__label::before {
+    content: '';
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-right: 0.35rem;
+    background: var(--stage-color, var(--line-strong));
+    vertical-align: 0.05em;
+}
+
+/* The stat strip doubles as the queue filter: the number is the radio value. */
 .stat--filter {
     padding: 0;
 }
@@ -1232,21 +1253,132 @@ legend {
     flex: 0 0 auto;
 }
 
+/* ------------------------------------------------------------ queue list */
+
+/* The stage sections and their colour accents are the answer to "which laptop
+   is where": one heading per stage, one stripe per tile, and the same dot on
+   the filter chip that selects that stage. */
+.queue-summary {
+    margin: 0 0 0.6rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.queue-summary a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.queue-group + .queue-group {
+    margin-top: 1.15rem;
+}
+
+.queue-group__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.queue-group__head::before {
+    content: '';
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--stage-color, var(--line-strong));
+}
+
+.queue-group__count {
+    min-width: 1.5rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--line-strong);
+    color: var(--muted);
+    text-align: center;
+}
+
+.queue-group__rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--line);
+}
+
+.queue-released {
+    margin-top: 1.6rem;
+}
+
+.queue-results {
+    transition: opacity var(--fast) var(--ease-out);
+}
+
+.queue-results[aria-busy='true'] {
+    opacity: 0.5;
+}
+
 /* ------------------------------------------------------------ service card */
+
+[data-stage='pending'] {
+    --stage-color: var(--stage-pending);
+}
+
+[data-stage='in_progress'] {
+    --stage-color: var(--stage-progress);
+}
+
+[data-stage='awaiting_parts'] {
+    --stage-color: var(--stage-parts);
+}
+
+[data-stage='ready_for_pickup'] {
+    --stage-color: var(--stage-ready);
+}
+
+[data-stage='released'] {
+    --stage-color: var(--stage-released);
+}
+
+[data-stage='cancelled'] {
+    --stage-color: var(--stage-cancelled);
+}
 
 /* A queue row, not a poster: the workshop scans 20+ jobs at once, so the card
    is a two-column grid (facts left, status and action right) that stays under
-   ~150px tall on a desktop. */
+   ~150px tall on a desktop. The left stripe is the workflow stage. */
 .service-card {
-    border-left: 3px solid transparent;
+    border-left: 4px solid var(--stage-color, var(--line-strong));
 }
 
-.service-card.is-express {
-    border-left-color: var(--yellow);
+.service-card[data-card-href] {
+    cursor: pointer;
+    transition: background-color var(--fast) var(--ease-out);
+}
+
+.service-card[data-card-href]:hover {
+    background: var(--paper-hover);
+}
+
+.service-card[data-card-href]:focus-within {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
 }
 
 .service-card.is-final {
     background: var(--surface);
+}
+
+.service-card.is-final[data-card-href]:hover {
+    background: var(--surface-2);
 }
 
 .service-card--row + .service-card--row {
@@ -1273,7 +1405,7 @@ legend {
 
 .ticket__title {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.25;
@@ -1349,6 +1481,18 @@ legend {
 
 .ticket__actions form {
     display: inline-flex;
+}
+
+/* Quiet way into the full card (history, photos, prints) — the tile itself
+   opens the edit form. */
+.ticket__more {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-underline-offset: 2px;
+}
+
+.ticket__more:hover {
+    color: var(--ink);
 }
 
 @media (min-width: 768px) {

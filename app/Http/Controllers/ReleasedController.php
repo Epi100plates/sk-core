@@ -13,9 +13,10 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Archive of released services (F-26) with a date range, a search term and
- * grouping by day. Only signed-in employees can see it (defect D-02: the old
- * `wydane.php` was public).
+ * Archive of released services (F-26) with a date range and grouping by day.
+ * Only signed-in employees can see it (defect D-02: the old `wydane.php` was
+ * public). The term search lives in the header and filters the queue, so this
+ * screen has no second search field.
  */
 final class ReleasedController extends Controller
 {
@@ -24,14 +25,12 @@ final class ReleasedController extends Controller
     public function __invoke(Request $request, ServiceRepository $services): View
     {
         $timezone = FieldLabels::displayTimezone();
-        $term = trim((string) $request->query('q', ''));
         $from = $this->parseDate($request->query('from'), $timezone, endOfDay: false);
         $to = $this->parseDate($request->query('to'), $timezone, endOfDay: true);
         $page = max(1, (int) $request->query('page', '1'));
 
         $query = new ServiceQuery(
             statuses: [ServiceStatus::Released],
-            term: mb_strlen($term) >= 3 ? $term : null,
             releasedFrom: $from,
             releasedTo: $to,
             sort: ServiceQuery::SORT_RELEASED,
@@ -55,7 +54,6 @@ final class ReleasedController extends Controller
         return view('services.released', [
             'page' => $result,
             'grouped' => $grouped,
-            'term' => $term,
             'from' => is_string($request->query('from')) ? (string) $request->query('from') : '',
             'to' => is_string($request->query('to')) ? (string) $request->query('to') : '',
             'timezone' => $timezone,

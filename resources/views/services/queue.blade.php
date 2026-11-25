@@ -5,31 +5,27 @@
 @section('content')
     @php
         $allStatuses = \App\Domain\Enums\ServiceStatus::activeCases();
-        $allValues = array_map(static fn (\App\Domain\Enums\ServiceStatus $status): string => $status->value, $allStatuses);
-        $filtered = $activeFilter !== $allValues;
     @endphp
 
     <div class="page-head">
         <div class="page-head__main">
             <span class="eyebrow">Stan warsztatu · {{ now($timezone)->format('d.m.Y') }}</span>
             <h1 class="page-title">Kolejka napraw</h1>
-            <p class="page-head__meta">
-                {{ \App\Domain\FieldLabels::plural($page->total, 'zlecenie', 'zlecenia', 'zleceń') }}
-                @if ($page->lastPage() > 1)
-                    · strona {{ $page->page }} z {{ $page->lastPage() }}
-                @endif
-            </p>
         </div>
     </div>
 
-    <form class="app-card mb-3" method="get" action="{{ route('services.queue') }}" data-auto-submit>
+    {{-- One stage at a time: no choice means the whole working queue. Without
+         JavaScript the radios still submit, and a link clears the choice. --}}
+    <form class="app-card mb-3" method="get" action="{{ route('services.queue') }}"
+          data-auto-submit data-queue-filter>
+        <input type="hidden" name="q" value="{{ $term }}" data-queue-filter-term>
+
         <fieldset class="stat-strip">
-            <legend class="visually-hidden">Filtruj kolejkę po statusie</legend>
+            <legend class="visually-hidden">Pokaż zlecenia jednego etapu</legend>
             @foreach ($allStatuses as $status)
-                <label class="stat stat--filter">
-                    <input class="stat__input" type="checkbox" name="status[]"
-                           value="{{ $status->value }}"
-                           @checked(in_array($status->value, $activeFilter, true))>
+                <label class="stat stat--filter" data-stage="{{ $status->value }}">
+                    <input class="stat__input" type="radio" name="status" value="{{ $status->value }}"
+                           @checked($activeFilter === $status)>
                     <span class="stat__body">
                         <span class="stat__value">{{ $counts[$status->value] ?? 0 }}</span>
                         <span class="stat__label">{{ $status->label() }}</span>
@@ -37,53 +33,24 @@
                 </label>
             @endforeach
         </fieldset>
-        @if ($filtered)
+
+        @if ($activeFilter instanceof \App\Domain\Enums\ServiceStatus)
             <div class="app-card-footer">
-                <a class="btn btn-sm btn-link" href="{{ route('services.queue') }}">Pokaż wszystkie</a>
+                <a class="btn btn-sm btn-link" href="{{ route('services.queue', array_filter(['q' => $term])) }}"
+                   data-queue-filter-reset data-base-href="{{ route('services.queue') }}">Pokaż wszystkie</a>
             </div>
         @endif
+
         <noscript>
             <div class="app-card-footer">
-                <button class="btn btn-sm btn-outline-primary" type="submit">Zastosuj filtr</button>
+                <button class="btn btn-sm btn-outline-primary" type="submit">Pokaż tylko wybrany etap</button>
             </div>
         </noscript>
     </form>
 
-    @if ($page->isEmpty())
-        <x-empty-state
-            title="Kolejka jest pusta"
-            message="Nie ma zleceń spełniających wybrane kryteria. Przyjmij laptopa, aby zacząć." />
-    @else
-        @foreach ($page->items as $service)
-            <x-service-card :service="$service" />
-        @endforeach
+    <p class="visually-hidden" id="queue-search-status" role="status" aria-live="polite"></p>
 
-        <x-pagination :page="$page" />
-    @endif
-
-    @if ($released !== [])
-        <section aria-labelledby="recently-released">
-            <div class="section-head">
-                <div>
-                    <span class="eyebrow">Archiwum</span>
-                    <h2 id="recently-released">Ostatnio wydane</h2>
-                </div>
-                <a class="btn btn-sm btn-link" href="{{ route('services.released') }}">
-                    Całe archiwum <x-icon name="arrow-right" :size="14" />
-                </a>
-            </div>
-            <div class="list-group">
-                @foreach ($released as $service)
-                    <a class="list-group-item list-group-item-action d-flex flex-wrap justify-content-between gap-2"
-                       href="{{ route('services.show', $service) }}">
-                        <span>
-                            {{ $service->deviceModel }}
-                            <span class="service-meta">· {{ $service->reference }}</span>
-                        </span>
-                        <span class="service-meta">{{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </section>
-    @endif
+    <div class="queue-results" data-queue-results>
+        @include('services._queue-results')
+    </div>
 @endsection

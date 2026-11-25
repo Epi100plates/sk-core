@@ -8,9 +8,9 @@ use App\Domain\Enums\ServiceStatus;
 use Carbon\CarbonImmutable;
 
 /**
- * One query object for the queue, the archive and the search page (F-21, F-26,
- * F-27, F-32). Both stores translate it, so sorting and filtering have exactly
- * one meaning (defect D-19: three different sort priorities).
+ * One query object for the queue, the archive and the queue search results
+ * (F-21, F-26, F-27, F-32). Both stores translate it, so sorting and filtering
+ * have exactly one meaning (defect D-19: three different sort priorities).
  */
 final class ServiceQuery
 {
@@ -62,11 +62,6 @@ final class ServiceQuery
             perPage: $perPage,
             page: $page,
         );
-    }
-
-    public static function search(string $term, int $perPage = 25, int $page = 1): self
-    {
-        return new self(term: $term, sort: self::SORT_ACCEPTED, perPage: $perPage, page: $page);
     }
 
     /**

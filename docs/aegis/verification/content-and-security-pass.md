@@ -7,6 +7,11 @@
 | **Decyzje** | [0015 — treść i przepływy](../decisions/0015-tresc-i-przeplywy.md), [0014 — warstwa wizualna](../decisions/0014-warstwa-wizualna.md) |
 | **Środowisko** | Laravel 12, PHP 8.4, magazyn JSON (dane deweloperskie) i MySQL/MariaDB 10.4 (testy) |
 
+> **Aktualizacja 2026-11-25 (późniejsza runda):** kolejka, filtr etapów, kafelek zlecenia
+> i wyszukiwanie zostały przebudowane ponownie — [queue-usability-pass.md](queue-usability-pass.md),
+> decyzja [0016](../decisions/0016-kolejka-i-wyszukiwanie.md). Liczby i zrzuty w tym raporcie
+> opisują stan po poprzedniej rundzie.
+
 ## Co było nie tak (znalezione przez przeklikanie aplikacji)
 
 | # | Ekran | Problem |

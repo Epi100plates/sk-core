@@ -180,9 +180,26 @@ it('never writes the device password into the audit trail', function () {
 
     expect((string) $stored)->not->toContain('tajne-haslo');
 
-    // The password may appear exactly once on the card (the "Pokaż" reveal
-    // control); a second occurrence means it leaked into the history list.
+    // The password is visible by default on the card, so it appears exactly once
+    // in the HTML. A second occurrence would mean it leaked into the history list
+    // or into an attribute that survives hiding.
     $html = (string) $this->actingAsUser($user)->get('/services/'.$service->id)->getContent();
 
     expect(substr_count($html, 'tajne-haslo'))->toBe(1);
+
+    $this->actingAsUser($user)->get('/services/'.$service->id)
+        ->assertSee('tajne-haslo')
+        ->assertSee('aria-pressed="true"', false)
+        ->assertSee('Ukryj hasło do urządzenia');
+});
+
+it('shows the device password on the queue tile as well', function () {
+    usingStore($this, 'json');
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, ['device_password' => 'haslo-na-kafelku']);
+
+    $this->actingAsUser($user)->get('/')
+        ->assertOk()
+        ->assertSee('haslo-na-kafelku');
 });

@@ -123,7 +123,7 @@ it('redirects a guest from every protected route', function (string $uri) {
 })->with([
     '/',
     '/services/create',
-    '/search',
+    '/queue/results',
     '/released',
     '/admin/users',
     '/account/password',

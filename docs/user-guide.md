@@ -23,32 +23,44 @@ Po 5 nieudanych próbach logowanie jest zablokowane na 15 minut.
 
 Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie zlecenia.
 
-> Hasło do laptopa jest zaszyfrowane w bazie i pokazywane na karcie zlecenia po naciśnięciu
-> **Pokaż**. W historii zmian widać tylko, że hasło jest ustawione — nigdy jego treść.
+> Hasło do laptopa jest zaszyfrowane w bazie i **widoczne od razu** na kafelku i na karcie
+> zlecenia. Przycisk **Ukryj** chowa je na czas rozmowy z klientem. W historii zmian widać
+> tylko, że hasło jest ustawione — nigdy jego treść.
 
 ## Kolejka
 
-- Na górze lista aktywnych zleceń: najpierw **express**, potem „w trakcie naprawy”,
-  „oczekujące”, „czeka na części”, „do wydania”.
-- Na końcu listy: **Ostatnio wydane** (bez przycisków akcji).
-- Filtry statusu: kafle z liczbami nad listą. Dotknij status (np. **Do wydania**) — lista
-  filtruje się od razu; **Pokaż wszystkie** czyści filtr. Adres z filtrem można wysłać koledze.
-- Na karcie: **Rozpocznij naprawę / Oznacz do odbioru / Wznów naprawę** (zależnie od statusu).
+- Lista jest podzielona na **etapy**: „W trakcie naprawy”, „Oczekujące”, „Czeka na części”,
+  „Do wydania”. Nagłówek etapu ma licznik, a każdy kafelek — kolorowy pasek po lewej
+  (grafit = w trakcie, żółty = oczekujące, pomarańczowy = czeka na części, zielony = do wydania).
+- Filtr etapów: kafle z liczbami nad listą. Dotknij etap (np. **Do wydania**) — pokażą się tylko
+  te zlecenia; **Pokaż wszystkie** czyści wybór. Adres z filtrem można wysłać koledze.
+- Na końcu listy: **Ostatnio wydane** (bez przycisków akcji); całe archiwum pod **Wydane**.
+- Na kafelku: **Rozpocznij naprawę / Oznacz do odbioru / Wznów naprawę** (zależnie od statusu)
+  oraz **Szczegóły** (pełna karta z historią, zdjęciami i wydrukami).
+- **Kliknięcie gdziekolwiek w kafelek otwiera edycję** tego laptopa — można zmienić każde pole,
+  łącznie ze statusem i oznaczeniem express. Zaznaczanie tekstu i klikanie przycisków na kafelku
+  działa normalnie.
 
 ## Wyszukiwanie
 
-Pole **Szukaj** w nagłówku (albo „Szukaj” na telefonie). Wystarczą 3 znaki. Szuka po:
+Jedno pole **Szukaj** w nagłówku — na kolejce filtruje listę **od razu podczas pisania**
+(wystarczą 3 znaki, Enter nie jest potrzebny). Puste pole przywraca normalną kolejkę.
+Na pozostałych ekranach Enter otwiera kolejkę z wpisaną frazą.
+
+Szuka po:
 
 - telefonie (także w innym formacie: `505 123 456`, `+48505123456`, `0048…`),
 - numerze plomby (`PLO-001-2024`),
 - modelu, numerze seryjnym, opisie usterki i numerze zlecenia.
 
-Wyniki obejmują także zlecenia wydane.
+Wyniki obejmują także zlecenia wydane i są grupowane po etapie. **Wyczyść szukanie** pod
+listą usuwa frazę, zostawiając wybrany etap.
 
 ## Zmiana danych
 
-Na karcie zlecenia → **Edytuj**. Zapisujesz tylko zmienione pola — jeśli nic nie zmieniłeś,
-aplikacja powie „Brak zmian” i **nie ruszy terminu realizacji**.
+Kliknij kafelek zlecenia w kolejce (albo **Edytuj** na karcie zlecenia). Zapisujesz tylko
+zmienione pola — jeśli nic nie zmieniłeś, aplikacja powie „Brak zmian” i **nie ruszy terminu
+realizacji**. Link **Karta zlecenia** w nagłówku edycji wraca do podglądu.
 
 Wydanie i anulowanie mają osobne przyciski (nie da się ich zrobić przez edycję).
 
@@ -83,7 +95,7 @@ są ukryte, żeby historia czytała się jak zdania, a nie jak zrzut bazy.
 
 ## Telefon / instalacja jako aplikacja
 
-- Na telefonie dolny pasek: Kolejka, Przyjmij, Szukaj, Wydane, Konta (tylko administrator).
+- Na telefonie dolny pasek: Kolejka, Przyjmij, Wydane, Konta (tylko administrator).
 - Instalacja: menu przeglądarki → **Dodaj do ekranu głównego**.
 - Bez internetu aplikacja pokaże stronę „Brak połączenia” — **nie zapisuj wtedy zmian**;
   dane klientów nie są przechowywane w pamięci telefonu (to celowe).

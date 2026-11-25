@@ -23,14 +23,9 @@
                     <label class="form-label" for="to">Do</label>
                     <input class="form-control" id="to" name="to" type="date" value="{{ $to }}">
                 </div>
-                <div class="field-group field-group--grow">
-                    <label class="form-label" for="q">Telefon, plomba lub model</label>
-                    <input class="form-control" id="q" name="q" type="search" value="{{ $term }}"
-                           placeholder="np. 505 123 456">
-                </div>
-                <button class="btn btn-primary" type="submit">Szukaj</button>
-                @if ($from !== '' || $to !== '' || $term !== '')
-                    <a class="btn btn-link" href="{{ route('services.released') }}">Wyczyść</a>
+                <button class="btn btn-primary" type="submit">Pokaż</button>
+                @if ($from !== '' || $to !== '')
+                    <a class="btn btn-link" href="{{ route('services.released') }}">Wyczyść zakres</a>
                 @endif
             </div>
         </div>

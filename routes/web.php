@@ -19,7 +19,6 @@ use App\Http\Controllers\PrintController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\ReleasedController;
-use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServicePhotoController;
 use App\Http\Controllers\WebInstallController;
@@ -70,7 +69,7 @@ Route::middleware(['auth', RequirePasswordChange::class])->group(function (): vo
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', QueueController::class)->name('services.queue');
-    Route::get('/search', SearchController::class)->name('services.search');
+    Route::get('/queue/results', [QueueController::class, 'results'])->name('services.queue.results');
     Route::get('/released', ReleasedController::class)->name('services.released');
 
     Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');

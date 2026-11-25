@@ -10,6 +10,7 @@
         </div>
         <div class="page-head__aside">
             <x-status-badge :status="$service->status" />
+            <a class="btn btn-sm btn-outline-secondary" href="{{ route('services.show', $service) }}">Karta zlecenia</a>
         </div>
     </div>
 

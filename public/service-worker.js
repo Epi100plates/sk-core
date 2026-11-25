@@ -82,8 +82,8 @@ self.addEventListener('fetch', function (event) {
     // Network-only for anything that may contain customer data.
     var isData = url.pathname.indexOf('/photos/') === 0
         || url.pathname === '/'
+        || url.pathname.indexOf('/queue') === 0
         || url.pathname.indexOf('/services') === 0
-        || url.pathname.indexOf('/search') === 0
         || url.pathname.indexOf('/released') === 0
         || url.pathname.indexOf('/admin') === 0
         || url.pathname.indexOf('/manifest') === 0;

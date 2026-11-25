@@ -46,11 +46,6 @@ final class ManifestController extends Controller
                     'url' => route('services.create'),
                     'icons' => [['src' => asset('icons/icon-96.png').'?v='.$version, 'sizes' => '96x96']],
                 ],
-                [
-                    'name' => 'Wyszukaj',
-                    'url' => route('services.search'),
-                    'icons' => [['src' => asset('icons/icon-96.png').'?v='.$version, 'sizes' => '96x96']],
-                ],
             ],
         ];
 

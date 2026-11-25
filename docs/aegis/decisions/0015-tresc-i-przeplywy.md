@@ -5,6 +5,8 @@
 | **Status** | zaakceptowana (właściciel, 2026-11-25) |
 | **Źródło** | zlecenie właściciela (2026-11-25): „w niektórych miejscach tekst się dubluje, część informacji jest niepotrzebna, nie zawsze wszystko poprawnie się formatuje… przebuduj aplikację, aby była bardziej user friendly, będzie ona tylko do użytku w jednym serwisie” + prośba o sprawdzenie zabezpieczeń |
 
+> **Aktualizacja 2026-11-25:** punkt 1 (nazwa „Szukaj zlecenia”), punkt 4 w części o pokazywaniu hasła na żądanie i punkt 6 (filtr na checkboxach) zastępuje decyzja [0016 — kolejka i wyszukiwanie](0016-kolejka-i-wyszukiwanie.md). Pozostałe punkty pozostają w mocy.
+
 ## Kontekst
 
 Aplikacja była pisana jak system dla wielu serwisów i wielu ról: każdy ekran tłumaczył się przed użytkownikiem („Kliknij status, aby filtrować”, „Zapisywane szyfrowane, widoczne dla pracowników”, „Czas lokalny (Europe/Warsaw)”), powtarzał tę samą informację w nagłówku, tytule i treści, a historia zmian pokazywała surowe pola audytu (`Wydał: 1`, `Potwierdzenie przyjęcia wydane: — → —`). Przechodząc przez wszystkie 32 trasy znaleziono 46 miejsc, w których tekst się dublował, był zbędny albo źle sformatowany. Równolegle audyt bezpieczeństwa wykazał, że hasło do laptopa trafiało w postaci jawnej do historii zlecenia.

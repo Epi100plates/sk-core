@@ -29,15 +29,23 @@
             <img src="{{ asset('brand/studio-komp-logo-trim.png') }}" alt="Studio-Komp — serwis laptopów">
         </a>
 
-        <form class="app-search" method="get" action="{{ route('services.search') }}" role="search">
-            <label class="visually-hidden" for="global-search">Szukaj zlecenia</label>
+        <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
+              data-live-search data-results-url="{{ route('services.queue.results') }}"
+              data-queue-url="{{ route('services.queue') }}"
+              data-status="{{ is_string(request('status')) ? request('status') : '' }}">
+            <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
             <input class="form-control" id="global-search" type="search"
-                   name="q" value="{{ request()->routeIs('services.search') ? request('q') : '' }}"
-                   placeholder="Telefon, plomba, model…" minlength="3" required>
+                   name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
+                   placeholder="Model, telefon, plomba…" autocomplete="off"
+                   aria-describedby="global-search-hint">
+            @if (is_string(request('status')))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
             <button class="btn btn-outline-light" type="submit">
                 <x-icon name="search" :size="16" />
                 <span class="visually-hidden">Szukaj</span>
             </button>
+            <span class="visually-hidden" id="global-search-hint">Od 3 znaków lista filtruje się sama.</span>
         </form>
 
         <div class="app-header__actions">
@@ -73,12 +81,6 @@
                 <a class="nav-link {{ request()->routeIs('services.create') ? 'active' : '' }}"
                    href="{{ route('services.create') }}" @if(request()->routeIs('services.create')) aria-current="page" @endif>
                     <x-icon name="plus" :size="17" /> Przyjmij laptopa
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('services.search') ? 'active' : '' }}"
-                   href="{{ route('services.search') }}" @if(request()->routeIs('services.search')) aria-current="page" @endif>
-                    <x-icon name="search" :size="17" /> Szukaj
                 </a>
             </li>
             <li class="nav-item">
@@ -125,9 +127,6 @@
     </a>
     <a href="{{ route('services.create') }}" class="{{ request()->routeIs('services.create') ? 'active' : '' }}" @if(request()->routeIs('services.create')) aria-current="page" @endif>
         <x-icon name="plus" :size="18" /> Przyjmij
-    </a>
-    <a href="{{ route('services.search') }}" class="{{ request()->routeIs('services.search') ? 'active' : '' }}" @if(request()->routeIs('services.search')) aria-current="page" @endif>
-        <x-icon name="search" :size="18" /> Szukaj
     </a>
     <a href="{{ route('services.released') }}" class="{{ request()->routeIs('services.released') ? 'active' : '' }}" @if(request()->routeIs('services.released')) aria-current="page" @endif>
         <x-icon name="package" :size="18" /> Wydane
