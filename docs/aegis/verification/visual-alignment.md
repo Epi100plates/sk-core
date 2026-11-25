@@ -118,3 +118,9 @@ widok (wynik w [runtime-verification.md](runtime-verification.md)).
 5. **Synchronizacja ze stroną** — ręczna. Gdy strona zmieni tokeny, trzeba je przenieść do
    `app.css`; wspólny plik `tokens.css` byłby następnym krokiem.
 6. **Cache** — po każdej zmianie CSS/JS trzeba podbić `ASSET_VERSION`; w tej zmianie doszło do 9.
+
+> **Aktualizacja 2026-11-25 (późniejsza runda):** przebudowa treści i przepływów zmieniła układ
+> karty zlecenia (gęsty wiersz zamiast biletu), historię zmian, formularze i strony błędów —
+> opis i zrzuty w [content-and-security-pass.md](content-and-security-pass.md), decyzja
+> [0015](../decisions/0015-tresc-i-przeplywy.md). Tokeny, fonty i kolory marki z tego dokumentu
+> pozostają aktualne; `ASSET_VERSION` doszedł do 12.

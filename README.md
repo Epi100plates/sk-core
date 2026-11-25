@@ -74,14 +74,15 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 257 testów: json + mysql
+php artisan test                 # 275 testów: json + mysql
 php artisan dusk                 # 15 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-25: **257 testów zielonych w obu trybach magazynu** + **15 scenariuszy Dusk (z axe)**,
+Stan na 2026-11-25: **275 testów zielonych w obu trybach magazynu** + **15 scenariuszy Dusk (z axe)**,
 Pint czysty, PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
-Wyrównanie wizualne ze stroną firmową: [`docs/aegis/verification/visual-alignment.md`](docs/aegis/verification/visual-alignment.md).
+Wyrównanie wizualne ze stroną firmową: [docs/aegis/verification/visual-alignment.md](docs/aegis/verification/visual-alignment.md).
+Treść, przepływy i bezpieczeństwo (przebudowa ekranów): [docs/aegis/verification/content-and-security-pass.md](docs/aegis/verification/content-and-security-pass.md).
 
 ### Testy przeglądarkowe (Dusk)
 

@@ -48,6 +48,7 @@
 | Kroki do filtrowania kolejki | 2 (kafel + przycisk) | 1 (kafel) |
 | Wystąpienia numeru zlecenia na karcie | 1–2 | 1 |
 | Hasło urządzenia w historii | jawne | `••••` |
+| Render kolejki, 200 zleceń (`bench:queue`) | p50 89,4 ms · p95 118,6 ms | p50 64,8 ms · p95 76,3 ms |
 
 ## Weryfikacja automatyczna (stan po zmianach)
 
@@ -56,6 +57,7 @@ php artisan test                        275 passed (976 assertions)   json + mys
 php artisan dusk                        15 passed (41 assertions)     w tym 6 audytów axe
 vendor/bin/pint --test                  PASS (157 plików)
 vendor/bin/phpstan analyse              108 plików, [OK] no errors (poziom 6)
+php artisan bench:queue --services=200  p50 64,8 ms · p95 76,3 ms     (cel < 300 ms)
 ```
 
 Testy dodane w tej rundzie:
