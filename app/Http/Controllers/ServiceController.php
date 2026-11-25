@@ -11,10 +11,9 @@ use App\Actions\ServiceDetails;
 use App\Actions\UpdateService;
 use App\Contracts\ServiceEventRepository;
 use App\Contracts\ServicePhotoRepository;
-use App\Contracts\ServiceRepository;
+use App\Contracts\UserRepository;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
-use App\Domain\FieldLabels;
 use App\Domain\ServiceWorkflow;
 use App\Http\Requests\ServiceRequest;
 use App\Support\Audit\AuditContext;
@@ -37,7 +36,6 @@ final class ServiceController extends Controller
         return view('services.create', [
             'service' => null,
             'defaultPlannedAt' => ServiceRequest::defaultPlannedAt(),
-            'timezone' => FieldLabels::displayTimezone(),
         ]);
     }
 
@@ -80,21 +78,24 @@ final class ServiceController extends Controller
 
     public function show(
         ServiceRecord $service,
-        ServiceRepository $services,
         ServiceEventRepository $events,
         ServicePhotoRepository $photos,
         ServiceWorkflow $workflow,
+        UserRepository $users,
     ): View {
         $this->authorize('view', $service);
+
+        $actors = [];
+        foreach ($users->all() as $user) {
+            $actors[$user->id] = $user->name;
+        }
 
         return view('services.show', [
             'service' => $service,
             'photos' => $photos->forService($service->id),
             'events' => $events->forService($service->id, 20),
-            'nextStatus' => $workflow->nextStatus($service),
+            'actors' => $actors,
             'canRelease' => $workflow->canRelease($service),
-            'counts' => $services->countsByStatus(),
-            'timezone' => FieldLabels::displayTimezone(),
         ]);
     }
 
@@ -105,7 +106,6 @@ final class ServiceController extends Controller
         return view('services.edit', [
             'service' => $service,
             'plannedAtInput' => ServiceRequest::fromRecordToInput($service->plannedAt),
-            'timezone' => FieldLabels::displayTimezone(),
         ]);
     }
 

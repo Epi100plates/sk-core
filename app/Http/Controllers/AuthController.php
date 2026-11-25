@@ -10,7 +10,6 @@ use App\Http\Requests\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
 /**
@@ -33,28 +32,15 @@ final class AuthController extends Controller
             'password' => (string) $request->validated('password'),
         ];
 
-        $key = mb_strtolower($credentials['login']).'|'.$request->ip();
-
-        $maxAttempts = (int) config('security.login_attempts', 5);
-        $decaySeconds = (int) config('security.login_decay_minutes', 15) * 60;
-
-        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
-            $seconds = RateLimiter::availableIn($key);
-
-            return back()
-                ->withInput($request->only('login'))
-                ->withErrors(['login' => 'Zbyt wiele prób logowania. Spróbuj ponownie za '.$seconds.' s.']);
-        }
-
+        // Throttling lives in one place only: the `throttle:login` route
+        // middleware (5 attempts / 15 minutes, keyed by login + IP). Counting
+        // again here would halve the real allowance.
         if (! Auth::attempt($credentials)) {
-            RateLimiter::hit($key, $decaySeconds);
-
             return back()
                 ->withInput($request->only('login'))
                 ->withErrors(['login' => 'Nieprawidłowy login lub hasło.']);
         }
 
-        RateLimiter::clear($key);
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -63,7 +49,29 @@ final class AuthController extends Controller
             $users->save($user->with(['last_login_at' => now()->utc()->format('Y-m-d H:i:s')]));
         }
 
-        return redirect()->intended(route('services.queue'));
+        return redirect()->to($this->intendedUrl($request));
+    }
+
+    /**
+     * `url.intended` comes from the request URL, so a spoofed Host header could
+     * otherwise send the employee to an external site after logging in.
+     */
+    private function intendedUrl(Request $request): string
+    {
+        $fallback = route('services.queue');
+        $intended = $request->session()->pull('url.intended');
+
+        if (! is_string($intended) || $intended === '') {
+            return $fallback;
+        }
+
+        $host = parse_url($intended, PHP_URL_HOST);
+
+        if (! is_string($host) || mb_strtolower($host) !== mb_strtolower($request->getHost())) {
+            return $fallback;
+        }
+
+        return $intended;
     }
 
     public function logout(Request $request): RedirectResponse

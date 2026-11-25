@@ -31,6 +31,12 @@
 
         return (string) old($key, $current ?? $default);
     };
+
+    // A datetime-local field shows seconds only when its step is one second, so
+    // the step follows the value: a promised date reads "15:00", while a stored
+    // instant with seconds still round trips exactly (defect D-44).
+    $plannedValue = (string) old('planned_at', $plannedAtInput);
+    $plannedStep = strlen($plannedValue) > 16 ? 1 : 60;
 @endphp
 
 <form method="post" action="{{ $action }}" enctype="multipart/form-data" data-guard-submit class="app-card">
@@ -79,15 +85,13 @@
                 <label class="form-label" for="device_password">Hasło do urządzenia</label>
                 <input class="form-control" id="device_password" name="device_password" type="text" maxlength="100"
                        value="{{ $value('device_password') }}" autocomplete="off">
-                <p class="service-meta mb-0">Zapisywane szyfrowane, widoczne dla pracowników.</p>
             </div>
 
             <div class="col-12 col-md-6">
                 <label class="form-label" for="planned_at">Termin realizacji <span class="text-danger">*</span></label>
                 <input class="form-control @error('planned_at') is-invalid @enderror" id="planned_at" name="planned_at"
-                       type="datetime-local" step="1" value="{{ old('planned_at', $plannedAtInput) }}" required>
+                       type="datetime-local" step="{{ $plannedStep }}" value="{{ $plannedValue }}" required>
                 @error('planned_at')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                <p class="service-meta mb-0">Czas lokalny ({{ $timezone ?? \App\Domain\FieldLabels::displayTimezone() }}).</p>
             </div>
 
             <div class="col-6 col-md-3">
@@ -105,7 +109,7 @@
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label" for="notes">Uwagi wewnętrzne</label>
+                <label class="form-label" for="notes">Uwagi</label>
                 <textarea class="form-control" id="notes" name="notes" rows="2" maxlength="5000">{{ $value('notes') }}</textarea>
             </div>
 
@@ -127,13 +131,13 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="service-meta mb-0">Wydanie i anulowanie mają osobne akcje.</p>
                 </div>
             @endif
 
             <div class="col-12">
-                <label class="form-label" for="photos">Zdjęcia (do 10 plików, max 10 MB każde)</label>
+                <label class="form-label" for="photos">Zdjęcia</label>
                 <input class="form-control" id="photos" name="photos[]" type="file" accept="image/*" multiple>
+                <p class="service-meta mb-0">Do 10 plików, maks. 10 MB każde.</p>
             </div>
 
             @unless ($isEdit)

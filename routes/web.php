@@ -37,16 +37,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::bind('service', static function (string $value): ?ServiceRecord {
-    return is_numeric($value) ? app(ServiceRepository::class)->find((int) $value) : null;
+Route::bind('service', static function (string $value): ServiceRecord {
+    $service = is_numeric($value) ? app(ServiceRepository::class)->find((int) $value) : null;
+
+    return $service ?? abort(404);
 });
 
-Route::bind('photo', static function (string $value): ?ServicePhotoRecord {
-    return is_numeric($value) ? app(ServicePhotoRepository::class)->find((int) $value) : null;
+Route::bind('photo', static function (string $value): ServicePhotoRecord {
+    $photo = is_numeric($value) ? app(ServicePhotoRepository::class)->find((int) $value) : null;
+
+    return $photo ?? abort(404);
 });
 
-Route::bind('user', static function (string $value): ?UserRecord {
-    return is_numeric($value) ? app(UserRepository::class)->find((int) $value) : null;
+Route::bind('user', static function (string $value): UserRecord {
+    $user = is_numeric($value) ? app(UserRepository::class)->find((int) $value) : null;
+
+    return $user ?? abort(404);
 });
 
 Route::middleware('guest')->group(function (): void {

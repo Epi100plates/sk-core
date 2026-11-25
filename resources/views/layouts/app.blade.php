@@ -27,7 +27,6 @@
     <div class="app-header__inner">
         <a class="app-brand" href="{{ route('services.queue') }}">
             <img src="{{ asset('brand/studio-komp-logo-trim.png') }}" alt="Studio-Komp — serwis laptopów">
-            <span class="visually-hidden">Kolejka napraw</span>
         </a>
 
         <form class="app-search" method="get" action="{{ route('services.search') }}" role="search">
@@ -62,7 +61,7 @@
 
 <div class="app-shell">
     <nav class="app-sidebar" aria-label="Nawigacja główna">
-        <p class="app-sidebar__label eyebrow">Kolejka</p>
+        <p class="app-sidebar__label eyebrow">Zlecenia</p>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.queue') ? 'active' : '' }}"
@@ -111,11 +110,6 @@
                 </a>
             </li>
         </ul>
-
-        <p class="app-sidebar__foot">
-            {{ config('app.name') }}<br>
-            Magazyn danych: {{ config('persistence.driver') }}
-        </p>
     </nav>
 
     <main class="app-main" id="main">

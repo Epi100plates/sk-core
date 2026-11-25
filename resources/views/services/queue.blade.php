@@ -4,10 +4,9 @@
 
 @section('content')
     @php
-        $activeCount = 0;
-        foreach (\App\Domain\Enums\ServiceStatus::activeCases() as $status) {
-            $activeCount += $counts[$status->value] ?? 0;
-        }
+        $allStatuses = \App\Domain\Enums\ServiceStatus::activeCases();
+        $allValues = array_map(static fn (\App\Domain\Enums\ServiceStatus $status): string => $status->value, $allStatuses);
+        $filtered = $activeFilter !== $allValues;
     @endphp
 
     <div class="page-head">
@@ -15,23 +14,18 @@
             <span class="eyebrow">Stan warsztatu · {{ now($timezone)->format('d.m.Y') }}</span>
             <h1 class="page-title">Kolejka napraw</h1>
             <p class="page-head__meta">
-                {{ $activeCount }} aktywnych zleceń
-                @if ($page->total > 0)
-                    · pokazano {{ $page->from() }}–{{ $page->to() }} z {{ $page->total }}
+                {{ \App\Domain\FieldLabels::plural($page->total, 'zlecenie', 'zlecenia', 'zleceń') }}
+                @if ($page->lastPage() > 1)
+                    · strona {{ $page->page }} z {{ $page->lastPage() }}
                 @endif
             </p>
         </div>
-        <div class="page-head__aside">
-            <a class="btn btn-primary" href="{{ route('services.create') }}">
-                <x-icon name="plus" :size="16" /> Przyjmij laptopa
-            </a>
-        </div>
     </div>
 
-    <form class="app-card mb-3" method="get" action="{{ route('services.queue') }}">
+    <form class="app-card mb-3" method="get" action="{{ route('services.queue') }}" data-auto-submit>
         <fieldset class="stat-strip">
             <legend class="visually-hidden">Filtruj kolejkę po statusie</legend>
-            @foreach (\App\Domain\Enums\ServiceStatus::activeCases() as $status)
+            @foreach ($allStatuses as $status)
                 <label class="stat stat--filter">
                     <input class="stat__input" type="checkbox" name="status[]"
                            value="{{ $status->value }}"
@@ -43,14 +37,16 @@
                 </label>
             @endforeach
         </fieldset>
-        <div class="app-card-footer">
-            @if ($activeFilter !== array_map(static fn (\App\Domain\Enums\ServiceStatus $status): string => $status->value, \App\Domain\Enums\ServiceStatus::activeCases()))
-                <a class="btn btn-sm btn-link me-auto" href="{{ route('services.queue') }}">Wyczyść filtr</a>
-            @else
-                <span class="service-meta me-auto">Kliknij status, aby filtrować.</span>
-            @endif
-            <button class="btn btn-sm btn-outline-primary" type="submit">Zastosuj filtr</button>
-        </div>
+        @if ($filtered)
+            <div class="app-card-footer">
+                <a class="btn btn-sm btn-link" href="{{ route('services.queue') }}">Pokaż wszystkie</a>
+            </div>
+        @endif
+        <noscript>
+            <div class="app-card-footer">
+                <button class="btn btn-sm btn-outline-primary" type="submit">Zastosuj filtr</button>
+            </div>
+        </noscript>
     </form>
 
     @if ($page->isEmpty())
@@ -82,11 +78,9 @@
                        href="{{ route('services.show', $service) }}">
                         <span>
                             {{ $service->deviceModel }}
-                            <span class="service-meta">· {{ $service->reference }} · {{ $service->displayPhone() }}</span>
+                            <span class="service-meta">· {{ $service->reference }}</span>
                         </span>
-                        <span class="service-meta">
-                            {{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}
-                        </span>
+                        <span class="service-meta">{{ \App\Domain\FieldLabels::formatDate($service->releasedAt) }}</span>
                     </a>
                 @endforeach
             </div>

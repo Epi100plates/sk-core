@@ -5,10 +5,10 @@
 @section('content')
     <div class="page-head">
         <div class="page-head__main">
-            <span class="eyebrow">Wydanie zlecenia · {{ $service->reference }}</span>
+            <span class="eyebrow">Wydanie zlecenia</span>
             <h1 class="page-title">Protokół wydania</h1>
             <p class="page-head__meta">
-                Potwierdź dane, uzupełnij cenę końcową i wydaj sprzęt klientowi.
+                Sprawdź dane, potwierdź cenę końcową i wydaj sprzęt.
             </p>
         </div>
         <div class="page-head__aside">
@@ -17,11 +17,10 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-12 col-lg-7">
+        <div class="col-12 {{ count($photos) > 0 ? 'col-lg-7' : '' }}">
             <aside class="docket mb-3" aria-label="Podsumowanie zlecenia">
                 <p class="docket__label">
                     <span>Zlecenie serwisowe</span>
-                    <span>Wydanie</span>
                 </p>
                 <p class="docket__reference">{{ $service->reference }}</p>
                 <dl class="docket__rows">
@@ -57,10 +56,10 @@
                         <div class="col-12 col-md-6">
                             <label class="form-label" for="released_at">Data wydania <span class="text-danger">*</span></label>
                             <input class="form-control @error('released_at') is-invalid @enderror" id="released_at"
-                                   name="released_at" type="datetime-local" step="1"
+                                   name="released_at" type="datetime-local"
+                                   step="{{ strlen((string) old('released_at', $defaultReleasedAt)) > 16 ? 1 : 60 }}"
                                    value="{{ old('released_at', $defaultReleasedAt) }}" required>
                             @error('released_at')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                            <p class="service-meta mb-0">Czas lokalny ({{ $timezone }}).</p>
                         </div>
 
                         <div class="col-6 col-md-3">
@@ -113,20 +112,22 @@
 
                 <div class="app-card-footer">
                     <a class="btn btn-link me-auto" href="{{ route('services.show', $service) }}">Anuluj</a>
-                    <button class="btn btn-success" type="submit">Potwierdź wydanie</button>
+                    <button class="btn btn-primary" type="submit">Potwierdź wydanie</button>
                 </div>
             </form>
         </div>
 
-        <div class="col-12 col-lg-5">
-            <section class="app-card" aria-labelledby="release-photos">
-                <div class="app-card-header">
-                    <h2 class="h6" id="release-photos">Zdjęcia</h2>
-                </div>
-                <div class="app-card-body">
-                    <x-photo-gallery :photos="$photos" :service="$service" group="release-photos" />
-                </div>
-            </section>
-        </div>
+        @if (count($photos) > 0)
+            <div class="col-12 col-lg-4">
+                <section class="app-card" aria-labelledby="release-photos">
+                    <div class="app-card-header">
+                        <h2 class="h6" id="release-photos">Zdjęcia</h2>
+                    </div>
+                    <div class="app-card-body">
+                        <x-photo-gallery :photos="$photos" :service="$service" group="release-photos" />
+                    </div>
+                </section>
+            </div>
+        @endif
     </div>
 @endsection

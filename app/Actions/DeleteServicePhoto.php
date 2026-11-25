@@ -40,10 +40,6 @@ final class DeleteServicePhoto
                 ServiceEventType::PhotoDeleted,
                 $actor,
                 $context,
-                [],
-                null,
-                null,
-                'Usunięto zdjęcie '.$photo->path,
             );
         });
     }

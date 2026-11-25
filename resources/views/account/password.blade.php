@@ -16,10 +16,6 @@
         @method('PUT')
 
         <div class="app-card-body">
-            <p class="service-meta mb-3">
-                Konto: <strong>{{ $user->login }}</strong> ({{ $user->role->label() }})
-            </p>
-
             <div class="row g-3">
                 <div class="col-12 col-md-6">
                     <label class="form-label" for="current_password">Obecne hasło <span class="text-danger">*</span></label>
@@ -28,14 +24,11 @@
                     @error('current_password')<p class="invalid-feedback">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="col-12 col-md-6"></div>
-
                 <div class="col-12 col-md-6">
                     <label class="form-label" for="password">Nowe hasło <span class="text-danger">*</span></label>
                     <input class="form-control @error('password') is-invalid @enderror" id="password" name="password"
                            type="password" minlength="12" autocomplete="new-password" required>
                     @error('password')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                    <p class="service-meta mb-0">Minimum 12 znaków.</p>
                 </div>
 
                 <div class="col-12 col-md-6">

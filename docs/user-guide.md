@@ -14,7 +14,7 @@ Po 5 nieudanych próbach logowanie jest zablokowane na 15 minut.
 ## Przyjęcie laptopa (3 dotknięcia)
 
 1. Przycisk **Przyjmij** w nagłówku (na telefonie: „Przyjmij” na dolnym pasku) albo
-   **Przyjmij laptopa** nad kolejką.
+   pozycja **Przyjmij laptopa** w lewym menu.
 2. Wypełnij: telefon klienta, model, usterkę, termin realizacji (domyślnie jutro 15:00).
    Opcjonalnie: numer seryjny, hasło do urządzenia, numer plomby, uwagi, cena, koszt części.
 3. Zaznacz **Express**, jeśli zlecenie ma priorytet, oraz **Wydrukuj potwierdzenie przyjęcia**,
@@ -23,16 +23,16 @@ Po 5 nieudanych próbach logowanie jest zablokowane na 15 minut.
 
 Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie zlecenia.
 
-> Hasło do laptopa jest zapisywane w postaci zaszyfrowanej i widoczne dla pracowników.
-> Uwaga: na karcie w kolejce jest domyślnie ukryte — pokazujesz je przyciskiem **Pokaż**.
+> Hasło do laptopa jest zaszyfrowane w bazie i pokazywane na karcie zlecenia po naciśnięciu
+> **Pokaż**. W historii zmian widać tylko, że hasło jest ustawione — nigdy jego treść.
 
 ## Kolejka
 
 - Na górze lista aktywnych zleceń: najpierw **express**, potem „w trakcie naprawy”,
   „oczekujące”, „czeka na części”, „do wydania”.
 - Na końcu listy: **Ostatnio wydane** (bez przycisków akcji).
-- Filtry statusu: kafle z liczbami nad listą. Dotknij status (np. **Do wydania**), a potem
-  **Zastosuj filtr** — adres z filtrem można wysłać koledze.
+- Filtry statusu: kafle z liczbami nad listą. Dotknij status (np. **Do wydania**) — lista
+  filtruje się od razu; **Pokaż wszystkie** czyści filtr. Adres z filtrem można wysłać koledze.
 - Na karcie: **Rozpocznij naprawę / Oznacz do odbioru / Wznów naprawę** (zależnie od statusu).
 
 ## Wyszukiwanie
@@ -64,13 +64,14 @@ Zlecenie znika z kolejki i pojawia się w **Wydane**.
 
 ## Anulowanie
 
-Na karcie zlecenia → sekcja **Anulowanie** → wpisz powód → **Anuluj zlecenie**.
+Na karcie zlecenia → rozwiń **Anuluj zlecenie** pod historią → wpisz powód → **Anuluj zlecenie**.
 Zlecenie znika z kolejki, zostaje w historii z powodem. Wydanego zlecenia nie można anulować.
 
 ## Historia zmian
 
 Na karcie zlecenia, pod danymi: kto, kiedy i co zmienił (z polskimi nazwami pól).
-Widać tam również dodanie i usunięcie zdjęć.
+Widać tam również dodanie i usunięcie zdjęć. Wpisy techniczne (identyfikatory, znaczniki czasu)
+są ukryte, żeby historia czytała się jak zdania, a nie jak zrzut bazy.
 
 ## Wydruki
 

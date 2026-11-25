@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Contracts\ServiceEventRepository;
 use App\Domain\Enums\Role;
 use Illuminate\Support\Facades\Route;
 
@@ -123,4 +124,63 @@ it('declares every public and protected route explicitly', function () {
         ->and($names)->toContain('manifest.webmanifest')
         ->and($names)->toContain('offline')
         ->and($names)->toContain('__install');
+});
+
+it('sends the security headers with error and redirect responses too', function () {
+    // A 404 and a guest redirect are rendered outside the middleware stack, so
+    // they used to arrive without CSP or X-Frame-Options.
+    $this->get('/no-such-page')
+        ->assertNotFound()
+        ->assertHeader('X-Frame-Options', 'DENY')
+        ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+    $this->get('/')
+        ->assertRedirect('/login')
+        ->assertHeader('X-Frame-Options', 'DENY')
+        ->assertHeader('Content-Security-Policy');
+});
+
+it('answers with 404 instead of a stack trace for a missing record', function (string $uri) {
+    usingStore($this, 'json');
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->get($uri)->assertNotFound();
+})->with([
+    '/services/999999',
+    '/services/999999/edit',
+    '/services/999999/release',
+    '/photos/999999',
+    '/admin/users/999999/edit',
+]);
+
+it('ignores an intended url pointing at another host after login', function () {
+    usingStore($this, 'json');
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $response = $this
+        ->withSession(['url.intended' => 'http://evil.example/services'])
+        ->post('/login', ['login' => $user->login, 'password' => 'TajneHaslo123']);
+
+    $response->assertRedirect(route('services.queue'));
+    expect((string) $response->headers->get('Location'))->not->toContain('evil.example');
+});
+
+it('never writes the device password into the audit trail', function () {
+    usingStore($this, 'json');
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user, ['device_password' => 'tajne-haslo']);
+
+    $events = app(ServiceEventRepository::class)->forService($service->id);
+    $stored = json_encode(array_map(static fn ($event): array => $event->toArray(), $events->items));
+
+    expect((string) $stored)->not->toContain('tajne-haslo');
+
+    // The password may appear exactly once on the card (the "Pokaż" reveal
+    // control); a second occurrence means it leaked into the history list.
+    $html = (string) $this->actingAsUser($user)->get('/services/'.$service->id)->getContent();
+
+    expect(substr_count($html, 'tajne-haslo'))->toBe(1);
 });

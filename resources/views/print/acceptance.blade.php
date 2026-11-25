@@ -41,14 +41,18 @@
             <th scope="row">Model</th>
             <td>{{ $service->deviceModel }}</td>
         </tr>
-        <tr>
-            <th scope="row">Numer seryjny</th>
-            <td>{{ $service->serialNumber ?? '—' }}</td>
-        </tr>
-        <tr>
-            <th scope="row">Numer plomby</th>
-            <td>{{ $service->sealNumber ?? '—' }}</td>
-        </tr>
+        @if ($service->serialNumber !== null)
+            <tr>
+                <th scope="row">Numer seryjny</th>
+                <td>{{ $service->serialNumber }}</td>
+            </tr>
+        @endif
+        @if ($service->sealNumber !== null)
+            <tr>
+                <th scope="row">Numer plomby</th>
+                <td>{{ $service->sealNumber }}</td>
+            </tr>
+        @endif
         <tr>
             <th scope="row">Zgłoszona usterka</th>
             <td class="text-pre-wrap">{{ $service->issue }}</td>
@@ -71,10 +75,12 @@
             <th scope="row">Szacowana cena</th>
             <td><x-money :value="$service->price" /></td>
         </tr>
-        <tr>
-            <th scope="row">Uwagi</th>
-            <td class="text-pre-wrap">{{ $service->notes ?? '—' }}</td>
-        </tr>
+        @if ($service->notes !== null)
+            <tr>
+                <th scope="row">Uwagi</th>
+                <td class="text-pre-wrap">{{ $service->notes }}</td>
+            </tr>
+        @endif
         </tbody>
     </table>
 

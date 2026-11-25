@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zbyt wiele prób · {{ config('app.name') }}</title>
+    <meta name="theme-color" content="#2d343a">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ config('app.asset_version') }}">
+</head>
+<body class="app-body">
+<main class="auth-page" id="main">
+    <div class="app-card offline-card">
+        <div class="app-card-header">
+            <span class="eyebrow">Dostęp wstrzymany</span>
+            <x-icon name="clock" :size="18" />
+        </div>
+        <div class="app-card-body">
+            <h1 class="auth-title">Zbyt wiele prób</h1>
+            <p class="service-meta mt-2 mb-3">
+                W krótkim czasie było za dużo prób logowania albo zapisów.
+                Odczekaj kilka minut i spróbuj ponownie.
+            </p>
+            <a class="btn btn-primary w-100" href="{{ url('/') }}">Spróbuj ponownie</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

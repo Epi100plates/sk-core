@@ -5,9 +5,13 @@
 @section('content')
     <div class="page-head">
         <div class="page-head__main">
-            <span class="eyebrow">Administracja · konta</span>
-            <h1 class="page-title">{{ $user === null ? 'Nowe konto pracownika' : 'Edycja konta '.$user->login }}</h1>
-            <p class="page-head__meta">Hasło startowe przekaż pracownikowi — zmieni je przy pierwszym logowaniu.</p>
+            <span class="eyebrow">Administracja</span>
+            <h1 class="page-title">{{ $user === null ? 'Nowe konto' : 'Konto '.$user->login }}</h1>
+            <p class="page-head__meta">
+                {{ $user === null
+                    ? 'Przekaż hasło startowe pracownikowi — zmieni je przy pierwszym logowaniu.'
+                    : 'Zmień dane konta albo odbierz dostęp.' }}
+            </p>
         </div>
     </div>
 
@@ -45,10 +49,7 @@
                         @endforeach
                     </select>
                     @error('role')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                    <p class="service-meta mb-0">
-                        Pracownik i technik mają pełny zakres pracy (przyjęcie, edycja, wydanie, ceny i koszty).
-                        Administrator dodatkowo zarządza kontami.
-                    </p>
+                    <p class="service-meta mb-0">Administrator zarządza też kontami; pracownik i technik mają ten sam zakres pracy.</p>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -67,7 +68,7 @@
                     <input class="form-control @error('password') is-invalid @enderror" id="password" name="password"
                            type="password" minlength="12" autocomplete="new-password" @if ($user === null) required @endif>
                     @error('password')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                    <p class="service-meta mb-0">Minimum 12 znaków. Pracownik zmieni je przy pierwszym logowaniu.</p>
+                    <p class="service-meta mb-0">Minimum 12 znaków.</p>
                 </div>
 
                 <div class="col-12 col-md-6">

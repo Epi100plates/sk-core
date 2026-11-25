@@ -19,8 +19,16 @@ final class AddSecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        return self::applyTo($next($request), $request);
+    }
 
+    /**
+     * Also used by the exception handler (`$exceptions->respond`), because a
+     * response rendered for a 404/419/429/500 never passes back through the
+     * middleware stack.
+     */
+    public static function applyTo(Response $response, Request $request): Response
+    {
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');

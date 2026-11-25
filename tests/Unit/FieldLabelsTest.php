@@ -48,6 +48,11 @@ it('formats money and booleans in the diff', function () {
         ->and(FieldLabels::format('notes', null))->toBe('—');
 });
 
+it('formats a phone number the way the customer wrote it', function () {
+    expect(FieldLabels::format('phone', '+48500102877'))->toBe('+48 500 102 877')
+        ->and(FieldLabels::format('phone', '505 123 456'))->toBe('+48 505 123 456');
+});
+
 it('detects only the fields that really changed', function () {
     $before = ['price' => '100.00', 'cost' => '50.00', 'planned_at' => '2026-11-05 15:00:00', 'is_express' => false];
     $after = $before;
@@ -64,4 +69,44 @@ it('treats an identical snapshot as no change (defect D-44)', function () {
     $snapshot = ['planned_at' => '2026-11-05 15:00:00', 'price' => '199.99', 'is_express' => true];
 
     expect(ServiceDiff::between($snapshot, $snapshot))->toBe([]);
+});
+
+it('declines Polish plurals like a native speaker', function (int $count, string $expected) {
+    expect(FieldLabels::plural($count, 'zlecenie', 'zlecenia', 'zleceń'))->toBe($expected);
+})->with([
+    [0, '0 zleceń'],
+    [1, '1 zlecenie'],
+    [3, '3 zlecenia'],
+    [12, '12 zleceń'],
+    [22, '22 zlecenia'],
+    [25, '25 zleceń'],
+]);
+
+it('hides audit plumbing from the history panel', function () {
+    expect(FieldLabels::hiddenInHistory('status'))->toBeTrue()
+        ->and(FieldLabels::hiddenInHistory('released_by'))->toBeTrue()
+        ->and(FieldLabels::hiddenInHistory('cancellation_reason'))->toBeTrue()
+        ->and(FieldLabels::hiddenInHistory('phone'))->toBeFalse()
+        ->and(FieldLabels::hiddenInHistory('planned_at'))->toBeFalse();
+});
+
+it('masks the device password in the history', function () {
+    expect(FieldLabels::format('device_password', 'tajne-haslo'))->toBe('••••')
+        ->and(FieldLabels::format('device_password', null))->toBe('—');
+});
+
+it('stores a marker instead of the device password in the diff', function () {
+    $before = ['device_password' => 'stare-haslo'];
+    $after = ['device_password' => 'nowe-haslo'];
+
+    $diff = ServiceDiff::between($before, $after);
+
+    expect($diff)->toHaveKey('device_password')
+        ->and($diff['device_password']['from'])->toBe('••••')
+        ->and($diff['device_password']['to'])->toBe('••••')
+        ->and(json_encode($diff))->not->toContain('nowe-haslo');
+
+    $snapshot = ServiceDiff::snapshot(['device_password' => 'tajne-haslo', 'phone' => '505123456']);
+
+    expect(json_encode($snapshot))->not->toContain('tajne-haslo');
 });

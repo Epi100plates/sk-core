@@ -67,10 +67,6 @@ final class AttachServicePhotos
                     ServiceEventType::PhotoAdded,
                     $actor,
                     $context,
-                    [],
-                    null,
-                    null,
-                    'Dodano zdjęcie '.$saved->path,
                 );
             }
 

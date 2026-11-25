@@ -54,7 +54,7 @@ final class ServiceDiff
                 continue;
             }
 
-            $changes[$field] = ['from' => $from, 'to' => $to];
+            $changes[$field] = self::forStorage($field, $from, $to);
         }
 
         return $changes;
@@ -79,10 +79,29 @@ final class ServiceDiff
                 continue;
             }
 
-            $snapshot[$field] = ['from' => null, 'to' => $value];
+            $snapshot[$field] = self::forStorage($field, null, $value);
         }
 
         return $snapshot;
+    }
+
+    /**
+     * The audit trail is append-only and readable by every employee, so a device
+     * password is stored as a presence marker instead of the plaintext — the
+     * record itself keeps the encrypted value.
+     *
+     * @return array{from: mixed, to: mixed}
+     */
+    private static function forStorage(string $field, mixed $from, mixed $to): array
+    {
+        if ($field !== 'device_password') {
+            return ['from' => $from, 'to' => $to];
+        }
+
+        return [
+            'from' => $from === null ? null : '••••',
+            'to' => $to === null ? null : '••••',
+        ];
     }
 
     private static function normalize(string $field, mixed $value): mixed

@@ -130,10 +130,14 @@ class ServiceRequest extends FormRequest
         }
 
         $timezone = (string) config('app.display_timezone');
+        $local = CarbonImmutable::instance($value)->timezone($timezone);
 
-        // Seconds included: a round trip through the form must return exactly the
-        // stored instant, otherwise every save would "move" the deadline (D-44).
-        return CarbonImmutable::instance($value)->timezone($timezone)->format('Y-m-d\TH:i:s');
+        // Seconds only when they are not zero: a promised date reads "16:00",
+        // not "16:00:00", but a stored instant with seconds must still round
+        // trip exactly, otherwise every save would "move" the deadline (D-44).
+        return $local->second === 0
+            ? $local->format('Y-m-d\TH:i')
+            : $local->format('Y-m-d\TH:i:s');
     }
 
     /** Default promised date: tomorrow at 15:00 local time (F-13). */
@@ -141,7 +145,7 @@ class ServiceRequest extends FormRequest
     {
         $timezone = (string) config('app.display_timezone');
 
-        return CarbonImmutable::now($timezone)->addDay()->setTime(15, 0)->format('Y-m-d\TH:i:s');
+        return CarbonImmutable::now($timezone)->addDay()->setTime(15, 0)->format('Y-m-d\TH:i');
     }
 
     /** @return array<string, string> */

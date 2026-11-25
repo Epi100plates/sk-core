@@ -5,10 +5,9 @@
 @section('content')
     <div class="page-head">
         <div class="page-head__main">
-            <span class="eyebrow">Szukaj w zleceniach</span>
-            <h1 class="page-title">Wyszukiwanie</h1>
+            <h1 class="page-title">Szukaj zlecenia</h1>
             <p class="page-head__meta">
-                Telefon, plomba, model, numer seryjny albo usterka — wystarczą 3 znaki. Szukamy także w archiwum wydanych.
+                Telefon, plomba, model, numer seryjny albo usterka — wystarczą 3 znaki. Archiwum wydanych też jest przeszukiwane.
             </p>
         </div>
     </div>
@@ -29,7 +28,7 @@
     @if ($page === null)
         <x-empty-state
             title="Wpisz co najmniej 3 znaki"
-            message="Szukamy po fragmencie numeru telefonu, plombie, modelu, numerze seryjnym i usterce." />
+            message="Szukamy po fragmencie numeru telefonu, plomby, modelu, numeru seryjnego i usterki." />
     @elseif ($page->isEmpty())
         <x-empty-state
             title="Nie znaleziono zleceń"
@@ -38,7 +37,7 @@
             :action-url="route('services.create')" />
     @else
         <p class="service-meta">
-            Znaleziono {{ $page->total }} zleceń dla „{{ $term }}”.
+            {{ \App\Domain\FieldLabels::plural($page->total, 'zlecenie', 'zlecenia', 'zleceń') }} dla „{{ $term }}”.
         </p>
 
         @foreach ($page->items as $service)

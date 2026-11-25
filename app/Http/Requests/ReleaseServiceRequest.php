@@ -79,7 +79,7 @@ class ReleaseServiceRequest extends FormRequest
     /** Default value for the form: now, in local wall clock time. */
     public static function defaultReleasedAt(): string
     {
-        return CarbonImmutable::now((string) config('app.display_timezone'))->format('Y-m-d\TH:i:s');
+        return CarbonImmutable::now((string) config('app.display_timezone'))->format('Y-m-d\TH:i');
     }
 
     public function releasedAtIsFromTheFuture(): bool

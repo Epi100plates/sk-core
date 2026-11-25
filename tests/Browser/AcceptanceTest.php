@@ -67,7 +67,9 @@ final class AcceptanceTest extends DuskTestCase
                 ->press('Przyjmij zlecenie')
                 ->waitForText('Dane zlecenia')
                 ->assertSee('Lenovo ThinkPad T490')
-                ->assertSee('Oczekujące')
+                // The status badge is rendered in caps (mono, letterspaced), and
+                // Dusk compares the rendered text, not the markup.
+                ->assertSee('OCZEKUJĄCE')
                 ->assertSee('Historia zmian')
                 ->press('Rozpocznij naprawę')
                 ->waitForText('W trakcie naprawy')

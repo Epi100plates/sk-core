@@ -95,11 +95,34 @@
         });
     }
 
+    /* Filter forms (queue status strip, released archive) submit on change, so
+       the employee does not have to press "Zastosuj filtr" after every click.
+       Only pickers and checkboxes submit immediately; a text field still needs
+       its own submit button. Without JavaScript the <noscript> button is used. */
+    function setupAutoSubmit() {
+        document.querySelectorAll('form[data-auto-submit]').forEach(function (form) {
+            form.addEventListener('change', function (event) {
+                var target = event.target;
+
+                if (!target || !target.matches('input[type="checkbox"], input[type="date"], input[type="radio"], select')) {
+                    return;
+                }
+
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         setupPasswordToggles();
         setupConfirmations();
         setupDoubleSubmitGuard();
         setupOfflineState();
         setupLogoutCacheCleanup();
+        setupAutoSubmit();
     });
 })();

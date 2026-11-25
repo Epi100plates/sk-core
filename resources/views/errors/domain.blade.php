@@ -13,10 +13,7 @@
     <div class="app-card">
         <div class="app-card-body">
             <p class="mb-3">{{ $message }}</p>
-            <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-outline-secondary" href="{{ url()->previous() }}">Wróć</a>
-                <a class="btn btn-primary" href="{{ route('services.queue') }}">Przejdź do kolejki</a>
-            </div>
+            <a class="btn btn-primary" href="{{ url('/') }}">Przejdź do kolejki</a>
         </div>
     </div>
 @endsection

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [
-            AddSecurityHeaders::class,
-        ]);
+        // Global on purpose: the web group never sees redirects, 404s, 419s or
+        // 500s rendered by the exception handler, and those must carry the same
+        // headers as a 200 page.
+        $middleware->append(AddSecurityHeaders::class);
 
         $middleware->redirectGuestsTo(fn (): string => route('login'));
 
@@ -27,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: []);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // 404/419/429/500 responses are rendered by the exception handler, so
+        // they never come back through the middleware stack.
+        $exceptions->respond(
+            static fn (Response $response): Response => AddSecurityHeaders::applyTo($response, request()),
+        );
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->expectsJson() || $request->is('api/*'),
         );

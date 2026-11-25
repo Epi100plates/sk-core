@@ -21,7 +21,6 @@
                 <p class="eyebrow auth-aside__eyebrow">Panel serwisu</p>
                 <p class="auth-aside__claim">Kolejka napraw, przyjęcia i wydania.</p>
             </div>
-            <p class="auth-aside__note">Dostęp tylko dla pracowników serwisu</p>
         </aside>
 
         <div class="auth-card">
@@ -55,10 +54,6 @@
             </div>
         </div>
     </div>
-
-    <p class="auth-foot">
-        Hasło startowe dostajesz od administratora — zmień je po pierwszym logowaniu.
-    </p>
 </main>
 <script src="{{ asset('js/app.js') }}?v={{ config('app.asset_version') }}"></script>
 <script src="{{ asset('js/pwa.js') }}?v={{ config('app.asset_version') }}"></script>

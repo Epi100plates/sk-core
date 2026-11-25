@@ -15,4 +15,5 @@
     Require all denied
 </FilesMatch>
 
-RedirectMatch 404 ^/(storage|vendor|bootstrap|database|tests|docs|deploy)(/|$)
+RedirectMatch 404 ^/(storage|vendor|bootstrap|database|tests|docs|deploy|_runtime|old-app|Piotrekv3)(/|$)
+RedirectMatch 404 ^/.*\.(md|sql|sqlite|log|bak)$

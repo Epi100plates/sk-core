@@ -9,7 +9,6 @@ use App\Actions\ReleaseService;
 use App\Contracts\ServicePhotoRepository;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
-use App\Domain\FieldLabels;
 use App\Http\Requests\ReleaseServiceRequest;
 use App\Support\Audit\AuditContext;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +29,6 @@ final class ReleaseController extends Controller
             'service' => $service,
             'photos' => $photos->forService($service->id),
             'defaultReleasedAt' => ReleaseServiceRequest::defaultReleasedAt(),
-            'timezone' => FieldLabels::displayTimezone(),
         ]);
     }
 

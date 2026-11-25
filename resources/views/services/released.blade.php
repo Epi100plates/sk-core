@@ -5,15 +5,14 @@
 @section('content')
     <div class="page-head">
         <div class="page-head__main">
-            <span class="eyebrow">Archiwum wydanych</span>
             <h1 class="page-title">Wydane zlecenia</h1>
             <p class="page-head__meta">
-                Zakończone naprawy — podgląd i wydruk protokołu, bez dalszych akcji.
+                Zakończone naprawy — podgląd i wydruk protokołu.
             </p>
         </div>
     </div>
 
-    <form class="app-card mb-3" method="get" action="{{ route('services.released') }}">
+    <form class="app-card mb-3" method="get" action="{{ route('services.released') }}" data-auto-submit>
         <div class="app-card-body">
             <div class="toolbar">
                 <div class="field-group">
@@ -24,13 +23,15 @@
                     <label class="form-label" for="to">Do</label>
                     <input class="form-control" id="to" name="to" type="date" value="{{ $to }}">
                 </div>
-                <div class="field-group">
-                    <label class="form-label" for="q">Szukaj</label>
+                <div class="field-group field-group--grow">
+                    <label class="form-label" for="q">Telefon, plomba lub model</label>
                     <input class="form-control" id="q" name="q" type="search" value="{{ $term }}"
-                           placeholder="telefon, plomba, model…">
+                           placeholder="np. 505 123 456">
                 </div>
-                <button class="btn btn-primary" type="submit">Filtruj</button>
-                <a class="btn btn-link" href="{{ route('services.released') }}">Wyczyść</a>
+                <button class="btn btn-primary" type="submit">Szukaj</button>
+                @if ($from !== '' || $to !== '' || $term !== '')
+                    <a class="btn btn-link" href="{{ route('services.released') }}">Wyczyść</a>
+                @endif
             </div>
         </div>
     </form>
@@ -43,7 +44,9 @@
                 <h2>
                     {{ $day === 'brak-daty' ? 'Bez daty wydania' : \App\Domain\FieldLabels::formatDay($day.' 00:00:00') }}
                 </h2>
-                <span class="eyebrow">{{ count($services) }} {{ count($services) === 1 ? 'zlecenie' : 'zleceń' }}</span>
+                <span class="service-meta">
+                    {{ \App\Domain\FieldLabels::plural(count($services), 'zlecenie', 'zlecenia', 'zleceń') }}
+                </span>
             </div>
             <div class="list-group mb-2">
                 @foreach ($services as $service)
