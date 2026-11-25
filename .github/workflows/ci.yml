@@ -81,6 +81,10 @@ jobs:
       - name: Tests
         run: php artisan test
 
+      - name: Initialize the JSON store (a fresh checkout has no data files)
+        if: ${{ ! matrix.services }}
+        run: php artisan app:install --quiet
+
       - name: Verify the active store
         run: php artisan store:check
 
