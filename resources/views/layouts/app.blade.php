@@ -72,19 +72,19 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.create') ? 'active' : '' }}"
-                   href="{{ route('services.create') }}">
+                   href="{{ route('services.create') }}" @if(request()->routeIs('services.create')) aria-current="page" @endif>
                     <x-icon name="plus" :size="17" /> Przyjmij laptopa
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.search') ? 'active' : '' }}"
-                   href="{{ route('services.search') }}">
+                   href="{{ route('services.search') }}" @if(request()->routeIs('services.search')) aria-current="page" @endif>
                     <x-icon name="search" :size="17" /> Szukaj
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('services.released') ? 'active' : '' }}"
-                   href="{{ route('services.released') }}">
+                   href="{{ route('services.released') }}" @if(request()->routeIs('services.released')) aria-current="page" @endif>
                     <x-icon name="package" :size="17" /> Wydane
                 </a>
             </li>
@@ -95,7 +95,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                       href="{{ route('admin.users.index') }}">
+                       href="{{ route('admin.users.index') }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
                         <x-icon name="users" :size="17" /> Użytkownicy
                     </a>
                 </li>
@@ -106,7 +106,7 @@
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('account.password') ? 'active' : '' }}"
-                   href="{{ route('account.password') }}">
+                   href="{{ route('account.password') }}" @if(request()->routeIs('account.password')) aria-current="page" @endif>
                     <x-icon name="key" :size="17" /> Zmień hasło
                 </a>
             </li>
@@ -129,17 +129,17 @@
        @if(request()->routeIs('services.queue')) aria-current="page" @endif>
         <x-icon name="queue" :size="18" /> Kolejka
     </a>
-    <a href="{{ route('services.create') }}" class="{{ request()->routeIs('services.create') ? 'active' : '' }}">
+    <a href="{{ route('services.create') }}" class="{{ request()->routeIs('services.create') ? 'active' : '' }}" @if(request()->routeIs('services.create')) aria-current="page" @endif>
         <x-icon name="plus" :size="18" /> Przyjmij
     </a>
-    <a href="{{ route('services.search') }}" class="{{ request()->routeIs('services.search') ? 'active' : '' }}">
+    <a href="{{ route('services.search') }}" class="{{ request()->routeIs('services.search') ? 'active' : '' }}" @if(request()->routeIs('services.search')) aria-current="page" @endif>
         <x-icon name="search" :size="18" /> Szukaj
     </a>
-    <a href="{{ route('services.released') }}" class="{{ request()->routeIs('services.released') ? 'active' : '' }}">
+    <a href="{{ route('services.released') }}" class="{{ request()->routeIs('services.released') ? 'active' : '' }}" @if(request()->routeIs('services.released')) aria-current="page" @endif>
         <x-icon name="package" :size="18" /> Wydane
     </a>
     @can('viewAny', App\Domain\Data\UserRecord::class)
-        <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
             <x-icon name="users" :size="18" /> Konta
         </a>
     @endcan
