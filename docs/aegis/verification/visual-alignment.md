@@ -135,3 +135,27 @@ widok (wynik w [runtime-verification.md](runtime-verification.md)).
 > [0017](../decisions/0017-aktualizacje-w-miejscu.md), weryfikacja w
 > [async-ui-pass.md](async-ui-pass.md). `ASSET_VERSION` doszedł do 19, bo zmienił się
 > `public/js/app.js` i `public/js/lightbox.js`.
+
+> **Aktualizacja 2026-11-25 (kafelek kolejki — układ zamiast zbitej linii):** kafelek przestał być
+> trzema liniami tekstu wciśniętymi w lewy górny róg. Każda wartość ma własną etykietę w liście
+> definicji (`<dt>`/`<dd>`: Telefon, Termin, Cena, Koszt, a hasło do urządzenia osobny wiersz na całą
+> szerokość), usterka jest osobnym akapitem oddzielonym hairline'em, a kolumna po prawej ustawia
+> status, przycisk i „Szczegóły →” na jednej krawędzi. Wcześniej „210,00 zł / 82,00 zł” nie mówiło,
+> która kwota jest która, a przycisk i link stały na dwóch różnych wysokościach.
+>
+> Zmierzone w Chromium 158 (`document.querySelector('.service-card')`), bez poziomego przewijania
+> w całym zakresie 360–1600 px:
+>
+> | Szerokość okna | Fakty | Akcje | Wysokość kafelka |
+> | --- | --- | --- | --- |
+> | 360 px | 2 kolumny, data łamie się na dwie linie | pod usterką | 243 px |
+> | 390–640 px | 2 kolumny | pod usterką | 224 px |
+> | 768–1119 px | 4 kolumny | pod usterką, od lewej | 182 px |
+> | ≥ 1120 px | 4 kolumny | własna kolumna przy prawej | 136 px |
+>
+> Próg 1120 px jest policzony, nie zgadnięty: „28.10.2026 16:00” w 14 px z cyframi tabularnymi
+> (`font-variant-numeric: tabular-nums`) zajmuje 147 px, więc cztery kolumny potrzebują ~636 px —
+> poniżej tej szerokości akcje schodzą pod tekst, żeby fakty nie zawijały się w środku wartości.
+> Regresję pilnuje `QueueTest` („labels every fact on a tile so no value stands alone”).
+> `ASSET_VERSION` doszedł do 21.
+

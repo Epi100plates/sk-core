@@ -30,16 +30,39 @@
                 <span class="ticket__ref">{{ $service->reference }}</span>
             </div>
 
-            <p class="ticket__meta">
-                <span>{{ $service->displayPhone() }}</span>
-                <span>termin {{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</span>
-                <span><x-money :value="$service->price" /> / <x-money :value="$service->cost" /></span>
+            {{-- One labelled fact per cell, label above value: the shop reads the
+                 deadline and the money without decoding a run-on line, and every
+                 value keeps the same left edge down the list. --}}
+            <dl class="ticket__facts">
+                <div class="ticket__fact">
+                    <dt>Telefon</dt>
+                    <dd>{{ $service->displayPhone() }}</dd>
+                </div>
+                <div class="ticket__fact">
+                    <dt>Termin</dt>
+                    <dd>{{ \App\Domain\FieldLabels::formatDate($service->plannedAt) }}</dd>
+                </div>
+                <div class="ticket__fact">
+                    <dt>Cena</dt>
+                    <dd><x-money :value="$service->price" /></dd>
+                </div>
+                <div class="ticket__fact">
+                    <dt>Koszt</dt>
+                    <dd><x-money :value="$service->cost" /></dd>
+                </div>
                 @if ($service->devicePassword !== null)
-                    <x-device-password :password="$service->devicePassword" :field-id="'password-'.$service->id" />
+                    {{-- Full width: the value carries its own "Ukryj" button and
+                         would be squeezed in a quarter of the row. --}}
+                    <div class="ticket__fact ticket__fact--secret">
+                        <dt>Hasło</dt>
+                        <dd><x-device-password :password="$service->devicePassword" :field-id="'password-'.$service->id" /></dd>
+                    </div>
                 @endif
-            </p>
+            </dl>
 
             @unless ($compact)
+                {{-- Prose, not another field: a hairline and a larger size keep it
+                     from reading as yet another grey metadata line. --}}
                 <p class="ticket__issue">{{ \Illuminate\Support\Str::limit($service->issue, 160) }}</p>
             @endunless
         </div>
@@ -77,7 +100,9 @@
                     @endcan
                 @endif
 
-                <a class="ticket__more" href="{{ route('services.show', $service) }}">Szczegóły</a>
+                <a class="ticket__more" href="{{ route('services.show', $service) }}">
+                    Szczegóły <x-icon name="arrow-right" :size="13" />
+                </a>
             </div>
         </div>
     </div>

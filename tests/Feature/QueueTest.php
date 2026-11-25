@@ -151,6 +151,32 @@ it('opens the edit form from the whole tile', function (string $store) {
         ->assertSee('Szczegóły');
 })->with('stores');
 
+it('labels every fact on a tile so no value stands alone', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $this->acceptService($user, [
+        'device_model' => 'Dell Latitude',
+        'price' => '199.99',
+        'cost' => '89.00',
+        'device_password' => 'tajne123',
+    ]);
+
+    $this->actingAsUser($user)->get('/')
+        ->assertOk()
+        // Label above value in a definition list: "210,00 zł / 82,00 zł" on one
+        // grey line left the reader to guess which number was which.
+        ->assertSee('<dt>Telefon</dt>', false)
+        ->assertSee('<dt>Termin</dt>', false)
+        ->assertSee('<dt>Cena</dt>', false)
+        ->assertSee('<dt>Koszt</dt>', false)
+        ->assertSee('<dt>Hasło</dt>', false)
+        ->assertSee('199,99 zł')
+        ->assertSee('89,00 zł')
+        // The complaint is prose on its own row, not a fifth metadata line.
+        ->assertSee('class="ticket__issue"', false);
+})->with('stores');
+
 it('sends a handed-over tile to its card, not to a missing edit form', function (string $store) {
     usingStore($this, $store);
 
