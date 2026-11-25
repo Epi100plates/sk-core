@@ -67,12 +67,22 @@ Test: `php artisan dusk --filter=A11yTest` (6 scenariuszy). axe jest plikiem
 `public/js/axe.min.js` ładowanym przez `<script src>` (CSP nie pozwala na inline) i jest
 wykluczony z paczki wdrożeniowej.
 
+Po restylizacji (2026-11-25) audyt powtórzono na nowej palecie: 12 widoków (11 tras w sesji
+pracownika + logowanie w osobnym kontekście przeglądarki) i **0 naruszeń** WCAG 2.1 A/AA.
+Kontrasty par tokenów i zrzuty: [`visual-alignment.md`](visual-alignment.md).
+
 ## Wydajność (Faza 7, T7.4)
 
 ```
 php artisan bench:queue --services=200 --requests=20
-Zleceń w magazynie 200 · Kart na stronie 50 · p50 69,0 ms · p95 79,5 ms · max 79,5 ms
+Zleceń w magazynie 200 · Kart na stronie 50 · p50 89,4 ms · p95 118,6 ms · max 118,6 ms
 ```
 
 Pomiar obejmuje zapytanie do repozytorium i render Blade na magazynie JSON (dane tymczasowe,
-bez warstwy HTTP). Cel z planu: p95 < 300 ms — spełniony z dużym zapasem.
+bez warstwy HTTP). Cel z planu: p95 < 300 ms — spełniony z zapasem.
+
+Po restylizacji (2026-11-25) karta zlecenia ma bogatszy znacznik (wiersze danych, ikony SVG,
+pasek biletu), więc p95 wzrosło z 79,5 ms do ok. 119–122 ms przy 50 kartach na stronie
+(dwa niezależne przebiegi: 121,7 ms i 118,6 ms). To nadal ok. 0,8 ms narzutu na kartę i ponad
+2× zapasu do celu; gdyby kolejka miała kiedyś 100 kart na stronę, pierwszym krokiem jest
+zmiana limitu stron, nie mikrooptymalizacja widoku.
