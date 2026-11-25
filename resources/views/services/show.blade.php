@@ -143,36 +143,38 @@
                 </div>
             </section>
 
-            <section class="app-card mb-3" aria-labelledby="service-photos">
-                <div class="app-card-header">
-                    <h2 class="h6" id="service-photos">
-                        Zdjęcia
-                        @if (count($photos) > 0)
-                            <span class="service-meta">{{ count($photos) }}</span>
+            <div data-async-region="service-photos">
+                <section class="app-card mb-3" aria-labelledby="service-photos">
+                    <div class="app-card-header">
+                        <h2 class="h6" id="service-photos">
+                            Zdjęcia
+                            @if (count($photos) > 0)
+                                <span class="service-meta">{{ count($photos) }}</span>
+                            @endif
+                        </h2>
+                    </div>
+                    <div class="app-card-body">
+                        @if (count($photos) === 0)
+                            <p class="service-meta">Brak zdjęć.</p>
+                        @else
+                            <x-photo-gallery :photos="$photos" :service="$service" :editable="! $isFinal" />
                         @endif
-                    </h2>
-                </div>
-                <div class="app-card-body">
-                    @if (count($photos) === 0)
-                        <p class="service-meta">Brak zdjęć.</p>
-                    @else
-                        <x-photo-gallery :photos="$photos" :service="$service" :editable="! $isFinal" />
-                    @endif
 
-                    @can('managePhotos', $service)
-                        <form class="photo-upload" method="post" action="{{ route('services.photos.store', $service) }}"
-                              enctype="multipart/form-data" data-guard-submit data-offline-blocked>
-                            @csrf
-                            <label class="form-label" for="photos">Dodaj zdjęcia</label>
-                            <div class="photo-upload__row">
-                                <input class="form-control" id="photos" name="photos[]" type="file" accept="image/*" multiple required>
-                                <button class="btn btn-outline-primary" type="submit">Dodaj</button>
-                            </div>
-                            <p class="service-meta mb-0">Do 10 plików, maks. 10 MB każde.</p>
-                        </form>
-                    @endcan
-                </div>
-            </section>
+                        @can('managePhotos', $service)
+                            <form class="photo-upload" method="post" action="{{ route('services.photos.store', $service) }}"
+                                  enctype="multipart/form-data" data-async-form data-offline-blocked>
+                                @csrf
+                                <label class="form-label" for="photos">Dodaj zdjęcia</label>
+                                <div class="photo-upload__row">
+                                    <input class="form-control" id="photos" name="photos[]" type="file" accept="image/*" multiple required>
+                                    <button class="btn btn-outline-primary" type="submit">Dodaj</button>
+                                </div>
+                                <p class="service-meta mb-0">Do 10 plików, maks. 10 MB każde.</p>
+                            </form>
+                        @endcan
+                    </div>
+                </section>
+            </div>
         </div>
 
         <div class="col-12 col-lg-5">

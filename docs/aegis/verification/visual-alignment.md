@@ -129,3 +129,9 @@ widok (wynik w [runtime-verification.md](runtime-verification.md)).
 > jedno pole szukania w nagłówku (na żywo) i klikalne kafelki — decyzja
 > [0016](../decisions/0016-kolejka-i-wyszukiwanie.md), weryfikacja w
 > [queue-usability-pass.md](queue-usability-pass.md). `ASSET_VERSION` doszedł do 16.
+
+> **Aktualizacja 2026-11-25 (aktualizacje w miejscu):** wygląd się nie zmienił — zmienił się
+> tylko sposób podmiany treści (regiony zamiast przeładowań), decyzja
+> [0017](../decisions/0017-aktualizacje-w-miejscu.md), weryfikacja w
+> [async-ui-pass.md](async-ui-pass.md). `ASSET_VERSION` doszedł do 19, bo zmienił się
+> `public/js/app.js` i `public/js/lightbox.js`.

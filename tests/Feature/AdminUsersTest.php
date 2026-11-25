@@ -174,3 +174,140 @@ it('forces a password change for an account created by the installer', function 
 
     $this->actingAsUser($user)->get('/')->assertRedirect(route('account.password'));
 })->with('stores');
+
+it('swaps the account list in place through one async region', function (string $store) {
+    usingStore($this, $store);
+
+    $admin = $this->createUser('admin', Role::Admin);
+    $this->createUser('tomek', Role::Employee);
+    $this->createUser('ania', Role::Employee, 'TajneHaslo123', false);
+
+    $response = $this->actingAsUser($admin)->get('/admin/users');
+
+    $response->assertOk()
+        ->assertSee('data-async-region="admin-users"', false);
+
+    $xpath = adminUsersXpath((string) $response->getContent());
+    $regions = $xpath->query('//*[@data-async-region="admin-users"]');
+
+    expect($regions->length)->toBe(1);
+
+    $region = $regions->item(0);
+
+    expect($region)->not->toBeNull()
+        ->and($xpath->query('.//table', $region)->length)->toBe(1)
+        // A region nested in another one is swapped together with its parent.
+        ->and($xpath->query('.//*[@data-async-region]', $region)->length)->toBe(0)
+        ->and($xpath->query('ancestor::*[@data-async-region]', $region)->length)->toBe(0);
+
+    $forms = $xpath->query('.//form[contains(@action, "/toggle")]', $region);
+
+    expect($forms->length)->toBe(3);
+
+    $names = [];
+
+    foreach ($forms as $form) {
+        expect($form->hasAttribute('data-async-form'))->toBeTrue()
+            ->and($form->hasAttribute('data-guard-submit'))->toBeFalse();
+
+        $button = $xpath->query('.//button[@type="submit"]', $form)->item(0);
+
+        expect($button)->not->toBeNull();
+
+        // The visible word is unchanged; the login makes the name unique per row.
+        expect(trim($button->textContent))->toBeIn(['Zablokuj', 'Odblokuj']);
+
+        $names[] = trim($button->getAttribute('aria-label'));
+    }
+
+    expect($names)->toHaveCount(3)
+        ->and(array_unique($names))->toHaveCount(3);
+
+    sort($names);
+
+    expect($names)->toBe(['Odblokuj konto ania', 'Zablokuj konto admin', 'Zablokuj konto tomek']);
+})->with('stores');
+
+it('renders the blocked state from the server after a toggle', function (string $store) {
+    usingStore($this, $store);
+
+    $admin = $this->createUser('admin', Role::Admin);
+    $employee = $this->createUser('tomek', Role::Employee);
+
+    $this->actingAsUser($admin)
+        ->post('/admin/users/'.$employee->id.'/toggle')
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $response = $this->actingAsUser($admin)->get('/admin/users');
+
+    $response->assertOk();
+
+    $xpath = adminUsersXpath((string) $response->getContent());
+    $row = $xpath->query('//table//tbody/tr[td[2][normalize-space(.)="tomek"]]')->item(0);
+
+    expect($row)->not->toBeNull();
+
+    $badge = $xpath->query('.//span[contains(@class, "badge")]', $row)->item(0);
+    $button = $xpath->query('.//form[@data-async-form]//button[@type="submit"]', $row)->item(0);
+
+    expect($badge)->not->toBeNull()
+        ->and(trim($badge->textContent))->toBe('zablokowane')
+        ->and($button)->not->toBeNull()
+        ->and(trim($button->textContent))->toBe('Odblokuj')
+        ->and($button->getAttribute('aria-label'))->toBe('Odblokuj konto tomek');
+})->with('stores');
+
+it('keeps the account pagination inside the async region', function (string $store) {
+    usingStore($this, $store);
+
+    $admin = $this->createUser('admin', Role::Admin);
+    $password = Hash::make('TajneHaslo123');
+
+    // 21 accounts is one more than the page size, so the pagination renders. The
+    // list never verifies passwords, so one hash serves every filler account.
+    foreach (range(1, 20) as $number) {
+        app(UserRepository::class)->save(UserRecord::fromArray([
+            'name' => 'Konto '.$number,
+            'login' => 'konto'.str_pad((string) $number, 2, '0', STR_PAD_LEFT),
+            'password' => $password,
+            'role' => Role::Employee->value,
+            'is_active' => true,
+        ]));
+    }
+
+    $response = $this->actingAsUser($admin)->get('/admin/users');
+
+    $response->assertOk();
+
+    $xpath = adminUsersXpath((string) $response->getContent());
+    $region = $xpath->query('//*[@data-async-region="admin-users"]')->item(0);
+
+    expect($region)->not->toBeNull()
+        ->and($xpath->query('.//table', $region)->length)->toBe(1)
+        ->and($xpath->query('.//nav[@aria-label="Paginacja"]', $region)->length)->toBe(1);
+
+    $next = $xpath->query('.//nav[@aria-label="Paginacja"]//a[@rel="next"]', $region);
+
+    expect($next->length)->toBe(1)
+        ->and($next->item(0)?->getAttribute('href'))->toContain('page=2')
+        // The shared pagination component makes the link swap this region in place.
+        ->and($next->item(0)?->hasAttribute('data-async-link'))->toBeTrue()
+        ->and($next->item(0)?->hasAttribute('data-async-scroll'))->toBeTrue();
+})->with('stores');
+
+/**
+ * Parses a rendered page so the markup contract is asserted on the DOM — region
+ * nesting and per-row attributes cannot be proved with a substring search.
+ */
+function adminUsersXpath(string $html): DOMXPath
+{
+    $document = new DOMDocument;
+    $previous = libxml_use_internal_errors(true);
+
+    $document->loadHTML($html);
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+
+    return new DOMXPath($document);
+}

@@ -7,7 +7,7 @@
             <p class="service-meta mb-3">{{ $message }}</p>
         @endif
         @if ($actionLabel !== null && $actionUrl !== null)
-            <a class="btn btn-sm btn-primary" href="{{ $actionUrl }}">{{ $actionLabel }}</a>
+            <a class="btn btn-sm btn-primary" href="{{ $actionUrl }}" data-async-link>{{ $actionLabel }}</a>
         @endif
     </div>
 </div>

@@ -11,7 +11,6 @@ use App\Domain\Data\ServiceRecord;
 use App\Domain\Enums\ServiceStatus;
 use App\Domain\FieldLabels;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /**
@@ -21,8 +20,9 @@ use Illuminate\View\View;
  * already handed over sat at the top with a dead "Next" button.
  *
  * The list is also the one and only search result screen: the header field
- * filters it live through `results()`, which renders the same cards without the
- * page shell.
+ * filters it live, and the stage strip, the pagination and "Dalej" all re-render
+ * `[data-async-region]` blocks through `public/js/app.js` instead of reloading
+ * the page — there is no separate fragment endpoint to keep in step.
  */
 final class QueueController extends Controller
 {
@@ -31,16 +31,6 @@ final class QueueController extends Controller
     public function __invoke(Request $request, ServiceRepository $services): View
     {
         return view('services.queue', $this->data($request, $services));
-    }
-
-    /** The list alone, for the live search in the header (F-27). */
-    public function results(Request $request, ServiceRepository $services): Response
-    {
-        // The marker lets the script tell this fragment from a login or error
-        // page: an expired session must not paste the login form into the queue.
-        return response()
-            ->view('services._queue-results', $this->data($request, $services))
-            ->header('X-Queue-Results', '1');
     }
 
     /**
@@ -78,10 +68,6 @@ final class QueueController extends Controller
             'counts' => $services->countsByStatus(),
             'activeFilter' => $status,
             'term' => $term,
-            'query' => array_filter(
-                ['q' => $term, 'status' => $status?->value],
-                static fn (?string $value): bool => $value !== null && $value !== '',
-            ),
             'timezone' => FieldLabels::displayTimezone(),
         ];
     }

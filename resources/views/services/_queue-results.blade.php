@@ -9,7 +9,8 @@
     <p class="queue-summary" data-queue-summary>
         @if ($term !== '')
             <span data-queue-summary-text>{{ \App\Domain\FieldLabels::plural($page->total, 'zlecenie', 'zlecenia', 'zleceń') }} dla „{{ $term }}”</span>
-            · <a href="{{ route('services.queue', array_filter(['status' => $activeFilter?->value])) }}">Wyczyść szukanie</a>
+            · <a href="{{ route('services.queue', array_filter(['status' => $activeFilter?->value])) }}"
+                 data-async-link>Wyczyść szukanie</a>
         @else
             <span data-queue-summary-text>{{ \App\Domain\FieldLabels::plural($page->total, 'zlecenie', 'zlecenia', 'zleceń') }}</span>
         @endif
@@ -52,7 +53,7 @@
         </section>
     @endforeach
 
-    <x-pagination :page="$page" :base-url="route('services.queue')" :query="$query" />
+    <x-pagination :page="$page" />
 @endif
 
 @if ($released !== [])

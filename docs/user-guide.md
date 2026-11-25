@@ -40,6 +40,10 @@ Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie 
 - **Kliknięcie gdziekolwiek w kafelek otwiera edycję** tego laptopa — można zmienić każde pole,
   łącznie ze statusem i oznaczeniem express. Zaznaczanie tekstu i klikanie przycisków na kafelku
   działa normalnie.
+- Filtr etapu, **Pokaż wszystkie**, paginacja i przyciski **Dalej** działają **bez przeładowania
+  strony**: lista i liczniki podmieniają się w miejscu, więc nie tracisz miejsca przewijania
+  ani wpisanej frazy. Adres w pasku nadal pokazuje wybrany etap i szukaną frazę, a komunikat
+  po wykonanej akcji znika sam po kilku sekundach.
 
 ## Wyszukiwanie
 

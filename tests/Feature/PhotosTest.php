@@ -11,13 +11,33 @@ use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
-| F-18, F-37, D-52 — photos stay private and deletions are audited
+| F-18, F-37, D-52 — photos stay private and deletions are audited;
+| the photos card is an async region that swaps in place (add/delete without
+| a page reload, see the async UI contract)
 |--------------------------------------------------------------------------
 */
 
 beforeEach(function (): void {
     Storage::fake('local');
 });
+
+/**
+ * Cuts the photos card region out of the rendered page. The advance and cancel
+ * forms elsewhere on the page keep their own submit guard, so the async
+ * attributes are asserted against this region only.
+ */
+function photosRegion(string $html): string
+{
+    $start = strpos($html, 'data-async-region="service-photos"');
+
+    if ($start === false) {
+        return '';
+    }
+
+    $end = strpos($html, '</section>', $start);
+
+    return substr($html, $start, $end === false ? null : $end - $start);
+}
 
 it('stores a photo outside the web root and creates a thumbnail', function (string $store) {
     usingStore($this, $store);
@@ -165,4 +185,68 @@ it('rejects more than ten photos at once', function (string $store) {
         ->assertSessionHasErrors('photos');
 
     expect(app(ServicePhotoRepository::class)->forService($service->id))->toBe([]);
+})->with('stores');
+
+it('renders the photos card as one async region with an async upload form', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user);
+
+    $response = $this->actingAsUser($user)->get('/services/'.$service->id);
+
+    $response->assertOk()->assertSee('data-async-region="service-photos"', false);
+
+    $region = photosRegion((string) $response->getContent());
+
+    expect($region)->not->toBe('')
+        ->and(substr_count($region, 'data-async-region'))->toBe(1)
+        ->and($region)->toContain('Brak zdjęć.')
+        ->and($region)->toContain('multiple required');
+
+    preg_match('/<form class="photo-upload"[^>]*>/', $region, $upload);
+
+    $uploadTag = $upload[0] ?? '';
+
+    expect($uploadTag)->toContain('data-async-form')
+        ->and($uploadTag)->toContain('data-offline-blocked')
+        ->and($uploadTag)->toContain('enctype="multipart/form-data"')
+        ->and($uploadTag)->not->toContain('data-guard-submit');
+})->with('stores');
+
+it('renders photo delete forms as async forms that spoof DELETE', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user);
+
+    $this->actingAsUser($user)->post('/services/'.$service->id.'/photos', [
+        'photos' => [
+            UploadedFile::fake()->image('pierwsze.jpg', 600, 400),
+            UploadedFile::fake()->image('drugie.jpg', 600, 400),
+        ],
+    ]);
+
+    $response = $this->actingAsUser($user)->get('/services/'.$service->id);
+
+    $response->assertOk();
+
+    $region = photosRegion((string) $response->getContent());
+
+    preg_match('/<form[^>]*action="[^"]*\/photos\/[^"]*"[^>]*>.*?<\/form>/s', $region, $form);
+    $deleteForm = $form[0] ?? '';
+
+    expect($deleteForm)->toContain('data-async-form')
+        ->and($deleteForm)->toContain('data-confirm="Usunąć to zdjęcie?"')
+        ->and($deleteForm)->toContain('<input type="hidden" name="_method" value="DELETE">')
+        ->and($deleteForm)->not->toContain('data-guard-submit');
+
+    // Both photos got their own delete button, each labelled uniquely.
+    expect($region)->toContain('aria-label="Usuń zdjęcie 1"')
+        ->and($region)->toContain('aria-label="Usuń zdjęcie 2"')
+        ->and($region)->toContain('aria-label="Powiększ zdjęcie 2"');
+
+    // The count in the card header sits inside the region, so it is swapped
+    // together with the gallery and the upload form.
+    expect($region)->toContain('<span class="service-meta">2</span>');
 })->with('stores');

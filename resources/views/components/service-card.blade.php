@@ -62,7 +62,9 @@
             <div class="ticket__actions">
                 @if (! $isFinal && $next instanceof \App\Domain\Enums\ServiceStatus)
                     @can('advance', $service)
-                        <form method="post" action="{{ route('services.advance', $service) }}" data-guard-submit>
+                        {{-- Advanced in place: the server re-renders the stages, so
+                             the tile moves to its new section without a reload. --}}
+                        <form method="post" action="{{ route('services.advance', $service) }}" data-async-form>
                             @csrf
                             <button class="btn btn-sm btn-outline-primary" type="submit">{{ $service->status->advanceLabel() }}</button>
                         </form>

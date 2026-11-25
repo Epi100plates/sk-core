@@ -1,7 +1,11 @@
 /* Accessible photo lightbox (feature F-47, defect D-34).
    One dialog for the whole page, keyboard support (arrows, ESC), swipe on touch,
    focus trapped inside the dialog and returned to the thumbnail on close.
-   Listeners are attached once, so refreshing the gallery cannot duplicate them. */
+
+   The gallery is replaced in place by the async photo forms, so thumbnail clicks
+   are delegated on the document and the group is read from the live DOM each time
+   the dialog opens: a thumbnail created after a swap behaves like the first one.
+   The dialog itself lives in the layout and is bound once. */
 (function () {
     'use strict';
 
@@ -17,25 +21,41 @@
     function groupLinks(link) {
         var group = link.getAttribute('data-lightbox') || 'default';
 
-        return Array.prototype.slice.call(
-            document.querySelectorAll('a[data-lightbox="' + group + '"]')
-        );
+        return Array.prototype.slice.call(document.querySelectorAll('a[data-lightbox]'))
+            .filter(function (candidate) {
+                return (candidate.getAttribute('data-lightbox') || 'default') === group;
+            });
     }
 
-    function open(index, linkList) {
-        if (!dialog || !image) {
+    function open(index, linkList, trigger) {
+        if (!dialog || !image || index < 0 || !linkList[index]) {
             return;
         }
 
         links = linkList;
         current = index;
-        lastFocused = document.activeElement;
+        lastFocused = trigger || document.activeElement;
         render();
         dialog.hidden = false;
         document.body.classList.add('overflow-hidden');
 
         if (closeButton) {
             closeButton.focus();
+        }
+    }
+
+    function restoreFocus() {
+        if (lastFocused && document.contains(lastFocused) && typeof lastFocused.focus === 'function') {
+            lastFocused.focus();
+
+            return;
+        }
+
+        // The thumbnail can be gone: the photo was deleted and the region swapped.
+        var first = document.querySelector('a[data-lightbox]');
+
+        if (first) {
+            first.focus();
         }
     }
 
@@ -47,10 +67,7 @@
         dialog.hidden = true;
         document.body.classList.remove('overflow-hidden');
         image.setAttribute('src', '');
-
-        if (lastFocused && typeof lastFocused.focus === 'function') {
-            lastFocused.focus();
-        }
+        restoreFocus();
     }
 
     function render() {
@@ -77,6 +94,35 @@
 
         current = (current + delta + links.length) % links.length;
         render();
+    }
+
+    function onClick(event) {
+        // Without the layout dialog the thumbnails must keep navigating normally.
+        if (!dialog || !image) {
+            return;
+        }
+
+        var target = event.target;
+
+        if (!target || typeof target.closest !== 'function') {
+            return;
+        }
+
+        var link = target.closest('a[data-lightbox]');
+
+        if (!link) {
+            return;
+        }
+
+        var list = groupLinks(link);
+        var index = list.indexOf(link);
+
+        if (index < 0) {
+            return;
+        }
+
+        event.preventDefault();
+        open(index, list, link);
     }
 
     function onKeydown(event) {
@@ -133,13 +179,7 @@
         counter = dialog.querySelector('[data-lightbox-counter]');
         closeButton = dialog.querySelector('[data-lightbox-close]');
 
-        document.querySelectorAll('a[data-lightbox]').forEach(function (link) {
-            link.addEventListener('click', function (event) {
-                event.preventDefault();
-                var list = groupLinks(link);
-                open(list.indexOf(link), list);
-            });
-        });
+        document.addEventListener('click', onClick);
 
         dialog.querySelectorAll('[data-lightbox-close]').forEach(function (button) {
             button.addEventListener('click', close);

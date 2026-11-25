@@ -49,10 +49,11 @@ znajdowało się w kodzie strony — maskowanie nie chroniło przed niczym, tylk
    wartość; przycisk „Ukryj” chowa ją na czas rozmowy z klientem. W historii zmian nadal jest
    tylko znacznik `••••` (decyzja 0015), a wartość występuje w HTML dokładnie raz — bez
    atrybutu `data-value`, który wcześniej ją duplikował.
-7. **Lista jest renderowana po stronie serwera także dla wyszukiwania na żywo.** Nowa trasa
+7. **Lista jest renderowana po stronie serwera także dla wyszukiwania na żywo.** ~~Nowa trasa
    `GET /queue/results` zwraca ten sam partial co strona kolejki (bez nagłówka i menu), więc
    kafelek, grupowanie i filtry nie mają dwóch implementacji. Trasa jest w grupie `auth`
-   i `RequirePasswordChange`, jak cała aplikacja.
+   i `RequirePasswordChange`, jak cała aplikacja.~~ **Zastąpione przez [0017](0017-aktualizacje-w-miejscu.md)**:
+   osobna trasa została usunięta, a wyszukiwanie odświeża regiony tej samej strony.
 
 ## Konsekwencje
 
@@ -66,8 +67,9 @@ znajdowało się w kodzie strony — maskowanie nie chroniło przed niczym, tylk
   a wyszukiwanie przez Enter na formularzu; z JS lista odświeża się sama.
 - **Hasło jest łatwiej dostępne na ekranie** — to świadoma decyzja jednego serwisu; ochrona
   nadal polega na logowaniu, sesji i braku dostępu do magazynu, a nie na kropkach w UI.
-- **Nowa trasa do utrzymania**: `services.queue.results` musi być w testach gościa i w
-  polityce nagłówków; service worker traktuje `/queue` jak dane (sieć, bez cache).
+- **Nowa trasa do utrzymania** (nieaktualne — [0017](0017-aktualizacje-w-miejscu.md) usunęła trasę):
+  `services.queue.results` musiała być w testach gościa i w polityce nagłówków; service worker
+  traktuje `/queue` jak dane (sieć, bez cache).
 
 ## Alternatywy
 

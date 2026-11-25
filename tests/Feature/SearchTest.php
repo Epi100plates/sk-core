@@ -13,8 +13,8 @@ use App\Domain\Enums\ServiceStatus;
 |
 | The old separate /search screen is gone: the header field filters the queue in
 | place. The same rules still hold (phone in any format, seal, model, serial,
-| issue, reference, released orders included), and the renderer is shared with
-| the live-search fragment so both show exactly the same list.
+| issue, reference, released orders included), and the in-place update renders the
+| very same page, so both show exactly the same list.
 |
 */
 

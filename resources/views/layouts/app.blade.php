@@ -30,13 +30,12 @@
         </a>
 
         <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
-              data-live-search data-results-url="{{ route('services.queue.results') }}"
-              data-queue-url="{{ route('services.queue') }}"
-              data-status="{{ is_string(request('status')) ? request('status') : '' }}">
+              data-live-search>
             <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
             <input class="form-control" id="global-search" type="search"
                    name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
                    placeholder="Model, telefon, plomba…" autocomplete="off"
+                   inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false"
                    aria-describedby="global-search-hint">
             @if (is_string(request('status')))
                 <input type="hidden" name="status" value="{{ request('status') }}">
@@ -115,7 +114,14 @@
     </nav>
 
     <main class="app-main" id="main">
-        <x-flash />
+        {{-- The async layer swaps this region, so a message from the previous
+             action never stays on screen next to the result of the new one. --}}
+        <div data-async-region="flash">
+            <x-flash />
+        </div>
+
+        <p class="visually-hidden" id="async-status" role="status" aria-live="polite"></p>
+
         @yield('content')
     </main>
 </div>

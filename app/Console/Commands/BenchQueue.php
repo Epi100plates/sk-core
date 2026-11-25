@@ -104,6 +104,12 @@ final class BenchQueue extends Command
         app('view')->share('errors', new ViewErrorBag);
         Auth::guard('web')->setUser($employee);
 
+        // One warm-up render outside the measurement: the first one also compiles
+        // the Blade templates, which would otherwise be charged to the first
+        // sample and make a two-sample p95 swing by hundreds of milliseconds.
+        $controller(Request::create('/', 'GET')->setUserResolver(static fn (): UserRecord => $employee), $repository)
+            ->render();
+
         for ($i = 0; $i < $requests; $i++) {
             $request = Request::create('/', 'GET');
             $request->setUserResolver(static fn (): UserRecord => $employee);

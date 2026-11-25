@@ -69,7 +69,6 @@ Route::middleware(['auth', RequirePasswordChange::class])->group(function (): vo
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', QueueController::class)->name('services.queue');
-    Route::get('/queue/results', [QueueController::class, 'results'])->name('services.queue.results');
     Route::get('/released', ReleasedController::class)->name('services.released');
 
     Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');

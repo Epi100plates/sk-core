@@ -54,7 +54,7 @@ vendor/bin/phpstan analyse              [OK] no errors (poziom 6)
 
 Nowe/zmienione testy:
 
-- `tests/Feature/QueueTest.php` — filtr jednego etapu, „Pokaż wszystkie”, sekcje etapów, kafelek → edycja, kafelek wydanego zlecenia → karta, fragment `/queue/results` (także z filtrem) i jego nagłówek `X-Queue-Results`.
+- `tests/Feature/QueueTest.php` — filtr jednego etapu, „Pokaż wszystkie”, sekcje etapów, kafelek → edycja, kafelek wydanego zlecenia → karta, ~~fragment `/queue/results` (także z filtrem) i jego nagłówek `X-Queue-Results`~~ (usunięte razem z trasą — patrz [0017](../decisions/0017-aktualizacje-w-miejscu.md); teraz testowany jest kontrakt regionów `queue-filter`/`queue-results`).
 - `tests/Feature/SearchTest.php` — całe wyszukiwanie przeniesione na kolejkę (`/?q=`), brak drugiego ekranu (`/search` → 404), archiwum bez pola szukania.
 - `tests/Feature/SecurityTest.php` — hasło widoczne domyślnie, dokładnie jedno wystąpienie w HTML, `aria-pressed="true"`, obecność na kafelku kolejki.
 - `tests/Browser/QueueSearchTest.php` — w Chrome: hasło widoczne → „Ukryj” → „Pokaż”, filtrowanie po wpisaniu frazy bez Entera, powrót po wyczyszczeniu pola, kliknięcie w kafelek otwiera edycję. Test przeszedł dopiero po dodaniu obsługi zdarzenia `change` (WebDriver czyści pole bez `input`) — to realna poprawka, nie obejście testu.

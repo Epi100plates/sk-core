@@ -1318,12 +1318,15 @@ legend {
     margin-top: 1.6rem;
 }
 
-.queue-results {
+/* Anything the async layer re-renders in place (queue list, archive, accounts,
+   photos) dims while the request is in flight. */
+[data-async-region] {
     transition: opacity var(--fast) var(--ease-out);
 }
 
-.queue-results[aria-busy='true'] {
+[data-async-region][aria-busy='true'] {
     opacity: 0.5;
+    cursor: progress;
 }
 
 /* ------------------------------------------------------------ service card */

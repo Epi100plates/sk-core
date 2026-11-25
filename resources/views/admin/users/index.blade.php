@@ -16,58 +16,61 @@
         </div>
     </div>
 
-    <div class="app-card mb-3">
-        <div class="app-card-body p-0">
-            <div class="table-responsive">
-                <table class="table mb-0 align-middle">
-                    <thead>
-                        <tr>
-                            <th scope="col">Nazwa</th>
-                            <th scope="col">Login</th>
-                            <th scope="col">Rola</th>
-                            <th scope="col">Dostęp</th>
-                            <th scope="col">Ostatnio</th>
-                            <th scope="col"><span class="visually-hidden">Akcje</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($page->items as $user)
+    <div data-async-region="admin-users">
+        <div class="app-card mb-3">
+            <div class="app-card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
                             <tr>
-                                <td>{{ $user->name }}</td>
-                                <td class="font-monospace">{{ $user->login }}</td>
-                                <td>{{ $user->role->label() }}</td>
-                                <td>
-                                    @if ($user->isActive)
-                                        <span class="badge text-bg-info">aktywne</span>
-                                    @else
-                                        <span class="badge text-bg-danger">zablokowane</span>
-                                    @endif
-                                    @if ($user->mustChangePassword)
-                                        <span class="badge text-bg-warning">zmiana hasła</span>
-                                    @endif
-                                </td>
-                                <td class="service-meta">
-                                    {{ $user->lastLoginAt !== null ? \App\Domain\FieldLabels::formatDate($user->lastLoginAt) : '—' }}
-                                </td>
-                                <td class="text-end text-nowrap">
-                                    <span class="table-actions">
-                                        <a class="btn btn-sm btn-link" href="{{ route('admin.users.edit', $user) }}">Edytuj</a>
-                                        <form method="post" action="{{ route('admin.users.toggle', $user) }}"
-                                              data-confirm="{{ $user->isActive ? 'Zablokować to konto?' : 'Odblokować to konto?' }}">
-                                            @csrf
-                                            <button class="btn btn-sm btn-link" type="submit">
-                                                {{ $user->isActive ? 'Zablokuj' : 'Odblokuj' }}
-                                            </button>
-                                        </form>
-                                    </span>
-                                </td>
+                                <th scope="col">Nazwa</th>
+                                <th scope="col">Login</th>
+                                <th scope="col">Rola</th>
+                                <th scope="col">Dostęp</th>
+                                <th scope="col">Ostatnio</th>
+                                <th scope="col"><span class="visually-hidden">Akcje</span></th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($page->items as $user)
+                                <tr>
+                                    <td>{{ $user->name }}</td>
+                                    <td class="font-monospace">{{ $user->login }}</td>
+                                    <td>{{ $user->role->label() }}</td>
+                                    <td>
+                                        @if ($user->isActive)
+                                            <span class="badge text-bg-info">aktywne</span>
+                                        @else
+                                            <span class="badge text-bg-danger">zablokowane</span>
+                                        @endif
+                                        @if ($user->mustChangePassword)
+                                            <span class="badge text-bg-warning">zmiana hasła</span>
+                                        @endif
+                                    </td>
+                                    <td class="service-meta">
+                                        {{ $user->lastLoginAt !== null ? \App\Domain\FieldLabels::formatDate($user->lastLoginAt) : '—' }}
+                                    </td>
+                                    <td class="text-end text-nowrap">
+                                        <span class="table-actions">
+                                            <a class="btn btn-sm btn-link" href="{{ route('admin.users.edit', $user) }}">Edytuj</a>
+                                            <form method="post" action="{{ route('admin.users.toggle', $user) }}" data-async-form
+                                                  data-confirm="{{ $user->isActive ? 'Zablokować to konto?' : 'Odblokować to konto?' }}">
+                                                @csrf
+                                                <button class="btn btn-sm btn-link" type="submit"
+                                                        aria-label="{{ $user->isActive ? 'Zablokuj' : 'Odblokuj' }} konto {{ $user->login }}">
+                                                    {{ $user->isActive ? 'Zablokuj' : 'Odblokuj' }}
+                                                </button>
+                                            </form>
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <x-pagination :page="$page" />
+        <x-pagination :page="$page" />
+    </div>
 @endsection

@@ -16,7 +16,7 @@
 
                 @if ($editable && $service !== null)
                     <form method="post" action="{{ route('services.photos.destroy', [$service, $photo]) }}"
-                          data-confirm="Usunąć to zdjęcie?" data-guard-submit>
+                          data-confirm="Usunąć to zdjęcie?" data-async-form>
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-sm btn-light photo-remove" type="submit"

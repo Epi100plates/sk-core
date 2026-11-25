@@ -171,36 +171,35 @@ it('sends a handed-over tile to its card, not to a missing edit form', function 
         ->assertSee('data-card-href="'.route('services.show', $service).'"', false);
 })->with('stores');
 
-it('serves the bare list for the live search', function (string $store) {
+it('marks the stage strip and the list as async regions', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user, ['device_model' => 'Dell Latitude']);
-    $this->acceptService($user, ['device_model' => 'Lenovo ThinkPad']);
 
-    $response = $this->actingAsUser($user)->get('/queue/results?q=Dell');
-
-    $response->assertOk()
-        ->assertHeader('X-Queue-Results', '1')
-        ->assertSee($service->reference)
-        ->assertDontSee('Lenovo ThinkPad')
-        ->assertDontSee('<!DOCTYPE html>', false);
+    $this->actingAsUser($user)->get('/?status=pending')
+        ->assertOk()
+        // One filter region: counts, hidden term, radios and the reset link are
+        // re-rendered together, so they cannot disagree with the list below.
+        ->assertSee('data-async-region="queue-filter"', false)
+        ->assertSee('data-async-region="queue-results"', false)
+        ->assertSee('data-async-form', false)
+        ->assertSee('data-async-on-change', false)
+        ->assertSee('data-async-link', false)
+        // The tile action is applied in place too.
+        ->assertSee('action="'.route('services.advance', $service).'" data-async-form', false)
+        ->assertSee('id="async-status"', false)
+        ->assertSee('data-async-region="flash"', false);
 })->with('stores');
 
-it('keeps the stage filter in the live result fragment', function (string $store) {
+it('no longer serves a separate list fragment', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Employee);
-    $this->acceptService($user, ['device_model' => 'Oczekujacy']);
-    app(ServiceRepository::class)->save(
-        $this->acceptService($user, ['device_model' => 'W trakcie'])
-            ->with(['status' => ServiceStatus::InProgress->value])
-    );
 
-    $this->actingAsUser($user)->get('/queue/results?status=in_progress')
-        ->assertOk()
-        ->assertSee('W trakcie')
-        ->assertDontSee('Oczekujacy');
+    // The async layer fetches the real page and swaps regions, so the old
+    // `/queue/results` endpoint is gone (one mechanism, one source of truth).
+    $this->actingAsUser($user)->get('/queue/results?q=Dell')->assertNotFound();
 })->with('stores');
 
 it('counts services per status on the queue page', function (string $store) {
@@ -234,6 +233,13 @@ it('paginates the queue at 50 services', function (string $store) {
         ->and($second->count())->toBe(5)
         ->and($first->total)->toBe(55)
         ->and($first->lastPage())->toBe(2);
+
+    // Paging is an in-place update: the link is a normal href (works without
+    // JavaScript) plus the attribute the async layer listens on.
+    $this->actingAsUser($user)->get('/')
+        ->assertOk()
+        ->assertSee('page=2', false)
+        ->assertSee('data-async-link data-async-scroll', false);
 })->with('stores');
 
 it('shows an empty state when there is nothing in the queue', function (string $store) {
