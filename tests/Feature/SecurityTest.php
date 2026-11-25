@@ -78,7 +78,9 @@ it('rejects a mutation without a CSRF token', function () {
     // to be a normal environment for this one request.
     $this->app['env'] = 'local';
 
-    $this->post('/login', ['login' => 'jan', 'password' => 'cokolwiek'])->assertStatus(419);
+    $this->post('/login', ['login' => 'jan', 'password' => 'cokolwiek'])
+        ->assertStatus(419)
+        ->assertSee('Sesja wygasła');
 });
 
 it('serves the web manifest with existing icons and shortcuts (defect D-29)', function () {
