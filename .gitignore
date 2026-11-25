@@ -37,6 +37,10 @@ packages.json
 /Piotrekv3
 /Piotrekv3.7z
 
+# Working clones used to push the three public repositories (each one has its
+# own .git and its own remote). Never part of this repository.
+/_exports
+
 .env.dusk*
 
 /storage/app/dusk-data

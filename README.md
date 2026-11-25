@@ -8,6 +8,21 @@ jedno pole szukania w nagłówku (filtruje kolejkę na żywo) oraz wersja PWA. N
 Plan przepisania i wszystkie decyzje: [`docs/aegis/plans/2026-11-02-przepisanie-aplikacji-serwis.md`](docs/aegis/plans/2026-11-02-przepisanie-aplikacji-serwis.md).
 Decyzje architektoniczne: [`docs/aegis/decisions/`](docs/aegis/decisions/).
 
+## Repozytoria
+
+Kod projektu jest podzielony na trzy publiczne repozytoria GitHub:
+
+| Repozytorium | Zawartość |
+|---|---|
+| **sk-core** (to repozytorium) | aplikacja warsztatu dla serwisantów: kolejka napraw, zdjęcia, statusy, wydruki A4, PWA (Laravel 12, ten katalog) |
+| [sk-serwis](https://github.com/Epi100plates/sk-serwis) | strona serwisu studio-komp.pl + panel CMS + publiczna strona statusu naprawy (`Piotrekv3/`) |
+| [sk-klient](https://github.com/Epi100plates/sk-klient) | samodzielna strona statusu dla klienta (czyta publiczny JSON z panelu) |
+
+W tym repozytorium nie ma: `vendor/`, `.env`, `storage/app/data`, `storage/app/photos`,
+`old-app/` (stara aplikacja PHP, archiwum) i `Piotrekv3/` (strona i panel CMS).
+Wszystko to odtwarza `composer install`, `php artisan app:install` i klon
+odpowiedniego repozytorium.
+
 ## Stos
 
 - **PHP 8.2+ / Laravel 12** (na maszynie deweloperskiej PHP 8.4.27).
