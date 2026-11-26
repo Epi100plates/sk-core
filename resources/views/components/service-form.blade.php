@@ -359,7 +359,7 @@
                         </div>
 
                         @error('planned_at')<p class="record-row__error" id="planned_at-error">{{ $message }}</p>@enderror
-                        <p class="form-hint">Termin liczony od dziś; godzina odbioru 15:00.</p>
+                        <p class="form-hint">Dni liczone od dziś; presety kończą się o 15:00.</p>
                     </div>
                 </div>
             </section>
