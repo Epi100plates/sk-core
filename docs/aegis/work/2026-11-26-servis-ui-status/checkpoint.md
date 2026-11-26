@@ -82,6 +82,25 @@ nawigacją; fokus ma `scroll-margin`, żeby nie chował się pod paskiem.
 - Na żywo: login 200 z `app.css?v=34`, `/services/create` 302 do logowania,
   wgrany CSS zawiera `.record-layout` i `.record-row`.
 
+### Dopracowanie po akceptacji (2026-11-26, wieczór)
+
+- Nagłówek formularza skrócony z ok. 200 px do ok. 110 px: kontekst i tytuł,
+  a akcje obok tytułu zamiast osobnego rzędu pod tekstem.
+- `Opcje` / `Status i opcje` to `<details>` domyślnie zwinięte; otwierają się
+  przy błędzie walidacji albo po kliknięciu. Aktywny Express ma badge w podsumowaniu.
+- Numer plomby zniknął z formularza przyjęcia; zostaje w edycji i przy wydaniu.
+- Termin liczy dni robocze (pon.–pt.) w PHP, Blade i JS: piątek + 1 dzień daje
+  poniedziałek, a własna liczba dni działa tak samo. Święta nie są wyłączane,
+  podpowiedź mówi to wprost.
+- Karta zdjęć jest kompaktowa, więc prawa szyna nie wystaje już wyraźnie poniżej
+  lewej kolumny.
+- commit `af5e9dd`; `ASSET_VERSION=36` na VPS.
+- Weryfikacja: `php artisan test` 244 passed / 125 skipped (917 asercji),
+  `php artisan dusk` 17 passed (72 asercje), Pint PASS (168 plików), PHPStan
+  `[OK]` (z `--memory-limit=512M`); axe 0 naruszeń na create/edit;
+  390/768/1024/1426 px bez poziomego przewijania; w przeglądarce piątek + 1 dzień
+  pokazuje poniedziałek 30.11, 15:00.
+
 ## Ograniczenia i następne kroki
 
 1. **Realna wysyłka SMS** — wszystko działa w trybie testowym; potrzebne konto u dostawcy,
