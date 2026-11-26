@@ -28,6 +28,7 @@ use App\Policies\ServicePhotoPolicy;
 use App\Policies\ServicePolicy;
 use App\Policies\UserPolicy;
 use App\Support\Crypto\SecretBox;
+use App\View\Composers\SidebarQueueComposer;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -36,6 +37,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -98,6 +100,8 @@ class AppServiceProvider extends ServiceProvider
         $this->registerAuthDriver();
         $this->registerPolicies();
         $this->registerRateLimiters();
+
+        View::composer('layouts.app', SidebarQueueComposer::class);
     }
 
     private function usesMySql(): bool

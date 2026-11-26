@@ -937,6 +937,7 @@ legend {
 .app-sidebar {
     display: none;
     flex: 0 0 15rem;
+    flex-direction: column;
     align-self: stretch;
     width: 15rem;
     min-height: 100vh;
@@ -949,22 +950,99 @@ legend {
     top: 0;
 }
 
-/* The logo lives here instead of in a dark bar across the top of the page. */
-.app-sidebar__brand {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.15rem 0.75rem 0.25rem;
-}
-
-.app-sidebar__brand img {
-    display: block;
-    width: auto;
-    height: 1.75rem;
-}
-
 .app-sidebar__label {
     margin: 1.15rem 0 0.4rem;
     padding-inline: 0.75rem;
+}
+
+/* The top of the sidebar is navigation; the bottom group is account and
+   administration. Pushing it down keeps the admin section last without a
+   spacer element, and the queue sits between the two. */
+.app-sidebar__bottom {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.app-sidebar__queue {
+    margin-top: 0.15rem;
+}
+
+.app-sidebar__queue .app-sidebar__label {
+    margin-top: 1.35rem;
+}
+
+.app-sidebar__queue-empty {
+    margin: 0;
+    padding: 0.15rem 0.75rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.sidebar-queue {
+    margin: 0;
+    padding: 0 0.25rem;
+    list-style: none;
+}
+
+.sidebar-queue__item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.32rem 0.5rem;
+    border-left: 2px solid transparent;
+    color: var(--ink);
+    font-size: 0.8125rem;
+    text-decoration: none;
+}
+
+.sidebar-queue__item:hover {
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.sidebar-queue__dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--stage-color, var(--muted-2));
+}
+
+.sidebar-queue__model {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-queue__ref {
+    flex: none;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.sidebar-queue__all {
+    display: inline-flex;
+    width: fit-content;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin: 0.15rem 0.75rem 0;
+    padding: 0.3rem 0;
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.sidebar-queue__all:hover {
+    color: var(--ink);
+}
+
+.sidebar-queue__count {
+    font-variant-numeric: tabular-nums;
 }
 
 .app-sidebar .nav-link {
@@ -2147,7 +2225,7 @@ legend {
 
 @media (min-width: 1024px) {
     .app-sidebar {
-        display: block;
+        display: flex;
     }
 
     .app-bottom-nav {

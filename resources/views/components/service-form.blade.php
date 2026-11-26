@@ -55,16 +55,19 @@
         ['days' => '3', 'label' => '3 dni'],
         ['days' => '7', 'label' => '7 dni'],
     ];
-    $mode = (string) old('planned_mode', $isEdit ? 'date' : '2');
+    // A new acceptance starts on one working day: the shop promises the next
+    // working day unless the employee deliberately picks a longer preset. The
+    // stored date of an edit is never rewritten by that default.
+    $mode = (string) old('planned_mode', $isEdit ? 'date' : '1');
 
     if (! in_array($mode, ['1', '2', '3', '7', 'custom', 'date'], true)) {
-        $mode = $isEdit ? 'date' : '2';
+        $mode = $isEdit ? 'date' : '1';
     }
 
-    $plannedDays = (string) old('planned_days', '2');
+    $plannedDays = (string) old('planned_days', '1');
 
     if (! ctype_digit($plannedDays) || (int) $plannedDays < 1 || (int) $plannedDays > 365) {
-        $plannedDays = '2';
+        $plannedDays = '1';
     }
 
     // The preview is rendered on the server as well, so the promised date reads

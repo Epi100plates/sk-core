@@ -787,7 +787,7 @@
             var days = parseInt(value, 10);
 
             if (!isFinite(days)) {
-                return 2;
+                return 1;
             }
 
             return Math.min(365, Math.max(1, days));
@@ -853,7 +853,7 @@
         }
 
         function sync() {
-            var mode = selectedMode() || '2';
+            var mode = selectedMode() || '1';
             var byDate = mode === 'date';
             var byNumber = mode === 'custom';
 

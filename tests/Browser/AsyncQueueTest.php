@@ -50,8 +50,10 @@ final class AsyncQueueTest extends DuskTestCase
                 ->script('window.__serwisProbe = "alive";');
 
             // A stage chip filters the list in place and the address bar follows.
+            // The sidebar keeps a shortcut to every open job, so the assertion
+            // is scoped to the list the chip actually filters.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitUntilMissingText($pending)
+                ->waitUntilMissing('.queue-results .queue-group[data-stage="pending"]')
                 ->assertSee($progress)
                 ->assertQueryStringHas('status', 'in_progress')
                 ->assertScript('window.__serwisProbe === "alive"');
@@ -59,21 +61,21 @@ final class AsyncQueueTest extends DuskTestCase
             // The same chip pressed again turns the filter off: a chip that can
             // only be switched on is a trap.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitForText($pending)
+                ->waitFor('.queue-results .service-card[data-stage="pending"]')
                 ->assertQueryStringMissing('status')
                 ->assertScript('window.__serwisProbe === "alive"');
 
             // "Pokaż wszystkie" brings the whole queue back the same way.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitUntilMissingText($pending)
+                ->waitUntilMissing('.queue-results .queue-group[data-stage="pending"]')
                 ->clickLink('Pokaż wszystkie')
-                ->waitForText($pending)
+                ->waitFor('.queue-results .service-card[data-stage="pending"]')
                 ->assertQueryStringMissing('status')
                 ->assertScript('window.__serwisProbe === "alive"');
 
             // Pagination swaps only the list: page two holds the 51st result.
             $browser->type('q', $paged)
-                ->waitUntilMissingText($pending)
+                ->waitUntilMissing('.queue-results .service-card[data-stage="pending"]')
                 ->assertSee($paged.' 1')
                 ->click('a[rel="next"]')
                 ->waitForText($paged.' 51')
@@ -84,7 +86,7 @@ final class AsyncQueueTest extends DuskTestCase
             // Advancing a tile moves it to the next section without a reload; the
             // server confirmation arrives in the flash region.
             $browser->type('q', $pending)
-                ->waitForText($pending)
+                ->waitFor('.queue-results .service-card[data-stage="pending"]')
                 ->click('.queue-group[data-stage="pending"] button[type="submit"]')
                 ->waitUntilMissing('.queue-group[data-stage="pending"]')
                 ->assertSee('Status zmieniony')

@@ -23,16 +23,12 @@
     Brak połączenia z internetem — zmiany są zablokowane. Wróć do zasięgu i odśwież stronę.
 </div>
 
-{{-- No dark header: the brand moved to the sidebar and everything the header
-     carried (search, the way in, the way out) lives in one compact bar above
-     the content. The queue adds its stage filter as a second row of that bar,
-     so the counts and the controls arrive together instead of in two boxes. --}}
+{{-- No dark header and no logo: everything the header carried (search, the way
+     in, the way out) lives in one compact bar above the content. The queue adds
+     its stage filter as a second row of that bar, so the counts and the controls
+     arrive together instead of in two boxes. --}}
 <div class="app-shell">
     <nav class="app-sidebar" aria-label="Nawigacja główna">
-        <a class="app-sidebar__brand" href="{{ route('services.queue') }}">
-            <img src="{{ asset('brand/studio-komp-mark.png') }}" alt="Studio-Komp — serwis laptopów">
-        </a>
-
         <p class="app-sidebar__label eyebrow">Zlecenia</p>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -55,27 +51,63 @@
             </li>
         </ul>
 
-        @can('viewAny', App\Domain\Data\UserRecord::class)
-            <p class="app-sidebar__label eyebrow">Administracja</p>
+        @isset($sidebarQueue)
+            {{-- A compact copy of the queue, not a second full screen: the model
+                 is the label, the dot carries the stage, and the count links to
+                 the complete list. Five rows keep the sidebar inside one window
+                 even on a 768 px-high laptop. --}}
+            <div class="app-sidebar__queue" data-async-region="sidebar-queue">
+                <p class="app-sidebar__label eyebrow" id="sidebar-queue-title">Kolejka komputerów</p>
+
+                @if ($sidebarQueue === [])
+                    <p class="app-sidebar__queue-empty">Brak komputerów w kolejce.</p>
+                @else
+                    <ul class="sidebar-queue" aria-labelledby="sidebar-queue-title">
+                        @foreach ($sidebarQueue as $queued)
+                            <li>
+                                <a class="sidebar-queue__item" href="{{ route('services.show', $queued) }}"
+                                   title="{{ $queued->deviceModel }} · {{ $queued->status->label() }}">
+                                    <span class="sidebar-queue__dot" data-stage="{{ $queued->status->value }}"
+                                          aria-hidden="true"></span>
+                                    <span class="sidebar-queue__model">{{ \Illuminate\Support\Str::limit($queued->deviceModel, 20) }}</span>
+                                    <span class="sidebar-queue__ref">#{{ \Illuminate\Support\Str::substr($queued->reference, -4) }}</span>
+                                    <span class="visually-hidden">, {{ $queued->status->label() }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <a class="sidebar-queue__all" href="{{ route('services.queue') }}">
+                        Cała kolejka
+                        <span class="sidebar-queue__count">({{ $sidebarQueueTotal }})</span>
+                    </a>
+                @endif
+            </div>
+        @endisset
+
+        <div class="app-sidebar__bottom">
+            <p class="app-sidebar__label eyebrow">Konto</p>
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                       href="{{ route('admin.users.index') }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
-                        <x-icon name="users" :size="17" /> Użytkownicy
+                    <a class="nav-link {{ request()->routeIs('account.password') ? 'active' : '' }}"
+                       href="{{ route('account.password') }}" @if(request()->routeIs('account.password')) aria-current="page" @endif>
+                        <x-icon name="key" :size="17" /> Zmień hasło
                     </a>
                 </li>
             </ul>
-        @endcan
 
-        <p class="app-sidebar__label eyebrow">Konto</p>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('account.password') ? 'active' : '' }}"
-                   href="{{ route('account.password') }}" @if(request()->routeIs('account.password')) aria-current="page" @endif>
-                    <x-icon name="key" :size="17" /> Zmień hasło
-                </a>
-            </li>
-        </ul>
+            @can('viewAny', App\Domain\Data\UserRecord::class)
+                <p class="app-sidebar__label eyebrow">Administracja</p>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
+                           href="{{ route('admin.users.index') }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
+                            <x-icon name="users" :size="17" /> Użytkownicy
+                        </a>
+                    </li>
+                </ul>
+            @endcan
+        </div>
     </nav>
 
     <main class="app-main" id="main">

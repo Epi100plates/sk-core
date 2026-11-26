@@ -102,6 +102,20 @@ it('defaults the planned date to the next working day at 15:00', function () {
         ->and($default->isFuture())->toBeTrue();
 });
 
+it('starts the acceptance form on a one working day promise', function (string $store) {
+    usingStore($this, $store);
+    $this->travelTo(CarbonImmutable::parse('2026-11-27 10:15:00', 'Europe/Warsaw'));
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    // Friday + one working day is Monday, and the form opens with that preset
+    // already selected instead of the old two-day default.
+    $this->actingAsUser($user)->get('/services/create')
+        ->assertOk()
+        ->assertSee('name="planned_days" value="1"', false)
+        ->assertSee('pon 30.11, 15:00');
+})->with('stores');
+
 it('hides the seal number when accepting and shows it when editing', function (string $store) {
     usingStore($this, $store);
 

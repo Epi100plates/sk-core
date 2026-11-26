@@ -97,7 +97,9 @@ it('shows only the chosen stage and offers a way back to the whole queue', funct
 
     $response->assertOk()
         ->assertSee('W trakcie')
-        ->assertDontSee('Oczekujacy')
+        // The sidebar is a shortcut to every open job, so the model name can
+        // appear there; what must not appear is the pending card in the list.
+        ->assertDontSee('/services/'.$pending->id.'/edit', false)
         ->assertSee('Pokaż wszystkie');
 
     expect($pending->id)->not->toBe($inProgress->id);
@@ -241,6 +243,27 @@ it('keeps the search, the way out and the stage filter in one bar', function (st
     // pressed again (a radio alone cannot be switched off).
     expect(substr_count((string) $response->getContent(), 'data-filter-toggle'))
         ->toBe(count(ServiceStatus::activeCases()));
+})->with('stores');
+
+it('keeps the computer queue compact in the sidebar and puts administration last', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Admin);
+
+    for ($i = 1; $i <= 6; $i++) {
+        $this->acceptService($user, ['device_model' => 'Model '.$i]);
+    }
+
+    // The intake screen is the proof that the sidebar is shared: its own content
+    // never lists services, so every model below comes from the sidebar.
+    $this->actingAsUser($user)->get('/services/create')
+        ->assertOk()
+        ->assertDontSee('studio-komp-mark')
+        ->assertSeeInOrder(['Zlecenia', 'Kolejka komputerów', 'Konto', 'Administracja'])
+        ->assertSee('Cała kolejka')
+        ->assertSee('Model 1')
+        ->assertSee('Model 5')
+        ->assertDontSee('Model 6');
 })->with('stores');
 
 it('carries the same bar on every other screen', function (string $store) {
