@@ -44,6 +44,8 @@ class Service extends Model
         'cancelled_at',
         'cancelled_by',
         'cancellation_reason',
+        'client_status_url',
+        'client_status_synced_at',
         'version',
     ];
 
@@ -58,6 +60,7 @@ class Service extends Model
             'confirmation_issued_at' => 'datetime',
             'released_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'client_status_synced_at' => 'datetime',
             'deleted_at' => 'datetime',
             'price' => 'decimal:2',
             'cost' => 'decimal:2',

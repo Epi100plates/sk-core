@@ -14,7 +14,7 @@
     <a href="{{ route('services.show', $service) }}">Wróć do zlecenia</a>
 </nav>
 
-<main class="print-sheet" id="main">
+<main class="print-sheet print-sheet--protocol" id="main">
     <header class="print-header">
         <div class="print-brand">
             <img class="print-mark" src="{{ asset('brand/studio-komp-mark.png') }}" alt="" width="45" height="45">
@@ -34,59 +34,64 @@
         </p>
     </div>
 
-    <h2>Urządzenie</h2>
-    <table>
-        <tbody>
-        <tr>
-            <th scope="row">Model</th>
-            <td>{{ $service->deviceModel }}</td>
-        </tr>
-        @if ($service->serialNumber !== null)
+    <section class="print-section">
+        <h2>Urządzenie</h2>
+        <table>
+            <tbody>
             <tr>
-                <th scope="row">Numer seryjny</th>
-                <td>{{ $service->serialNumber }}</td>
+                <th scope="row">Model</th>
+                <td>{{ $service->deviceModel }}</td>
             </tr>
-        @endif
-        @if ($service->sealNumber !== null)
+            @if ($service->serialNumber !== null)
+                <tr>
+                    <th scope="row">Numer seryjny</th>
+                    <td>{{ $service->serialNumber }}</td>
+                </tr>
+            @endif
+            @if ($service->sealNumber !== null)
+                <tr>
+                    <th scope="row">Numer plomby</th>
+                    <td>{{ $service->sealNumber }}</td>
+                </tr>
+            @endif
             <tr>
-                <th scope="row">Numer plomby</th>
-                <td>{{ $service->sealNumber }}</td>
+                <th scope="row">Zgłoszona usterka</th>
+                <td class="text-pre-wrap">{{ $service->issue }}</td>
             </tr>
-        @endif
-        <tr>
-            <th scope="row">Zgłoszona usterka</th>
-            <td class="text-pre-wrap">{{ $service->issue }}</td>
-        </tr>
-        @if ($service->notes !== null)
-            <tr>
-                <th scope="row">Uwagi</th>
-                <td class="text-pre-wrap">{{ $service->notes }}</td>
-            </tr>
-        @endif
-        </tbody>
-    </table>
+            @if ($service->notes !== null)
+                <tr>
+                    <th scope="row">Uwagi</th>
+                    <td class="text-pre-wrap">{{ $service->notes }}</td>
+                </tr>
+            @endif
+            </tbody>
+        </table>
+    </section>
 
-    <h2>Rozliczenie</h2>
-    <table>
-        <tbody>
-        <tr>
-            <th scope="row">Telefon kontaktowy</th>
-            <td>{{ $service->displayPhone() }}</td>
-        </tr>
-        <tr>
-            <th scope="row">Cena dla klienta</th>
-            <td><x-money :value="$service->price" /></td>
-        </tr>
-        <tr>
-            <th scope="row">Koszt części</th>
-            <td><x-money :value="$service->cost" /></td>
-        </tr>
-        <tr>
-            <th scope="row">Data przyjęcia</th>
-            <td>{{ \App\Domain\FieldLabels::formatDate($service->acceptedAt) }}</td>
-        </tr>
-        </tbody>
-    </table>
+    <section class="print-section">
+        <h2>Rozliczenie</h2>
+        {{-- Four figures on two rows instead of four table rows: the amounts and
+             the contact sit on the same band, so the protocol keeps its sections
+             but loses a third of its height. --}}
+        <dl class="print-figures">
+            <div class="print-figure">
+                <dt>Cena dla klienta</dt>
+                <dd><x-money :value="$service->price" /></dd>
+            </div>
+            <div class="print-figure">
+                <dt>Koszt części</dt>
+                <dd><x-money :value="$service->cost" /></dd>
+            </div>
+            <div class="print-figure">
+                <dt>Telefon kontaktowy</dt>
+                <dd>{{ $service->displayPhone() }}</dd>
+            </div>
+            <div class="print-figure">
+                <dt>Data przyjęcia</dt>
+                <dd>{{ \App\Domain\FieldLabels::formatDate($service->acceptedAt) }}</dd>
+            </div>
+        </dl>
+    </section>
 
     <p class="print-note">
         Klient potwierdza odbiór sprawnego urządzenia oraz wykonanie usługi zgodnie z powyższym zakresem.

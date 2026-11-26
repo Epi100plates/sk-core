@@ -104,10 +104,20 @@
                 </form>
 
                 <div class="app-bar__actions">
-                    <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
-                        <x-icon name="plus" :size="16" />
-                        <span class="btn-label">Przyjmij</span>
-                    </a>
+                    {{-- The bar's primary action points at the screen you are not on:
+                         on the intake form "Przyjmij" would only reload the page,
+                         so the same slot leads back to the queue. --}}
+                    @if (request()->routeIs('services.create'))
+                        <a class="btn btn-primary btn-sm" href="{{ route('services.queue') }}" aria-label="Wróć do kolejki">
+                            <x-icon name="queue" :size="16" />
+                            <span class="btn-label">Kolejka</span>
+                        </a>
+                    @else
+                        <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
+                            <x-icon name="plus" :size="16" />
+                            <span class="btn-label">Przyjmij</span>
+                        </a>
+                    @endif
                     @auth
                         <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
                         <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>

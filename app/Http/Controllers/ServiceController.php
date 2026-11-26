@@ -17,6 +17,7 @@ use App\Domain\Data\UserRecord;
 use App\Domain\ServiceWorkflow;
 use App\Http\Requests\ServiceRequest;
 use App\Support\Audit\AuditContext;
+use App\Support\ClientStatus\ClientStatusSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -44,6 +45,7 @@ final class ServiceController extends Controller
         AcceptService $acceptService,
         AttachServicePhotos $attachPhotos,
         MarkConfirmationIssued $markConfirmation,
+        ClientStatusSync $clientStatus,
     ): RedirectResponse {
         $this->authorize('create', ServiceRecord::class);
 
@@ -63,9 +65,19 @@ final class ServiceController extends Controller
             }
         }
 
-        if ($request->boolean('print_confirmation')) {
-            $markConfirmation->handle($service, $actor, $context);
+        $printConfirmation = $request->boolean('print_confirmation');
 
+        if ($printConfirmation) {
+            $service = $markConfirmation->handle($service, $actor, $context);
+        }
+
+        // The customer link is created after the order exists. A failure is only a
+        // warning: the acceptance itself is already saved (decision D19/0019).
+        if ($clientStatus->enabled() && ! $clientStatus->sync($service, ClientStatusSync::EVENT_ACCEPTED)['ok']) {
+            session()->flash('warning', 'Zlecenie '.$service->reference.' zostało zapisane, ale nie udało się utworzyć linku statusu klienta. Link można utworzyć ponownie z karty zlecenia.');
+        }
+
+        if ($printConfirmation) {
             return redirect()
                 ->route('print.acceptance', $service)
                 ->with('status', 'Zlecenie '.$service->reference.' przyjęte.');
@@ -82,6 +94,7 @@ final class ServiceController extends Controller
         ServicePhotoRepository $photos,
         ServiceWorkflow $workflow,
         UserRepository $users,
+        ClientStatusSync $clientStatus,
     ): View {
         $this->authorize('view', $service);
 
@@ -96,6 +109,11 @@ final class ServiceController extends Controller
             'events' => $events->forService($service->id, 20),
             'actors' => $actors,
             'canRelease' => $workflow->canRelease($service),
+            // Contract with the order card (plan 2026-11-26): the CMS returns the
+            // public number, this app does not store it yet, so it stays null.
+            'clientStatusUrl' => $service->clientStatusUrl,
+            'clientStatusEnabled' => $clientStatus->enabled(),
+            'clientStatusNumber' => null,
         ]);
     }
 
@@ -114,6 +132,7 @@ final class ServiceController extends Controller
         ServiceRecord $service,
         UpdateService $updateService,
         AttachServicePhotos $attachPhotos,
+        ClientStatusSync $clientStatus,
     ): RedirectResponse {
         $this->authorize('update', $service);
 
@@ -130,6 +149,14 @@ final class ServiceController extends Controller
             if ($photoResult->hasFailures()) {
                 session()->flash('warning', 'Nie udało się dodać części zdjęć: '.implode(', ', $photoResult->failed));
             }
+        }
+
+        // The customer page only has to be told when the stage really moved; a
+        // plain note/price edit must not cost a request to the CMS.
+        if ($result['service']->status !== $service->status
+            && $clientStatus->enabled()
+            && ! $clientStatus->sync($result['service'], ClientStatusSync::EVENT_STATUS_CHANGED)['ok']) {
+            session()->flash('warning', 'Zmiany zostały zapisane, ale nie udało się zaktualizować statusu klienta. Spróbuj ponownie z karty zlecenia.');
         }
 
         $message = $result['events'] === 0

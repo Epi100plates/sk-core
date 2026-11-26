@@ -743,6 +743,252 @@
         });
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Deadline picker                                                     */
+    /* ------------------------------------------------------------------ */
+
+    /* The server accepts two fields: `planned_days` (1–365, counted from today at
+       15:00) or `planned_at`. The radio group only decides which one travels, so
+       the hidden `planned_days` input keeps a usable value and "inna data" is the
+       only mode that switches it off. Without this script the default preset is
+       still submitted, which is why every panel is rendered open from the server. */
+    function setupDeadline() {
+        var root = document.querySelector('[data-deadline]');
+
+        if (!root) {
+            return;
+        }
+
+        var daysField = root.querySelector('[data-deadline-days]');
+        var numberField = root.querySelector('[data-deadline-number]');
+        var dateField = root.querySelector('input[name="planned_at"]');
+        var daysPanel = root.querySelector('[data-deadline-panel="days"]');
+        var datePanel = root.querySelector('[data-deadline-panel="date"]');
+        var preview = root.querySelector('[data-deadline-preview]');
+        var modes = root.querySelectorAll('[data-deadline-mode]');
+
+        if (!daysField || !numberField || !dateField) {
+            return;
+        }
+
+        var weekdays = ['niedz', 'pon', 'wt', 'śr', 'czw', 'pt', 'sob'];
+
+        function pad(value) {
+            return value < 10 ? '0' + value : String(value);
+        }
+
+        function format(date) {
+            return weekdays[date.getDay()] + ' ' + pad(date.getDate()) + '.' + pad(date.getMonth() + 1)
+                + ', ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+
+        function clampDays(value) {
+            var days = parseInt(value, 10);
+
+            if (!isFinite(days)) {
+                return 2;
+            }
+
+            return Math.min(365, Math.max(1, days));
+        }
+
+        function selectedMode() {
+            var mode = null;
+
+            Array.prototype.forEach.call(modes, function (radio) {
+                if (radio.checked) {
+                    mode = radio.value;
+                }
+            });
+
+            return mode;
+        }
+
+        function previewFromDays(days) {
+            if (!preview) {
+                return;
+            }
+
+            var date = new Date();
+            date.setDate(date.getDate() + days);
+            date.setHours(15, 0, 0, 0);
+            preview.textContent = format(date);
+        }
+
+        function previewFromValue(value) {
+            if (!preview) {
+                return;
+            }
+
+            var match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value || '');
+
+            if (!match) {
+                preview.textContent = '—';
+
+                return;
+            }
+
+            preview.textContent = format(new Date(
+                Number(match[1]), Number(match[2]) - 1, Number(match[3]),
+                Number(match[4]), Number(match[5])
+            ));
+        }
+
+        function sync() {
+            var mode = selectedMode() || '2';
+            var byDate = mode === 'date';
+            var byNumber = mode === 'custom';
+
+            if (daysPanel) {
+                daysPanel.hidden = !byNumber;
+            }
+
+            if (datePanel) {
+                datePanel.hidden = !byDate;
+            }
+
+            if (byDate) {
+                daysField.disabled = true;
+                dateField.disabled = false;
+                dateField.required = true;
+                previewFromValue(dateField.value);
+
+                return;
+            }
+
+            daysField.disabled = false;
+            dateField.disabled = true;
+            dateField.required = false;
+
+            var days = byNumber ? clampDays(numberField.value) : clampDays(mode);
+
+            if (!byNumber) {
+                numberField.value = days;
+            }
+
+            daysField.value = days;
+            previewFromDays(days);
+        }
+
+        Array.prototype.forEach.call(modes, function (radio) {
+            radio.addEventListener('change', sync);
+        });
+
+        numberField.addEventListener('input', function () {
+            if (selectedMode() !== 'custom') {
+                return;
+            }
+
+            daysField.value = clampDays(numberField.value);
+            previewFromDays(clampDays(numberField.value));
+        });
+
+        numberField.addEventListener('change', function () {
+            if (selectedMode() !== 'custom') {
+                return;
+            }
+
+            numberField.value = clampDays(numberField.value);
+            daysField.value = numberField.value;
+            previewFromDays(clampDays(numberField.value));
+        });
+
+        dateField.addEventListener('input', function () {
+            if (selectedMode() === 'date') {
+                previewFromValue(dateField.value);
+            }
+        });
+
+        sync();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Copy to clipboard                                                   */
+    /* ------------------------------------------------------------------ */
+
+    /* `data-copy-value` carries the text, `data-copy-target` names the field to
+       read it from when the value is already on screen. No inline JS: the strict
+       CSP leaves this file as the only place behaviour can live. */
+    function copyText(text) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise(function (resolve, reject) {
+            var field = document.createElement('textarea');
+            field.value = text;
+            field.setAttribute('readonly', 'readonly');
+            field.style.position = 'fixed';
+            field.style.top = '-1000px';
+            document.body.appendChild(field);
+            field.select();
+
+            try {
+                document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+            } catch (error) {
+                reject(error);
+            } finally {
+                document.body.removeChild(field);
+            }
+        });
+    }
+
+    function setupCopyButtons() {
+        document.addEventListener('click', function (event) {
+            var button = closest(event.target, '[data-copy-value], [data-copy-target]');
+
+            if (!button) {
+                return;
+            }
+
+            var text = button.getAttribute('data-copy-value');
+            var targetId = button.getAttribute('data-copy-target');
+
+            if (!text && targetId) {
+                var field = document.getElementById(targetId);
+                text = field ? (typeof field.value === 'string' && field.value !== ''
+                    ? field.value
+                    : field.textContent) : '';
+            }
+
+            if (!text) {
+                return;
+            }
+
+            event.preventDefault();
+
+            copyText(text).then(function () {
+                announce('Skopiowano link do schowka.');
+                var label = button.getAttribute('data-copy-label') || squash(button.textContent);
+
+                button.setAttribute('data-copy-label', label);
+                button.textContent = 'Skopiowano';
+
+                window.setTimeout(function () {
+                    button.textContent = button.getAttribute('data-copy-label');
+                }, 2200);
+            }).catch(function () {
+                announce('Nie udało się skopiować — zaznacz link i skopiuj go ręcznie.');
+            });
+        });
+    }
+
+    /* A failed submit is announced at the top of the form, so put the keyboard
+       there instead of leaving it on a field that may be off screen. */
+    function focusErrorSummary() {
+        var summary = document.querySelector('[data-error-summary]');
+
+        if (!summary || !summary.hasAttribute('tabindex')) {
+            return;
+        }
+
+        try {
+            summary.focus({ preventScroll: false });
+        } catch (error) {
+            summary.focus();
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         setupPasswordToggles();
         setupConfirmations();
@@ -754,6 +1000,9 @@
         setupAsyncChanges();
         setupFilterToggles();
         setupLiveSearch();
+        setupDeadline();
+        setupCopyButtons();
+        focusErrorSummary();
         scheduleFlashDismissal();
     });
 })();

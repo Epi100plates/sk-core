@@ -81,22 +81,48 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 | `php artisan photos:verify [--fix]` | spójność metadanych zdjęć z plikami (kwarantanna, miniatury) |
 | `php artisan legacy:import [--dry-run] [--source=] [--uploads=]` | import starej bazy z raportem CSV |
 | `php artisan legacy:verify [--source=]` | porównanie liczności i sum po imporcie |
-| php artisan backup:database | ZIP z danymi JSON i zdjęciami albo zrzut SQL + zdjęcia |
-| php artisan bench:queue [--services=200] | pomiar czasu renderowania kolejki (p95) na danych tymczasowych |
+| `php artisan backup:database` | ZIP z danymi JSON i zdjęciami albo zrzut SQL + zdjęcia |
+| `php artisan bench:queue [--services=200]` | pomiar czasu renderowania kolejki (p95) na danych tymczasowych |
+| `php artisan services:sync-status [--all] [--service=ID]` | brakujące linki statusu klienta w CMS (bezpieczne do powtarzania) |
+
+## Status dla klienta (integracja z CMS)
+
+Aplikacja jest źródłem prawdy o zleceniu. Po przyjęciu i po każdej zmianie statusu
+wysyła podpisany HMAC-em snapshot do CMS (`sk.mati-it.pl`), który prowadzi publiczną
+stronę `/status/<token>/` i kolejkę SMS. CMS zwraca gotowy link; aplikacja zapisuje
+go w `services.client_status_url` i pokazuje na karcie zlecenia (kopiuj / otwórz).
+Klient dostaje ten sam link SMS-em (`client_accepted` przy przyjęciu,
+`client_ready` przy pierwszym „Do wydania”); treści SMS i tryb testowy są w panelu
+CMS → Ustawienia → Formularz.
+
+| Zmienna | Znaczenie |
+|---|---|
+| `CLIENT_STATUS_ENABLED` | `true` włącza wysyłkę; brak sekretu = integracja wyłączona |
+| `CLIENT_STATUS_URL` | bazowy adres CMS; aplikacja dokleja `/api/service-sync.php`. Na VPS: `http://127.0.0.1:8088` (nie przez Cloudflare) |
+| `CLIENT_STATUS_SECRET` | ten sam sekret co `service_sync_secret` w `/srv/studio-komp-cms/config.php` |
+| `CLIENT_STATUS_TIMEOUT` | sekundy; brak odpowiedzi nie blokuje przyjęcia ani wydania |
+
+Błąd CMS nie blokuje operacji: zlecenie zostaje zapisane, panel pokazuje ostrzeżenie,
+a link można utworzyć ponownie z karty zlecenia (`POST /services/{id}/client-status`)
+albo komendą `services:sync-status`. Decyzja: [ADR 0019](docs/aegis/decisions/0019-integracja-statusu.md);
+pełna dokumentacja strony statusu: `docs/status-klienta.md` w repozytorium `sk-serwis`.
 
 ## Bramki jakości
 
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 315 testów: json + mysql
+php artisan test                 # 357 testów: json + mysql
 php artisan dusk                 # 17 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-25: **315 testów zielonych w obu trybach magazynu** + **17 scenariuszy Dusk (z axe)**,
-Pint czysty, PHPStan poziom 6 bez błędów.
+Stan na 2026-11-26: **234 passed (893 asercje) lokalnie** — warianty `mysql` są
+pomijane, gdy baza nie jest dostępna; CI uruchamia oba magazyny (357 przypadków).
+Dusk: **17 passed (70 asercji)**, w tym 6 audytów axe. Pint czysty (166 plików),
+PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
 Wyrównanie wizualne ze stroną firmową: [docs/aegis/verification/visual-alignment.md](docs/aegis/verification/visual-alignment.md).
+Przyjęcie, wydanie i status klienta (2026-11-26): [plan i notatki](docs/aegis/work/2026-11-26-servis-ui-status/plan.md).
 Treść, przepływy i bezpieczeństwo (przebudowa ekranów): [docs/aegis/verification/content-and-security-pass.md](docs/aegis/verification/content-and-security-pass.md).
 Kolejka, filtr etapów i jedno wyszukiwanie: [docs/aegis/verification/queue-usability-pass.md](docs/aegis/verification/queue-usability-pass.md).
 Aktualizacje w miejscu (filtr, paginacja, „Dalej”, zdjęcia): [docs/aegis/verification/async-ui-pass.md](docs/aegis/verification/async-ui-pass.md).
@@ -139,9 +165,29 @@ docs/                  plan, ADR-y, runbooki, instrukcja użytkownika, raporty
 old-app/               stara aplikacja (archiwum, poza repozytorium i webrootem)
 ```
 
+## Wdrożenie na VPS (serwis.mati-it.pl)
+
+Aplikacja działa na VPS w `/srv/sk-serwis` (PHP-FPM pool `skserwis`, osobna instancja
+nginx `nginx-serwis` na `127.0.0.1:8090`, Cloudflare Tunnel). **Budowanie i testy
+wykonują się wyłącznie lokalnie** — na VPS nie ma Composera ani Node.js.
+
+```powershell
+php artisan test
+powershell -ExecutionPolicy Bypass -File deploy/deploy-vps.ps1          # źródła + kopia + clear cache
+powershell -ExecutionPolicy Bypass -File deploy/deploy-vps.ps1 -SkipTests
+```
+
+Skrypt pakuje `app/`, `config/`, `database/`, `public/`, `resources/`, `routes/` i pliki
+projektu, wysyła przez scp i rozpakowuje w `/srv/sk-serwis`; **nie rusza** `vendor/`,
+`storage/`, `.env` ani nie uruchamia composera. Po zmianie CSS/JS podbij
+`ASSET_VERSION` w `/srv/sk-serwis/.env` (cache service workera). Wpisy
+`CLIENT_STATUS_*` opisano wyżej; przy `DATA_STORE=mysql` uruchom dodatkowo
+`php artisan migrate --force` (kolumny statusu klienta są nullable).
+
 ## Bezpieczeństwo w skrócie
 
-Hasła bcrypt, wszystkie trasy za `auth`, brak publicznego sprawdzania statusu (decyzja D4),
+Hasła bcrypt, wszystkie trasy za `auth`, brak publicznego sprawdzania statusu w samej
+aplikacji (decyzja D4) — publiczna strona statusu żyje w CMS i wymaga podpisanego tokenu,
 CSRF na każdej mutacji, throttling loginu 5/15 min, zdjęcia poza webrootem serwowane przez
 kontroler z polityką, hasło urządzenia szyfrowane w magazynie, CSP bez `unsafe-inline`,
 nagłówki HSTS/nosniff/DENY, dane JSON poza `public/`.

@@ -7,6 +7,8 @@
         "storage",
         "_runtime",
         "_release",
+        "_deploy",
+        "_exports",
         "docs",
         "bootstrap/cache",
         "public"

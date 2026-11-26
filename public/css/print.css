@@ -265,7 +265,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 2mm 8mm;
-    padding: 6mm 0 3mm;
+    padding: 5mm 0 2.5mm;
     border-bottom: 1px solid var(--line-strong);
 }
 
@@ -273,7 +273,7 @@
     margin: 0;
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 20pt;
+    font-size: 18pt;
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.1;
@@ -299,8 +299,15 @@
 
 /* --------------------------------------------------------------- sections */
 
+/* A section (heading + table or figures) never splits across two sheets: an A4
+   protocol that loses its heading on page 2 is unusable at the counter. */
+.print-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
 .print-sheet h2 {
-    margin: 7mm 0 0;
+    margin: 5mm 0 0;
     color: var(--muted);
     font-family: var(--font-mono);
     font-size: 8pt;
@@ -314,7 +321,7 @@
 
 .print-sheet table {
     width: 100%;
-    margin: 2.5mm 0 0;
+    margin: 2mm 0 0;
     border-top: 1px solid var(--line-strong);
     border-collapse: collapse;
     font-size: 9.5pt;
@@ -322,7 +329,7 @@
 
 .print-sheet th,
 .print-sheet td {
-    padding: 1.9mm 0;
+    padding: 1.6mm 0;
     border-bottom: 1px solid var(--line);
     text-align: left;
     vertical-align: top;
@@ -350,22 +357,65 @@
     white-space: pre-line;
 }
 
+/* --------------------------------------------------------------- figures */
+
+/* The release protocol lists money: four labelled figures on a two-column band.
+   A definition list keeps the label/value pairing that a table gave us, at half
+   the height and with the amount carrying the weight instead of the rule. */
+.print-figures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 8mm;
+    margin: 2mm 0 0;
+    padding: 0;
+    border-top: 1px solid var(--line-strong);
+}
+
+.print-figure {
+    display: grid;
+    gap: 0.4mm;
+    padding: 2mm 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.print-figure dt {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.print-figure dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 11pt;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
 /* ------------------------------------------------------- note, signatures */
 
 .print-note {
-    margin: 6mm 0 0;
+    margin: 5mm 0 0;
     max-width: 150mm;
     color: var(--muted);
     font-size: 8pt;
     line-height: 1.55;
 }
 
+/* Room to sign, not a third of the sheet: 13mm of blank paper above the rules is
+   enough for a pen and keeps the whole protocol on one A4 page. */
 .print-signatures {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 10mm;
-    margin: 16mm 0 0;
+    margin: 13mm 0 0;
     break-inside: avoid;
     page-break-inside: avoid;
 }
@@ -410,6 +460,23 @@
 
     /* Keep a section heading with its table instead of stranding it. */
     .print-sheet h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    /* One A4 sheet: the protocol is a counter document, a second page means a
+       lost heading or two orphaned signature lines. Everything that could split
+       is pinned, and the note stays with the signatures. */
+    .print-section,
+    .print-sheet tr,
+    .print-figure,
+    .print-note,
+    .print-signatures {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .print-note {
         break-after: avoid;
         page-break-after: avoid;
     }
@@ -462,6 +529,10 @@
 
     .print-note {
         max-width: none;
+    }
+
+    .print-figures {
+        gap: 0 5mm;
     }
 
     .print-signatures {

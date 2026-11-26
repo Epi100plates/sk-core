@@ -11,6 +11,7 @@ use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
 use App\Http\Requests\ReleaseServiceRequest;
 use App\Support\Audit\AuditContext;
+use App\Support\ClientStatus\ClientStatusSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -36,6 +37,7 @@ final class ReleaseController extends Controller
         ReleaseServiceRequest $request,
         ServiceRecord $service,
         ReleaseService $release,
+        ClientStatusSync $clientStatus,
     ): RedirectResponse {
         $this->authorize('release', $service);
 
@@ -53,6 +55,10 @@ final class ReleaseController extends Controller
 
         $details = ReleaseDetails::fromArray($request->validated());
         $released = $release->handle($service, $details, $user, AuditContext::fromRequest($request));
+
+        if ($clientStatus->enabled() && ! $clientStatus->sync($released, ClientStatusSync::EVENT_RELEASED)['ok']) {
+            session()->flash('warning', 'Zlecenie zostało wydane, ale nie udało się zaktualizować strony klienta. Spróbuj ponownie z karty zlecenia.');
+        }
 
         if ($details->printProtocol) {
             return redirect()

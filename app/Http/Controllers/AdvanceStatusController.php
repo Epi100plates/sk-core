@@ -8,6 +8,7 @@ use App\Actions\AdvanceServiceStatus;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
 use App\Support\Audit\AuditContext;
+use App\Support\ClientStatus\ClientStatusSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ final class AdvanceStatusController extends Controller
         Request $request,
         ServiceRecord $service,
         AdvanceServiceStatus $advance,
+        ClientStatusSync $clientStatus,
     ): RedirectResponse|JsonResponse {
         $this->authorize('advance', $service);
 
@@ -34,6 +36,14 @@ final class AdvanceStatusController extends Controller
         }
 
         $updated = $advance->handle($service, $user, AuditContext::fromRequest($request));
+
+        // Same snapshot as an edit: the customer page follows the stage. The JSON
+        // answer stays untouched — the card script only reads the status.
+        if ($clientStatus->enabled()
+            && ! $clientStatus->sync($updated, ClientStatusSync::EVENT_STATUS_CHANGED)['ok']
+            && ! $request->expectsJson()) {
+            session()->flash('warning', 'Status został zmieniony, ale nie udało się zaktualizować strony klienta. Spróbuj ponownie z karty zlecenia.');
+        }
 
         if ($request->expectsJson()) {
             return response()->json([

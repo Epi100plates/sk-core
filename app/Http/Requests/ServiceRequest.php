@@ -41,7 +41,13 @@ class ServiceRequest extends FormRequest
             'device_password' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'is_express' => ['nullable', 'boolean'],
-            'planned_at' => [$required, 'date'],
+            // Deadline: either a preset/own number of days (`planned_days`, turned
+            // into `planned_at` below) or an explicit date. Editing keeps both
+            // optional, because a partial edit payload must not touch the promise.
+            'planned_days' => ['nullable', 'integer', 'between:1,365'],
+            'planned_at' => $creating
+                ? ['required_without:planned_days', 'date']
+                : ['nullable', 'date'],
             'price' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
             'cost' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
             'seal_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Z0-9\-\/ ]*$/'],
@@ -66,6 +72,8 @@ class ServiceRequest extends FormRequest
             'issue.required' => 'Opis usterki jest wymagany.',
             'planned_at.required' => 'Termin realizacji jest wymagany.',
             'planned_at.date' => 'Termin realizacji musi być poprawną datą.',
+            'planned_days.integer' => 'Liczba dni terminu musi być liczbą całkowitą.',
+            'planned_days.between' => 'Termin realizacji można ustawić od 1 do 365 dni.',
             'price.numeric' => 'Cena musi być liczbą.',
             'cost.numeric' => 'Koszt części musi być liczbą.',
             'seal_number.regex' => 'Numer plomby może zawierać tylko litery, cyfry, myślnik i ukośnik.',
@@ -95,6 +103,15 @@ class ServiceRequest extends FormRequest
 
         if ($this->has('planned_at') && is_string($this->input('planned_at'))) {
             $normalized['planned_at'] = self::toWallClock((string) $this->input('planned_at'));
+        }
+
+        // A preset (1/2/3/7) or the customer's own number of days replaces whatever
+        // the hidden `planned_at` field still carried: the shop promise is "3 dni",
+        // the exact hour is an implementation detail of the display (F-13).
+        $days = $this->input('planned_days');
+
+        if (is_numeric($days) && (int) $days >= 1 && (int) $days <= 365) {
+            $normalized['planned_at'] = self::plannedAtFromDays((int) $days);
         }
 
         $normalized['is_express'] = $this->boolean('is_express');
@@ -148,11 +165,22 @@ class ServiceRequest extends FormRequest
         return CarbonImmutable::now($timezone)->addDay()->setTime(15, 0)->format('Y-m-d\TH:i');
     }
 
+    /**
+     * Promised date for a preset/own number of days: `n` days from today at 15:00
+     * local time, as a timezone free wall clock value (like `defaultPlannedAt()`).
+     */
+    public static function plannedAtFromDays(int $days): string
+    {
+        $timezone = (string) config('app.display_timezone');
+
+        return CarbonImmutable::now($timezone)->addDays($days)->setTime(15, 0)->format('Y-m-d\TH:i');
+    }
+
     /** @return array<string, string> */
     public function validatedDetails(): array
     {
         /** @var array<string, string> $data */
-        $data = $this->safe()->except(['photos', 'print_confirmation']);
+        $data = $this->safe()->except(['photos', 'print_confirmation', 'planned_days']);
 
         return $data;
     }

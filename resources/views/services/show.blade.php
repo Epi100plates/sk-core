@@ -178,6 +178,64 @@
         </div>
 
         <div class="col-12 col-lg-5">
+            @php
+                // The card works before the backend ships the integration: missing
+                // variables fall back to "no link, integration off".
+                $clientStatusUrl = $clientStatusUrl ?? null;
+                $clientStatusEnabled = $clientStatusEnabled ?? false;
+                $clientStatusNumber = $clientStatusNumber ?? null;
+                $clientStatusRoute = \Illuminate\Support\Facades\Route::has('services.client-status.store');
+            @endphp
+
+            <section class="app-card client-status mb-3" aria-labelledby="service-client-status">
+                <div class="app-card-header">
+                    <h2 class="h6" id="service-client-status">Status dla klienta</h2>
+                    @if (is_string($clientStatusUrl) && $clientStatusUrl !== '')
+                        <span class="badge text-bg-success">Link aktywny</span>
+                    @endif
+                </div>
+                <div class="app-card-body">
+                    @if (is_string($clientStatusUrl) && $clientStatusUrl !== '')
+                        <p class="service-meta">
+                            Ten sam link dostaje klient SMS-em przy przyjęciu i po zmianie etapu na „Do wydania”.
+                            Pokazuje tylko etap naprawy — bez telefonu, usterki i notatek.
+                        </p>
+                        <div class="copy-row">
+                            <label class="visually-hidden" for="client-status-url">Adres strony statusu</label>
+                            <input class="form-control copy-row__value" id="client-status-url" type="text"
+                                   value="{{ $clientStatusUrl }}" readonly spellcheck="false">
+                            <button class="btn btn-outline-primary" type="button"
+                                    data-copy-value="{{ $clientStatusUrl }}"
+                                    data-copy-target="client-status-url">Kopiuj</button>
+                            <a class="btn btn-outline-primary" href="{{ $clientStatusUrl }}"
+                               target="_blank" rel="noopener">Otwórz</a>
+                        </div>
+                        @if (is_string($clientStatusNumber) && $clientStatusNumber !== '')
+                            <p class="service-meta mb-0 mt-2">
+                                Numer zgłoszenia na stronie statusu:
+                                <span class="font-monospace">{{ $clientStatusNumber }}</span>
+                            </p>
+                        @endif
+                    @elseif ($clientStatusEnabled)
+                        <p class="service-meta">
+                            Link jeszcze nie powstał — zlecenie zapisano, ale strona statusu nie odpowiedziała.
+                            Możesz utworzyć go ponownie.
+                        </p>
+                        @if ($clientStatusRoute)
+                            <form method="post" action="{{ route('services.client-status.store', $service) }}"
+                                  data-guard-submit>
+                                @csrf
+                                <button class="btn btn-outline-primary" type="submit">Utwórz link statusu</button>
+                            </form>
+                        @endif
+                    @else
+                        <p class="service-meta mb-0">
+                            Strona statusu jest wyłączona w konfiguracji, więc klient nie dostaje linku ani SMS-a.
+                        </p>
+                    @endif
+                </div>
+            </section>
+
             <section class="app-card mb-3" aria-labelledby="service-history">
                 <div class="app-card-header">
                     <h2 class="h6" id="service-history">Historia zmian</h2>

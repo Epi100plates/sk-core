@@ -31,6 +31,9 @@ packages.json
 /_runtime
 /old-app
 /_release
+/_deploy
+/_runtime
+/shots
 
 # Reference material from the marketing site (source of the brand assets that
 # were copied into public/brand and public/fonts). Kept out of the repository.

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdvanceStatusController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CancelController;
+use App\Http\Controllers\ClientStatusController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\OfflineController;
 use App\Http\Controllers\PrintController;
@@ -94,6 +95,11 @@ Route::middleware(['auth', RequirePasswordChange::class])->group(function (): vo
     Route::post('/services/{service}/cancel', CancelController::class)
         ->middleware('throttle:mutations')
         ->name('services.cancel');
+
+    // Manual retry of the customer status link (decision D19/0019).
+    Route::post('/services/{service}/client-status', [ClientStatusController::class, 'store'])
+        ->middleware('throttle:mutations')
+        ->name('services.client-status.store');
 
     Route::post('/services/{service}/photos', [ServicePhotoController::class, 'store'])
         ->middleware('throttle:mutations')

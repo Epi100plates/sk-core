@@ -2179,14 +2179,21 @@ legend {
         order: 1;
     }
 
-    /* On phones the bottom navigation owns navigation and "Przyjmij"; the bar
-       keeps the search and the way out. */
+    /* The bar keeps the way in/out and the primary action. On the intake screen
+       that slot turns into "Kolejka", which is also the quickest way back on a
+       phone; the bottom navigation stays the main navigation. */
     .app-bar__actions .btn {
-        display: none;
+        display: inline-flex;
     }
 
     .app-bar__logout .btn-label {
         display: none;
+    }
+
+    @media (max-width: 359.98px) {
+        .app-bar__actions .btn .btn-label {
+            display: none;
+        }
     }
 
     .app-bar__logout {
@@ -2226,4 +2233,574 @@ legend {
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
     }
+}
+
+/* ------------------------------------------------------- intake & edit form */
+
+/* A long form is read as a document, not a wall of inputs: mono section rules
+   give the eye the same anchors a paper intake sheet has, and every section is
+   open — nothing important is hidden behind a click. */
+
+.link-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    margin-bottom: 0.45rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.link-back:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.link-back__icon {
+    display: inline-flex;
+    /* The sprite has one arrow; the way back points the other way. */
+    transform: rotate(180deg);
+}
+
+.form-hint {
+    margin: 0.3rem 0 0;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
+/* Secondary fields (parts cost, seal, serial) are still full-size controls — a
+   thumb needs 44px — but their labels step back so the money the customer pays
+   keeps the first row. */
+.form-label--quiet {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.form-control--quiet {
+    background: var(--surface);
+}
+
+.form-control--quiet:focus {
+    background: var(--paper);
+}
+
+.money-field {
+    position: relative;
+}
+
+.money-field .form-control {
+    padding-right: 2rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.money-field__suffix {
+    position: absolute;
+    top: 50%;
+    right: 0.7rem;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.app-form .app-card-body.app-form__body {
+    padding: 0;
+}
+
+.form-section {
+    padding: 0.9rem 1rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.form-section:last-child {
+    border-bottom: 0;
+}
+
+.form-section__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.8rem;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.form-section__title {
+    flex: none;
+}
+
+.form-section__rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--line);
+}
+
+/* Validation speaks twice: once at the top (this box) and once next to the
+   field that failed. The top box is focusable so a screen reader lands on the
+   list after a failed submit instead of re-reading the whole form. */
+.form-alert {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid var(--error);
+    background: var(--paper);
+}
+
+.form-alert__title {
+    margin: 0 0 0.3rem;
+    color: var(--error);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.form-alert__list {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--ink);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+.form-alert:focus-visible {
+    outline: 2px solid var(--error);
+    outline-offset: -2px;
+}
+
+/* --------------------------------------------------------- deadline picker */
+
+.deadline {
+    display: grid;
+    gap: 0.55rem;
+    min-width: 0;
+}
+
+.deadline__modes {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.deadline__legend {
+    float: none;
+    width: auto;
+    margin-bottom: 0.45rem;
+    padding: 0;
+}
+
+.deadline__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+/* A chip is a native radio painted as a pill-less button: the same language as
+   the queue's stage filter, 44px tall, and its checked state is a real state a
+   screen reader announces. */
+.choice {
+    position: relative;
+    display: inline-flex;
+    min-width: 0;
+}
+
+.choice__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.choice__body {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    padding: 0 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color var(--fast) var(--ease-out),
+        border-color var(--fast) var(--ease-out), color var(--fast) var(--ease-out);
+}
+
+.choice__body:hover {
+    border-color: var(--ink);
+    background: var(--surface);
+}
+
+.choice__value {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.choice__unit {
+    color: var(--muted);
+    font-size: 0.8125rem;
+}
+
+.choice__label {
+    white-space: nowrap;
+}
+
+.choice__input:checked + .choice__body {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.choice__input:checked + .choice__body .choice__unit {
+    color: var(--yellow);
+}
+
+.choice__input:checked + .choice__body .choice__label {
+    color: var(--paper);
+}
+
+.choice__input:focus-visible + .choice__body {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.deadline__preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.deadline__preview-value {
+    color: var(--ink);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.deadline__panel[hidden] {
+    display: none;
+}
+
+.deadline__days {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.deadline__days .form-control {
+    max-width: 7rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.deadline__suffix {
+    color: var(--muted);
+    font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------- check blocks */
+
+/* Express and the printed confirmation are decisions, not data: they get a box
+   with a signal stripe that lights up when on (the same stripe language as a
+   queue tile), instead of a bare checkbox floating in the grid. */
+.toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper);
+    transition: border-color var(--fast) var(--ease-out),
+        background-color var(--fast) var(--ease-out);
+}
+
+.toggle .form-check-input {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.1rem;
+}
+
+.toggle__label {
+    display: grid;
+    gap: 0.1rem;
+    cursor: pointer;
+}
+
+.toggle__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.toggle__hint {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
+.toggle:hover {
+    border-color: var(--line-strong);
+}
+
+.toggle:has(.form-check-input:checked) {
+    border-color: var(--line-strong);
+    border-left-color: var(--yellow);
+    background: var(--surface);
+}
+
+.toggle:focus-within {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+}
+
+/* ---------------------------------------------------------- sticky actions */
+
+/* On a desktop the actions are simply the last row of the form: a bar pinned to
+   the bottom edge would sit on top of the promised date and the notes while the
+   employee is still filling them in. A phone scrolls a long form twice as far, so
+   there the bar follows the thumb — above the fixed bottom navigation, with
+   enough page padding to scroll the last field clear of it. */
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+}
+
+.form-actions__cancel {
+    margin-right: auto;
+}
+
+.form-actions__primary {
+    flex: 1 1 100%;
+    min-height: 3rem;
+}
+
+@media (min-width: 576px) {
+    .form-actions__primary {
+        flex: 0 0 auto;
+        min-width: 14rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .form-actions {
+        position: sticky;
+        /* The bottom navigation is one hairline taller than its own token. */
+        bottom: calc(var(--bottom-nav-height) + 1px + env(safe-area-inset-bottom, 0px));
+        z-index: 3;
+    }
+
+    /* The bar plus the bottom navigation must both fit under the end of the
+       form, otherwise the last section can never be read in full. */
+    .app-main:has(.app-form) {
+        padding-bottom: calc(var(--bottom-nav-height) + 4.5rem);
+    }
+}
+
+/* ------------------------------------------------------------------ release */
+
+.release-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+}
+
+.release-aside {
+    display: grid;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+/* The job summary is a reference, not a poster: in a 20rem column the labels
+   sit above their values, the complaint stops at three lines and the whole card
+   stays shorter than the form beside it. */
+.docket--compact {
+    padding: 0.85rem 0.9rem 0.95rem;
+}
+
+.docket--compact .docket__reference {
+    font-size: 1.25rem;
+}
+
+.docket--compact .docket__label {
+    padding-bottom: 0.45rem;
+}
+
+.docket--compact .docket__row,
+.docket__row--stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.05rem;
+    padding: 0.3rem 0;
+}
+
+.docket--compact .docket__row dd,
+.docket__row--stack dd {
+    text-align: left;
+    font-weight: 500;
+}
+
+.docket__row--stack dd {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 992px) {
+    .release-layout {
+        grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .release-aside {
+        position: sticky;
+        top: 1rem;
+    }
+}
+
+/* The release form is four short sections, not a long questionnaire: beside the
+   job summary it reads as two manuscript columns, which is what keeps the whole
+   protocol — submit button included — inside a 1366×768 window. Inside a column
+   the wide fields keep the full width; only the two amounts stay side by side. */
+@media (min-width: 1200px) {
+    .app-form--split .app-form__body {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+    }
+
+    .app-form--split .form-section:nth-child(odd) {
+        border-right: 1px solid var(--line);
+    }
+
+    .app-form--split .form-section .col-md-4,
+    .app-form--split .form-section .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* ----------------------------------------------------------- client status */
+
+.copy-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 0.45rem;
+    margin: 0.55rem 0 0;
+}
+
+.copy-row__value {
+    flex: 1 1 11rem;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+}
+
+.copy-row .btn {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 575.98px) {
+    .copy-row .btn {
+        flex: 1 1 auto;
+    }
+}
+
+/* ------------------------------------------------- queue stage filter chips */
+
+/* The filter is a destination, not a caption: 44px tall so a thumb can hit it,
+   a larger count and a readable stage name. Each chip is its own bordered button
+   with a hairline gap, so the row reads as controls; it wraps, it never scrolls. */
+.stat-strip {
+    gap: 0.35rem;
+}
+
+.stat + .stat {
+    border-left: 0;
+}
+
+.stat--filter {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper);
+    transition: border-color var(--fast) var(--ease-out),
+        background-color var(--fast) var(--ease-out);
+}
+
+.stat--filter:hover {
+    border-color: var(--muted-2);
+    background: var(--surface);
+}
+
+.stat--filter:has(.stat__input:checked) {
+    border-color: var(--ink);
+}
+
+.stat__body {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+    line-height: 1.15;
+}
+
+.stat__body:hover {
+    background: transparent;
+}
+
+.stat__value {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+    margin-left: 0;
+    color: var(--muted);
+    font-size: 0.8125rem;
+}
+
+.stat__input:checked + .stat__body .stat__label {
+    color: var(--yellow);
 }

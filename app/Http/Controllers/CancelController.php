@@ -9,6 +9,7 @@ use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
 use App\Http\Requests\CancelServiceRequest;
 use App\Support\Audit\AuditContext;
+use App\Support\ClientStatus\ClientStatusSync;
 use Illuminate\Http\RedirectResponse;
 
 /**
@@ -21,6 +22,7 @@ final class CancelController extends Controller
         CancelServiceRequest $request,
         ServiceRecord $service,
         CancelService $cancel,
+        ClientStatusSync $clientStatus,
     ): RedirectResponse {
         $this->authorize('cancel', $service);
 
@@ -31,6 +33,10 @@ final class CancelController extends Controller
         }
 
         $cancelled = $cancel->handle($service, $request->reason(), $user, AuditContext::fromRequest($request));
+
+        if ($clientStatus->enabled() && ! $clientStatus->sync($cancelled, ClientStatusSync::EVENT_CANCELLED)['ok']) {
+            session()->flash('warning', 'Zlecenie zostało anulowane, ale nie udało się zaktualizować strony klienta.');
+        }
 
         return redirect()
             ->route('services.show', $cancelled)
