@@ -22,9 +22,9 @@ use Tests\TestCase;
 /**
  * Frozen "now" for every preset assertion: Thursday 26.11.2026, 10:15 Warsaw.
  */
-function freezePresetClock(TestCase $test): void
+function freezePresetClock(TestCase $test, string $moment = '2026-11-26 10:15:00'): void
 {
-    $test->travelTo(CarbonImmutable::parse('2026-11-26 10:15:00', 'Europe/Warsaw'));
+    $test->travelTo(CarbonImmutable::parse($moment, 'Europe/Warsaw'));
 }
 
 function lastAcceptedService(): ServiceRecord
@@ -50,11 +50,17 @@ it('computes the promised date from a preset or a custom number of days', functi
         'planned_days' => $days,
     ])->assertRedirect();
 
-    $expected = CarbonImmutable::parse('2026-11-26 15:00:00', 'Europe/Warsaw')->addDays($days);
+    $expected = match ($days) {
+        1 => '2026-11-27 14:00',
+        2 => '2026-11-30 14:00',
+        3 => '2026-12-01 14:00',
+        7 => '2026-12-07 14:00',
+        14 => '2026-12-16 14:00',
+    };
 
     // 15:00 in Warsaw is 14:00 UTC in November — the promise must not shift.
     expect(lastAcceptedService()->plannedAt->utc()->format('Y-m-d H:i'))
-        ->toBe($expected->utc()->format('Y-m-d H:i'));
+        ->toBe($expected);
 })->with('stores')->with([1, 2, 3, 7, 14]);
 
 it('accepts a placeholder days value as long as it is absent, not empty', function (string $store) {
@@ -120,7 +126,23 @@ it('prefers the preset over a stale hidden date field', function (string $store)
         'planned_at' => '2026-12-01T09:30',
     ])->assertRedirect();
 
-    expect(lastAcceptedService()->plannedAt->utc()->format('Y-m-d H:i'))->toBe('2026-11-28 14:00');
+    expect(lastAcceptedService()->plannedAt->utc()->format('Y-m-d H:i'))->toBe('2026-11-30 14:00');
+})->with('stores');
+
+it('turns a Friday preset of one working day into Monday', function (string $store) {
+    usingStore($this, $store);
+    freezePresetClock($this, '2026-11-27 10:15:00');
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->post('/services', [
+        'phone' => '505 123 456',
+        'device_model' => 'Dell Latitude 5420',
+        'issue' => 'Nie ładuje się.',
+        'planned_days' => 1,
+    ])->assertRedirect();
+
+    expect(lastAcceptedService()->plannedAt->utc()->format('Y-m-d H:i'))->toBe('2026-11-30 14:00');
 })->with('stores');
 
 it('moves the promised date from the edit form preset', function (string $store) {
@@ -136,5 +158,5 @@ it('moves the promised date from the edit form preset', function (string $store)
 
     $fresh = app(ServiceRepository::class)->find($service->id);
 
-    expect($fresh?->plannedAt->utc()->format('Y-m-d H:i'))->toBe('2026-12-01 14:00');
+    expect($fresh?->plannedAt->utc()->format('Y-m-d H:i'))->toBe('2026-12-03 14:00');
 })->with('stores');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Domain\BusinessDays;
 use App\Domain\Enums\ServiceStatus;
 use App\Domain\ValueObjects\Phone;
 use App\Rules\PhoneNumber;
@@ -157,23 +158,23 @@ class ServiceRequest extends FormRequest
             : $local->format('Y-m-d\TH:i:s');
     }
 
-    /** Default promised date: tomorrow at 15:00 local time (F-13). */
+    /** Default planned date: the next working day at 15:00 local time (F-13). */
     public static function defaultPlannedAt(): string
     {
         $timezone = (string) config('app.display_timezone');
 
-        return CarbonImmutable::now($timezone)->addDay()->setTime(15, 0)->format('Y-m-d\TH:i');
+        return BusinessDays::add(CarbonImmutable::now($timezone), 1)->setTime(15, 0)->format('Y-m-d\TH:i');
     }
 
     /**
-     * Promised date for a preset/own number of days: `n` days from today at 15:00
-     * local time, as a timezone free wall clock value (like `defaultPlannedAt()`).
+     * Promised date for a preset/own number of days: `n` working days from today
+     * at 15:00 local time, as a timezone free wall clock value.
      */
     public static function plannedAtFromDays(int $days): string
     {
         $timezone = (string) config('app.display_timezone');
 
-        return CarbonImmutable::now($timezone)->addDays($days)->setTime(15, 0)->format('Y-m-d\TH:i');
+        return BusinessDays::add(CarbonImmutable::now($timezone), $days)->setTime(15, 0)->format('Y-m-d\TH:i');
     }
 
     /** @return array<string, string> */

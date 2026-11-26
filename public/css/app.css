@@ -2854,6 +2854,87 @@ legend {
     }
 }
 
+/* The form header keeps the order-card hierarchy in half the height: context
+   and title are stacked only inside themselves, while the actions share the
+   title line instead of taking a row of their own. */
+.record-head {
+    display: block;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.7rem;
+}
+
+.record-head .link-back {
+    margin-bottom: 0.15rem;
+}
+
+.record-head__meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+}
+
+.record-head__lede {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    min-width: 0;
+    margin: 0;
+}
+
+.record-head__lede .eyebrow {
+    display: inline;
+}
+
+.record-head__sep {
+    color: var(--muted-2);
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.record-head__meta {
+    margin: 0;
+}
+
+.record-head__aside {
+    margin-left: auto;
+}
+
+.record-head__title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.15rem;
+}
+
+.record-head .page-title {
+    margin: 0;
+    min-width: 0;
+}
+
+.record-head .record-actions {
+    margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    .record-head__meta-row {
+        align-items: flex-start;
+    }
+
+    .record-head__lede {
+        flex-direction: column;
+        gap: 0.1rem;
+    }
+
+    .record-head__sep {
+        display: none;
+    }
+}
+
 .record-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -2902,6 +2983,53 @@ legend {
 
 .record-card--pad .app-card-body {
     padding: 0.85rem 1rem 1rem;
+}
+
+.record-card--compact .app-card-body {
+    padding: 0.6rem 1rem 0.7rem;
+}
+
+/* Options are a disclosure, not a permanent block: the card keeps its place in
+   the rail (and its Express badge) but stops pushing the column below the data
+   card until somebody actually needs it. */
+.record-disclosure__summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.record-disclosure__summary::-webkit-details-marker {
+    display: none;
+}
+
+.record-disclosure__summary:hover {
+    background: var(--surface);
+}
+
+.record-disclosure__summary:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
+}
+
+.record-disclosure__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.record-disclosure__chevron {
+    display: inline-flex;
+    color: var(--muted);
+    transition: transform var(--fast) var(--ease-out);
+}
+
+.record-disclosure[open] .record-disclosure__chevron {
+    transform: rotate(90deg);
+}
+
+.record-disclosure:not([open]) .app-card-header {
+    border-bottom: 0;
 }
 
 .record-row {

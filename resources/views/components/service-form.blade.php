@@ -70,7 +70,7 @@
     // The preview is rendered on the server as well, so the promised date reads
     // correctly before app.js runs and for anybody browsing without JavaScript.
     // It follows the same rule as the server: presets and a custom number of days
-    // win over the date field.
+    // are working days (Mon–Fri), never a Saturday or Sunday.
     $weekdays = ['niedz', 'pon', 'wt', 'śr', 'czw', 'pt', 'sob'];
     $previewText = '—';
 
@@ -84,9 +84,10 @@
             }
         }
     } else {
-        $planned = \Carbon\CarbonImmutable::now(\App\Domain\FieldLabels::displayTimezone())
-            ->addDays((int) $plannedDays)
-            ->setTime(15, 0);
+        $planned = \App\Domain\BusinessDays::add(
+            \Carbon\CarbonImmutable::now(\App\Domain\FieldLabels::displayTimezone()),
+            (int) $plannedDays
+        )->setTime(15, 0);
         $previewText = $weekdays[(int) $planned->dayOfWeek].' '.$planned->format('d.m').', '.$planned->format('H:i');
     }
 
@@ -100,38 +101,58 @@
         @method($method)
     @endif
 
-    <div class="page-head">
-        <div class="page-head__main">
-            <a class="link-back" href="{{ $cancelUrl }}">
-                <span class="link-back__icon" aria-hidden="true"><x-icon name="arrow-right" :size="14" /></span>
-                {{ $isEdit ? 'Karta zlecenia' : 'Wróć do kolejki' }}
-            </a>
-            <span class="eyebrow">
-                @if ($isEdit)
-                    Edycja zlecenia · {{ $service->reference }}
-                @else
-                    Nowe zlecenie
-                @endif
-            </span>
+    {{-- The job sheet header is deliberately two rows, not five: the context and
+         the title share a line, and the actions sit beside the title instead of
+         pushing the whole form down. --}}
+    <div class="page-head record-head">
+        <a class="link-back" href="{{ $cancelUrl }}">
+            <span class="link-back__icon" aria-hidden="true"><x-icon name="arrow-right" :size="14" /></span>
+            {{ $isEdit ? 'Karta zlecenia' : 'Wróć do kolejki' }}
+        </a>
+
+        <div class="record-head__meta-row">
+            <p class="record-head__lede">
+                <span class="eyebrow">{{ $isEdit ? 'Edycja zlecenia' : 'Nowe zlecenie' }}</span>
+                <span class="record-head__sep" aria-hidden="true">·</span>
+                <span class="page-head__meta record-head__meta">
+                    @if ($isEdit)
+                        {{ $service->reference }} · {{ $service->displayPhone() }}
+                    @else
+                        Telefon, model i usterka są obowiązkowe.
+                    @endif
+                </span>
+            </p>
+
+            @if ($isEdit)
+                <div class="page-head__aside record-head__aside">
+                    <x-status-badge :status="$service->status" />
+                </div>
+            @endif
+        </div>
+
+        <div class="record-head__title-row">
             <h1 class="page-title">
                 {{ $isEdit ? $service->deviceModel : 'Przyjęcie laptopa' }}
-                @if ($isEdit && $service->isExpress)
+                @if ($isEdit && old('is_express', $service->isExpress))
                     <span class="badge badge-express align-middle ms-1">Express</span>
                 @endif
             </h1>
-            <p class="page-head__meta">
+
+            {{-- The same actions as the order card, now in the title line. On
+                 phones the row gives way to the sticky bar at the end. --}}
+            <div class="page-actions record-actions">
+                <button class="btn btn-primary" type="submit">{{ $submitLabel }}</button>
+                <a class="btn btn-outline-secondary" href="{{ $cancelUrl }}">Anuluj</a>
                 @if ($isEdit)
-                    {{ $service->reference }} · {{ $service->displayPhone() }}
-                @else
-                    Telefon, model i usterka są obowiązkowe.
+                    @can('print', $service)
+                        <a class="btn btn-outline-secondary" href="{{ route('print.acceptance', $service) }}"
+                           target="_blank" rel="noopener">
+                            <x-icon name="print" :size="15" /> Potwierdzenie przyjęcia
+                        </a>
+                    @endcan
                 @endif
-            </p>
-        </div>
-        @if ($isEdit)
-            <div class="page-head__aside">
-                <x-status-badge :status="$service->status" />
             </div>
-        @endif
+        </div>
     </div>
 
     @if ($isEdit)
@@ -141,23 +162,6 @@
             </a>
         @endcan
     @endif
-
-    {{-- The same action row as the order card: the primary job first, the way out
-         beside it, print on the far right. On phones it gives way to the sticky
-         bar at the bottom of the form. --}}
-    <div class="page-actions record-actions">
-        <button class="btn btn-primary" type="submit">{{ $submitLabel }}</button>
-        <a class="btn btn-outline-secondary" href="{{ $cancelUrl }}">Anuluj</a>
-        <span class="page-actions__grow"></span>
-        @if ($isEdit)
-            @can('print', $service)
-                <a class="btn btn-outline-secondary" href="{{ route('print.acceptance', $service) }}"
-                   target="_blank" rel="noopener">
-                    <x-icon name="print" :size="15" /> Potwierdzenie przyjęcia
-                </a>
-            @endcan
-        @endif
-    </div>
 
     @if ($errors->any())
         {{-- Server validation speaks once at the top as well as next to each
@@ -251,14 +255,13 @@
                 </div>
             </section>
 
-            <section class="app-card record-card record-card--pad" aria-labelledby="record-photos-title">
+            <section class="app-card record-card record-card--pad record-card--compact" aria-labelledby="record-photos-title">
                 <div class="app-card-header">
                     <h2 class="h6" id="record-photos-title">Zdjęcia</h2>
                     <span class="record-card__note">opcjonalnie</span>
                 </div>
                 <div class="app-card-body">
                     <label class="record-file-label" for="photos">
-                        <span class="record-file-label__title">Dodaj zdjęcia</span>
                         <span class="record-file-label__hint">
                             @if ($isEdit)
                                 Nowe pliki dołączą do zdjęć już zapisanych w karcie zlecenia.
@@ -359,7 +362,7 @@
                         </div>
 
                         @error('planned_at')<p class="record-row__error" id="planned_at-error">{{ $message }}</p>@enderror
-                        <p class="form-hint">Dni liczone od dziś; presety kończą się o 15:00.</p>
+                        <p class="form-hint">Dni robocze (pon.–pt.); presety kończą się o 15:00.</p>
                     </div>
                 </div>
             </section>
@@ -397,24 +400,43 @@
                         </div>
                     </div>
 
-                    <div class="record-row record-row--tight">
-                        <label class="record-row__label record-row__label--quiet" for="seal_number">Numer plomby</label>
-                        <div class="record-row__field">
-                            <input class="record-input record-input--mono @error('seal_number') is-invalid @enderror"
-                                   id="seal_number" name="seal_number" type="text" maxlength="50"
-                                   value="{{ $value('seal_number') }}" placeholder="np. 004821"
-                                   autocomplete="off" spellcheck="false"
-                                   @error('seal_number') aria-invalid="true" aria-describedby="seal_number-error" @enderror>
-                            @error('seal_number')<p class="record-row__error" id="seal_number-error">{{ $message }}</p>@enderror
+                    @if ($isEdit)
+                        <div class="record-row record-row--tight">
+                            <label class="record-row__label record-row__label--quiet" for="seal_number">Numer plomby</label>
+                            <div class="record-row__field">
+                                <input class="record-input record-input--mono @error('seal_number') is-invalid @enderror"
+                                       id="seal_number" name="seal_number" type="text" maxlength="50"
+                                       value="{{ $value('seal_number') }}" placeholder="np. 004821"
+                                       autocomplete="off" spellcheck="false"
+                                       @error('seal_number') aria-invalid="true" aria-describedby="seal_number-error" @enderror>
+                                @error('seal_number')<p class="record-row__error" id="seal_number-error">{{ $message }}</p>@enderror
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </section>
 
-            <section class="app-card record-card record-card--pad" aria-labelledby="record-options-title">
-                <div class="app-card-header">
+            @php
+                $optionsOpen = $errors->has('status')
+                    || $errors->has('is_express')
+                    || $errors->has('print_confirmation')
+                    || old('is_express')
+                    || old('print_confirmation')
+                    || old('status');
+            @endphp
+            <details class="app-card record-card record-card--pad record-disclosure"
+                     aria-labelledby="record-options-title" @if ($optionsOpen) open @endif>
+                <summary class="app-card-header record-disclosure__summary">
                     <h2 class="h6" id="record-options-title">{{ $isEdit ? 'Status i opcje' : 'Opcje' }}</h2>
-                </div>
+                    <span class="record-disclosure__hint">
+                        @if (old('is_express', $isEdit ? $service->isExpress : false))
+                            <span class="badge badge-express">Express</span>
+                        @endif
+                        <span class="record-disclosure__chevron" aria-hidden="true">
+                            <x-icon name="chevron-right" :size="14" />
+                        </span>
+                    </span>
+                </summary>
                 <div class="app-card-body">
                     @if ($isEdit)
                         <div class="record-field">
@@ -454,7 +476,7 @@
                         @endunless
                     </div>
                 </div>
-            </section>
+            </details>
         </aside>
     </div>
 

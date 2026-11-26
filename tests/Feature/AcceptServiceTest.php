@@ -88,16 +88,36 @@ it('rejects an invalid acceptance payload', function (string $store, array $payl
     'bad seal characters' => [['seal_number' => 'PLO#1'], 'seal_number'],
 ]);
 
-it('defaults the planned date to tomorrow 15:00 local time', function () {
+it('defaults the planned date to the next working day at 15:00', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-27 10:15:00', 'Europe/Warsaw'));
+
     $value = ServiceRequest::defaultPlannedAt();
     $timezone = (string) config('app.display_timezone');
 
     $default = CarbonImmutable::parse($value, $timezone);
 
     expect($default->format('H:i'))->toBe('15:00')
-        ->and($default->toDateString())->toBe(CarbonImmutable::now($timezone)->addDay()->toDateString())
+        ->and($default->toDateString())->toBe('2026-11-30')
+        ->and($default->isWeekday())->toBeTrue()
         ->and($default->isFuture())->toBeTrue();
 });
+
+it('hides the seal number when accepting and shows it when editing', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->get('/services/create')
+        ->assertOk()
+        ->assertDontSee('id="seal_number"', false)
+        ->assertSee('Opcje');
+
+    $service = $this->acceptService($user);
+
+    $this->actingAsUser($user)->get('/services/'.$service->id.'/edit')
+        ->assertOk()
+        ->assertSee('id="seal_number"', false);
+})->with('stores');
 
 it('marks the confirmation as issued and opens the print view when asked', function (string $store) {
     usingStore($this, $store);

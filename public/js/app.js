@@ -747,11 +747,12 @@
     /* Deadline picker                                                     */
     /* ------------------------------------------------------------------ */
 
-    /* The server accepts two fields: `planned_days` (1–365, counted from today at
-       15:00) or `planned_at`. The radio group only decides which one travels, so
-       the hidden `planned_days` input keeps a usable value and "inna data" is the
-       only mode that switches it off. Without this script the default preset is
-       still submitted, which is why every panel is rendered open from the server. */
+    /* The server accepts two fields: `planned_days` (1–365 working days, counted
+       from today at 15:00) or `planned_at`. The radio group only decides which one
+       travels, so the hidden `planned_days` input keeps a usable value and "inna
+       data" is the only mode that switches it off. Without this script the default
+       preset is still submitted, which is why every panel is rendered open from the
+       server. */
     function setupDeadline() {
         var root = document.querySelector('[data-deadline]');
 
@@ -792,6 +793,25 @@
             return Math.min(365, Math.max(1, days));
         }
 
+        /* Friday + 1 working day is Monday, not Saturday. Public holidays are not
+           excluded, so the label promises exactly "pon.–pt." */
+        function addBusinessDays(start, days) {
+            var date = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            var remaining = Math.max(0, days);
+
+            while (remaining > 0) {
+                date.setDate(date.getDate() + 1);
+
+                if (date.getDay() !== 0 && date.getDay() !== 6) {
+                    remaining--;
+                }
+            }
+
+            date.setHours(15, 0, 0, 0);
+
+            return date;
+        }
+
         function selectedMode() {
             var mode = null;
 
@@ -809,9 +829,7 @@
                 return;
             }
 
-            var date = new Date();
-            date.setDate(date.getDate() + days);
-            date.setHours(15, 0, 0, 0);
+            var date = addBusinessDays(new Date(), days);
             preview.textContent = format(date);
         }
 
