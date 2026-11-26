@@ -800,6 +800,17 @@ legend {
     min-width: 0;
 }
 
+/* The search and the bar's actions are one control group: on a phone they share
+   a row instead of the action taking a line of its own. The title sits above
+   them when a screen has one. */
+.app-bar__controls {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+    min-width: 0;
+}
+
 .app-bar__row--filters {
     gap: 0.25rem 0.75rem;
     padding-top: 0.4rem;
@@ -2244,17 +2255,23 @@ legend {
         padding-bottom: calc(var(--bottom-nav-height) + 2rem);
     }
 
-    /* A phone gives the search its own full-width line: squeezing it next to the
-       title leaves too few characters to see what was typed. The title keeps
-       the way out beside it, so the row above the field is not wasted. */
-    .app-search {
+    /* On a phone the title keeps the first line and the search shares the second
+       with "Przyjmij" and the way out: one control row instead of two. */
+    .app-bar__controls {
         flex: 1 1 100%;
+        gap: 0.5rem;
+    }
+
+    .app-search {
+        flex: 1 1 auto;
         max-width: none;
-        order: 2;
+        order: 0;
     }
 
     .app-bar__actions {
-        order: 1;
+        flex: none;
+        order: 0;
+        margin-left: 0;
     }
 
     /* The bar keeps the way in/out and the primary action. On the intake screen
@@ -3546,4 +3563,139 @@ legend {
 
 .stat__input:checked + .stat__body .stat__label {
     color: var(--yellow);
+}
+
+/* ---------------------------------------------------- sidebar queue rail */
+
+/* The queue is the only part of the sidebar allowed to take the free height:
+   the top navigation stays put, the account/admin group stays pinned to the
+   bottom, and a long queue scrolls inside the rail instead of stretching the
+   page or hiding the bottom group. */
+.app-sidebar__queue {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.sidebar-queue {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.sidebar-queue::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-queue::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--line-strong);
+}
+
+.sidebar-queue::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-queue__all {
+    flex: none;
+}
+
+@media (min-width: 1024px) {
+    /* The rail itself never scrolls: the job list is the one scroll container,
+       so the account/admin group cannot slide out of reach. */
+    .app-sidebar {
+        overflow: hidden;
+    }
+
+    .app-sidebar > .nav,
+    .app-sidebar > .app-sidebar__label,
+    .app-sidebar__bottom {
+        flex: none;
+    }
+}
+
+/* ------------------------------------------------ stage chips on one line */
+
+.stat-strip__items {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.stat__label--short {
+    display: none;
+}
+
+/* Four stages are a destination row, not a card grid. On phones and portrait
+   tablets the names shorten to one word and the chips grow to share the row,
+   so all four stay on one line; the full name remains the accessible label. */
+@media (max-width: 767.98px) {
+    .stat-strip {
+        flex: 1 1 100%;
+    }
+
+    .stat-strip__items {
+        flex-wrap: nowrap;
+        gap: 0.25rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .stat-strip__items::-webkit-scrollbar {
+        display: none;
+    }
+
+    .stat--filter {
+        flex: 1 0 auto;
+    }
+
+    .stat__body {
+        justify-content: center;
+        gap: 0.15rem;
+        min-height: 2.75rem;
+        padding: 0 0.2rem;
+    }
+
+    .stat__value {
+        font-size: 1rem;
+    }
+
+    .stat__label {
+        font-size: 0.75rem;
+    }
+
+    /* Visually hidden, still part of the radio's accessible name. */
+    .stat__label--full {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .stat__label--short {
+        display: inline;
+    }
+}
+
+/* A 320 px phone cannot hold four readable names even at their shortest; keep
+   the row and let it scroll rather than wrapping it into a second line. */
+@media (max-width: 359.98px) {
+    .stat--filter {
+        flex: 0 0 auto;
+    }
+
+    .stat__body {
+        justify-content: flex-start;
+    }
 }

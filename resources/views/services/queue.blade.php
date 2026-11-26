@@ -27,16 +27,18 @@
 
             <fieldset class="stat-strip">
                 <legend class="visually-hidden">Pokaż zlecenia jednego etapu</legend>
-                @foreach ($allStatuses as $status)
-                    <label class="stat stat--filter" data-stage="{{ $status->value }}">
-                        <input class="stat__input" type="radio" name="status" value="{{ $status->value }}"
-                               data-filter-toggle @checked($activeFilter === $status)>
-                        <span class="stat__body">
-                            <span class="stat__value">{{ $counts[$status->value] ?? 0 }}</span>
-                            <span class="stat__label">{{ $status->label() }}</span>
-                        </span>
-                    </label>
-                @endforeach
+                <div class="stat-strip__items">
+                    @foreach ($allStatuses as $status)
+                        <label class="stat stat--filter" data-stage="{{ $status->value }}">
+                            <input class="stat__input" type="radio" name="status" value="{{ $status->value }}"
+                                   data-filter-toggle @checked($activeFilter === $status)>
+                            <span class="stat__body">
+                                <span class="stat__value">{{ $counts[$status->value] ?? 0 }}</span>
+                                <span class="stat__label"><span class="stat__label--full">{{ $status->label() }}</span><span class="stat__label--short" aria-hidden="true">{{ $status->shortLabel() }}</span></span>
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
 
                 @if ($activeFilter instanceof \App\Domain\Enums\ServiceStatus)
                     <a class="app-bar__reset" href="{{ route('services.queue', array_filter(['q' => $term])) }}"

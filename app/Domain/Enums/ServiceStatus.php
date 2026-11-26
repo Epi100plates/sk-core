@@ -29,6 +29,22 @@ enum ServiceStatus: string
         };
     }
 
+    /**
+     * One-word labels for the phone filter strip. The full name stays in the
+     * accessible label; this only keeps four stages on one row.
+     */
+    public function shortLabel(): string
+    {
+        return match ($this) {
+            self::Pending => 'Oczek.',
+            self::InProgress => 'Naprawa',
+            self::AwaitingParts => 'Części',
+            self::ReadyForPickup => 'Got.',
+            self::Released => 'Wydane',
+            self::Cancelled => 'Anul.',
+        };
+    }
+
     public function color(): string
     {
         return match ($this) {

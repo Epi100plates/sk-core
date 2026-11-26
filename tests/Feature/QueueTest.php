@@ -245,7 +245,7 @@ it('keeps the search, the way out and the stage filter in one bar', function (st
         ->toBe(count(ServiceStatus::activeCases()));
 })->with('stores');
 
-it('keeps the computer queue compact in the sidebar and puts administration last', function (string $store) {
+it('keeps the computer queue in the sidebar and puts administration last', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Admin);
@@ -262,8 +262,7 @@ it('keeps the computer queue compact in the sidebar and puts administration last
         ->assertSeeInOrder(['Zlecenia', 'Kolejka komputerów', 'Konto', 'Administracja'])
         ->assertSee('Cała kolejka')
         ->assertSee('Model 1')
-        ->assertSee('Model 5')
-        ->assertDontSee('Model 6');
+        ->assertSee('Model 6');
 })->with('stores');
 
 it('carries the same bar on every other screen', function (string $store) {

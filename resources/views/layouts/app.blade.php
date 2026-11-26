@@ -54,8 +54,9 @@
         @isset($sidebarQueue)
             {{-- A compact copy of the queue, not a second full screen: the model
                  is the label, the dot carries the stage, and the count links to
-                 the complete list. Five rows keep the sidebar inside one window
-                 even on a 768 px-high laptop. --}}
+                 the complete list. The list takes the free height of the rail
+                 and scrolls inside it, so the account and admin groups stay
+                 pinned to the bottom. --}}
             <div class="app-sidebar__queue" data-async-region="sidebar-queue">
                 <p class="app-sidebar__label eyebrow" id="sidebar-queue-title">Kolejka komputerów</p>
 
@@ -117,49 +118,51 @@
                     <div class="app-bar__title">@yield('bar-title')</div>
                 @endif
 
-                <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
-                      data-live-search>
-                    <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
-                    <input class="form-control" id="global-search" type="search"
-                           name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
-                           placeholder="Model, telefon, plomba…" autocomplete="off"
-                           inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false"
-                           aria-describedby="global-search-hint">
-                    @if (is_string(request('status')))
-                        <input type="hidden" name="status" value="{{ request('status') }}">
-                    @endif
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <x-icon name="search" :size="16" />
-                        <span class="visually-hidden">Szukaj</span>
-                    </button>
-                    <span class="visually-hidden" id="global-search-hint">Od 3 znaków lista filtruje się sama.</span>
-                </form>
+                <div class="app-bar__controls">
+                    <form class="app-search" method="get" action="{{ route('services.queue') }}" role="search"
+                          data-live-search>
+                        <label class="visually-hidden" for="global-search">Szukaj w kolejce</label>
+                        <input class="form-control" id="global-search" type="search"
+                               name="q" value="{{ is_string(request('q')) ? request('q') : '' }}"
+                               placeholder="Model, telefon, plomba…" autocomplete="off"
+                               inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false"
+                               aria-describedby="global-search-hint">
+                        @if (is_string(request('status')))
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <x-icon name="search" :size="16" />
+                            <span class="visually-hidden">Szukaj</span>
+                        </button>
+                        <span class="visually-hidden" id="global-search-hint">Od 3 znaków lista filtruje się sama.</span>
+                    </form>
 
-                <div class="app-bar__actions">
-                    {{-- The bar's primary action points at the screen you are not on:
-                         on the intake form "Przyjmij" would only reload the page,
-                         so the same slot leads back to the queue. --}}
-                    @if (request()->routeIs('services.create'))
-                        <a class="btn btn-primary btn-sm" href="{{ route('services.queue') }}" aria-label="Wróć do kolejki">
-                            <x-icon name="queue" :size="16" />
-                            <span class="btn-label">Kolejka</span>
-                        </a>
-                    @else
-                        <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
-                            <x-icon name="plus" :size="16" />
-                            <span class="btn-label">Przyjmij</span>
-                        </a>
-                    @endif
-                    @auth
-                        <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
-                        <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>
-                            @csrf
-                            <button class="app-bar__logout" type="submit" aria-label="Wyloguj z aplikacji">
-                                <x-icon name="logout" :size="15" />
-                                <span class="btn-label">Wyloguj</span>
-                            </button>
-                        </form>
-                    @endauth
+                    <div class="app-bar__actions">
+                        {{-- The bar's primary action points at the screen you are not on:
+                             on the intake form "Przyjmij" would only reload the page,
+                             so the same slot leads back to the queue. --}}
+                        @if (request()->routeIs('services.create'))
+                            <a class="btn btn-primary btn-sm" href="{{ route('services.queue') }}" aria-label="Wróć do kolejki">
+                                <x-icon name="queue" :size="16" />
+                                <span class="btn-label">Kolejka</span>
+                            </a>
+                        @else
+                            <a class="btn btn-primary btn-sm" href="{{ route('services.create') }}" aria-label="Przyjmij laptopa">
+                                <x-icon name="plus" :size="16" />
+                                <span class="btn-label">Przyjmij</span>
+                            </a>
+                        @endif
+                        @auth
+                            <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
+                            <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>
+                                @csrf
+                                <button class="app-bar__logout" type="submit" aria-label="Wyloguj z aplikacji">
+                                    <x-icon name="logout" :size="15" />
+                                    <span class="btn-label">Wyloguj</span>
+                                </button>
+                            </form>
+                        @endauth
+                    </div>
                 </div>
             </div>
 

@@ -95,6 +95,52 @@ final class AsyncQueueTest extends DuskTestCase
         });
     }
 
+    public function test_the_sidebar_queue_fills_the_rail_and_scrolls(): void
+    {
+        $actor = $this->seedUser('dusk-admin');
+
+        for ($i = 1; $i <= 16; $i++) {
+            $this->acceptService($actor, 'Sidebar Rail '.$i);
+        }
+
+        $this->browse(function (Browser $browser): void {
+            $this->login($browser);
+
+            $browser->visit('/services/create')
+                ->waitFor('.sidebar-queue')
+                ->assertScript(
+                    '(() => {'
+                    .' const list = document.querySelector(".sidebar-queue");'
+                    .' const rail = document.querySelector(".app-sidebar");'
+                    .' return getComputedStyle(list).overflowY === "auto"'
+                    .' && list.scrollHeight > list.clientHeight'
+                    .' && getComputedStyle(rail).overflowY === "hidden";'
+                    .' })()'
+                );
+        });
+    }
+
+    public function test_the_phone_bar_and_stage_filter_stay_on_one_line(): void
+    {
+        $this->browse(function (Browser $browser): void {
+            $this->login($browser);
+
+            $browser->resize(360, 800)
+                ->visit('/')
+                ->assertScript(
+                    '(() => {'
+                    .' const search = document.querySelector(".app-search").getBoundingClientRect();'
+                    .' const actions = document.querySelector(".app-bar__actions").getBoundingClientRect();'
+                    .' const strip = document.querySelector(".stat-strip__items");'
+                    .' return Math.abs(search.top - actions.top) < 1'
+                    .' && strip.scrollWidth <= strip.clientWidth + 1'
+                    .' && getComputedStyle(strip).flexWrap === "nowrap";'
+                    .' })()'
+                )
+                ->resize(1366, 768);
+        });
+    }
+
     private function acceptService(
         UserRecord $actor,
         string $model,
