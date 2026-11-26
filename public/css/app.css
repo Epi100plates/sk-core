@@ -3251,6 +3251,22 @@ legend {
     margin-top: 0.85rem;
 }
 
+/* On a desktop the header already carries the same primary and cancel, so the
+   end of the form keeps only a quiet submit: a second full-width bar read as a
+   duplicated toolbar under the cards. */
+@media (min-width: 992px) {
+    .form-actions.record-foot {
+        justify-content: flex-end;
+        padding: 0;
+        border-top: 0;
+        background: transparent;
+    }
+
+    .record-foot .form-actions__cancel {
+        display: none;
+    }
+}
+
 /* A focused field must land above the sticky save bar, not behind it. */
 @media (max-width: 991.98px) {
     html {
