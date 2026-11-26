@@ -101,6 +101,25 @@ nawigacją; fokus ma `scroll-margin`, żeby nie chował się pod paskiem.
   390/768/1024/1426 px bez poziomego przewijania; w przeglądarce piątek + 1 dzień
   pokazuje poniedziałek 30.11, 15:00.
 
+### Sidebar i domyślny termin (2026-11-26, noc)
+
+- Nowe przyjęcie startuje z presetem **1 dnia roboczego**, a nie 2 dni: w piątek
+  podgląd pokazuje poniedziałek, w pozostałe dni następny dzień roboczy. Edycja
+  nadal startuje w trybie „inna data”, więc zapis bez zmian nie przesuwa terminu.
+- Logo zniknęło z sidebara. Górna sekcja `Zlecenia` (Kolejka, Przyjmij laptopa,
+  Wydane) została bez zmian. Pod nią jest kompaktowa `Kolejka komputerów`:
+  5 wierszy (model, skrót numeru, kropka etapu) i link `Cała kolejka (n)`.
+  `Konto` i `Administracja` są przypięte do dołu, administracja jako ostatnia.
+- Mini-kolejka jest regionem async (`sidebar-queue`), więc po zmianie etapu,
+  filtrze albo wyszukaniu odświeża się razem z listą, bez przeładowania strony.
+- commit `d6c3ad1`; `ASSET_VERSION=37` na VPS.
+- Weryfikacja: `php artisan test` 246 passed / 127 skipped (927 asercji),
+  `php artisan dusk` 17 passed (72 asercje), Pint PASS (169 plików), PHPStan
+  `[OK]` (z `--memory-limit=512M`), `php artisan view:cache` OK; sidebar mieści
+  się bez przewijania przy 1366×768 i 1280×600, na 390 px jest ukryty, brak
+  poziomego przewijania; podgląd terminu na create: `pt 27.11, 15:00` przy
+  czwartku 26.11 i preset `1 dzień`.
+
 ## Ograniczenia i następne kroki
 
 1. **Realna wysyłka SMS** — wszystko działa w trybie testowym; potrzebne konto u dostawcy,
