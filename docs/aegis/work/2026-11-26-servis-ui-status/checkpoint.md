@@ -120,6 +120,24 @@ nawigacją; fokus ma `scroll-margin`, żeby nie chował się pod paskiem.
   poziomego przewijania; podgląd terminu na create: `pt 27.11, 15:00` przy
   czwartku 26.11 i preset `1 dzień`.
 
+### Kolejka na telefonie i pełna szyna (2026-11-26, noc II)
+
+- Telefon: tytuł ma własny wiersz, a wyszukiwanie i `Przyjmij`/wylogowanie
+  dzielą jeden rząd; pasek kolejki spadł z ok. 200 px do ok. 135 px przy 390 px.
+- Cztery etapy mieszczą się w jednej linii: do 768 px etykiety skracają się do
+  `Oczek.`, `Naprawa`, `Części`, `Got.`, a pełna nazwa zostaje w etykiecie
+  dostępnej dla czytników; przy 320 px rząd przewija się poziomo zamiast
+  zawijać do drugiej linii.
+- Mini-kolejka w sidebarze pokazuje do 30 zleceń, zajmuje całą wolną wysokość
+  szyny i przewija się wewnątrz niej; `Konto` i `Administracja` pozostają
+  przypięte do dołu, a sama szyna nie przewija się.
+- commit `1555c02`; `ASSET_VERSION=40`.
+- Weryfikacja: `php artisan test` 246 passed / 127 skipped (926 asercji),
+  `php artisan dusk` 19 passed (74 asercje, w tym nowe testy szyny i telefonu),
+  Pint PASS (169 plików), PHPStan `[OK]` (512M), `view:cache` OK;
+  360/390/1024/1280/1366 px bez poziomego przewijania; sidebar 1280×600
+  i 1366×768 mieści dół bez przewijania szyny.
+
 ## Ograniczenia i następne kroki
 
 1. **Realna wysyłka SMS** — wszystko działa w trybie testowym; potrzebne konto u dostawcy,
