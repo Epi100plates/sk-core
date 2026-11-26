@@ -2374,6 +2374,7 @@ legend {
     line-height: 1.5;
 }
 
+.form-alert:focus,
 .form-alert:focus-visible {
     outline: 2px solid var(--error);
     outline-offset: -2px;
@@ -2807,6 +2808,512 @@ legend {
     font-size: 1.0625rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------- record editor */
+
+/* The intake and edit screens are the same job sheet as the order card: one
+   wide column of label/value rows, one narrow rail for the decisions (deadline,
+   money, options). Fields keep the row rhythm of the read-only card instead of
+   turning the page into a stack of boxed inputs. */
+.record-form {
+    display: block;
+}
+
+.record-actions {
+    display: none;
+}
+
+/* The phone/tablet keeps the print action without a second primary button:
+   one quiet link under the header, the save button stays in the sticky bar. */
+.record-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: -0.15rem 0 0.85rem;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.record-print:hover {
+    color: var(--ink);
+}
+
+@media (min-width: 992px) {
+    .record-print {
+        display: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .record-actions {
+        display: flex;
+        margin-bottom: 0.85rem;
+    }
+}
+
+.record-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+}
+
+.record-main,
+.record-side {
+    display: grid;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+@media (min-width: 992px) {
+    .record-layout {
+        grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 1fr);
+        gap: 1rem;
+    }
+}
+
+.record-card .app-card-header {
+    padding: 0.65rem 1rem;
+}
+
+.record-card .app-card-header h2,
+.record-card .app-card-header .h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.record-card__note {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.record-card--rows .app-card-body {
+    padding: 0.15rem 1rem 0.45rem;
+}
+
+.record-card--pad .app-card-body {
+    padding: 0.85rem 1rem 1rem;
+}
+
+.record-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.record-row:last-child {
+    border-bottom: 0;
+}
+
+@media (min-width: 576px) {
+    .record-row {
+        grid-template-columns: 8.5rem minmax(0, 1fr);
+        gap: 0.85rem;
+        padding: 0.3rem 0;
+    }
+
+    .record-row--tight {
+        grid-template-columns: 8rem minmax(0, 1fr);
+    }
+}
+
+/* A row is the hit area, not only the apparently borderless text inside it:
+   pointing anywhere on the line lights the field up before the click. */
+@media (hover: hover) and (pointer: fine) {
+    .record-row:hover {
+        background: var(--paper-hover);
+    }
+
+    .record-row:hover .record-row__label {
+        color: var(--ink);
+    }
+}
+
+/* On a tablet the rail is full width under the job sheet; two short cards sit
+   side by side there instead of stretching to 700px. */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .record-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+    .record-side > :first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+.record-row__label {
+    margin: 0;
+    padding-top: 0.62rem;
+    color: var(--muted);
+    font-size: 0.78125rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.record-row__label--quiet {
+    color: var(--muted-2);
+}
+
+.record-row__req {
+    color: var(--error);
+}
+
+.record-row__field {
+    min-width: 0;
+}
+
+.record-input {
+    width: 100%;
+    min-height: 2.5rem;
+    margin: 0;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    transition: background-color var(--fast) var(--ease-out),
+        border-color var(--fast) var(--ease-out);
+}
+
+.record-input::placeholder {
+    color: var(--muted-2);
+    opacity: 0.85;
+}
+
+.record-input:hover {
+    background: var(--surface);
+}
+
+.record-input:focus {
+    border-color: var(--ink);
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+    background: var(--paper);
+    box-shadow: none;
+}
+
+.record-input.is-invalid,
+.record-input[aria-invalid="true"] {
+    border-color: var(--error);
+    background: #fff7f5;
+}
+
+.record-input.is-invalid:focus,
+.record-input[aria-invalid="true"]:focus {
+    outline-color: var(--error);
+}
+
+.record-textarea {
+    min-height: 5.4rem;
+    resize: vertical;
+}
+
+.record-textarea--short {
+    min-height: 4rem;
+}
+
+.record-input--mono {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+}
+
+.record-input--money {
+    padding-right: 2.1rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.record-input--quiet {
+    color: var(--ink);
+}
+
+.record-select {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+}
+
+.record-select:focus {
+    border-color: var(--ink);
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+    background: var(--paper);
+    box-shadow: none;
+}
+
+.record-row__error {
+    margin: 0.2rem 0 0;
+    color: var(--error);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.record-field .form-hint {
+    margin-top: 0.3rem;
+}
+
+.record-toggles {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.record-field + .record-toggles {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+}
+
+.record-alert {
+    margin-bottom: 0.85rem;
+}
+
+/* The promised date is the one loud element in the rail: a signal-yellow
+   margin rule and a date big enough to read from arm's length. */
+.record-deadline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    margin: 0 0 0.9rem;
+    padding: 0.15rem 0 0.15rem 0.7rem;
+    border-left: 3px solid var(--yellow);
+}
+
+.record-deadline__label {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.record-deadline__value {
+    color: var(--ink);
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.deadline__chips--presets {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.3rem;
+}
+
+.choice--preset {
+    display: block;
+}
+
+.choice--preset .choice__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.05rem;
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.3rem 0.2rem;
+    line-height: 1.1;
+}
+
+.choice--preset .choice__value {
+    font-size: 1.0625rem;
+}
+
+.choice--preset .choice__unit {
+    font-size: 0.6875rem;
+}
+
+.deadline__chips--modes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+}
+
+.choice--mode .choice__body {
+    justify-content: center;
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0 0.5rem;
+}
+
+.choice--mode .choice__label {
+    font-size: 0.8125rem;
+    white-space: normal;
+}
+
+.deadline__panel {
+    padding-top: 0.65rem;
+}
+
+.deadline__panel .form-label {
+    margin-bottom: 0.3rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.deadline__days .form-control {
+    min-height: 2.5rem;
+    max-width: 6rem;
+}
+
+.deadline .form-hint {
+    margin-top: 0.1rem;
+}
+
+/* A dashed drop zone reads as "put a file here"; the native control stays
+   keyboard reachable and its button keeps the brand's paper/graphite pairing. */
+.record-file-label {
+    display: grid;
+    gap: 0.1rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.record-file-label__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.record-file-label__hint {
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.record-file {
+    width: 100%;
+    padding: 0.55rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: border-color var(--fast) var(--ease-out),
+        color var(--fast) var(--ease-out);
+}
+
+.record-file:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.record-file:focus {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+}
+
+.record-file::file-selector-button {
+    margin-right: 0.7rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.record-file::file-selector-button:hover {
+    background: var(--yellow);
+}
+
+.record-foot {
+    margin-top: 0.85rem;
+}
+
+/* A focused field must land above the sticky save bar, not behind it. */
+@media (max-width: 991.98px) {
+    html {
+        scroll-padding-bottom: calc(var(--bottom-nav-height) + 5rem);
+    }
+
+    .record-input,
+    .record-select,
+    .record-file,
+    .choice__input {
+        scroll-margin-bottom: calc(var(--bottom-nav-height) + 4.5rem);
+    }
+}
+
+/* Phones get a real field surface: a transparent input on a hairline row is
+   elegant with a mouse and ambiguous under a thumb. */
+@media (max-width: 575.98px) {    /* One compact row above the bottom navigation instead of a two-line block:
+       the bar is always on screen, so every pixel it takes is a field hidden. */
+    .form-actions.record-foot {
+        flex-wrap: nowrap;
+    }
+
+    .record-foot .form-actions__primary {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 2.75rem;
+    }
+
+    .record-foot .form-actions__cancel {
+        flex: 0 0 auto;
+        margin-right: 0;
+    }
+
+    .record-row {
+        gap: 0.3rem;
+        padding: 0.55rem 0;
+    }
+
+    .record-row__label {
+        padding-top: 0;
+        font-size: 0.75rem;
+    }
+
+    .record-input {
+        border-color: var(--line);
+        background: var(--surface);
+    }
+
+    .record-input:hover {
+        background: var(--surface);
+    }
+
+    .record-input:focus {
+        background: var(--paper);
+    }
+
+    .record-input--money {
+        background: var(--surface);
+    }
+
+    .record-deadline__value {
+        font-size: 1.5rem;
+    }
 }
 
 .stat__label {

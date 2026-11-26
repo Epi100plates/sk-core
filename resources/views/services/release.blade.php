@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Wydanie '.$service->reference)
+@section('own-errors', '1')
 
 @section('content')
     <div class="page-head">

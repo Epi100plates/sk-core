@@ -6,7 +6,7 @@
     <div class="alert alert-warning" role="alert">{{ session('warning') }}</div>
 @endif
 
-@if ($errors->any())
+@if ($errors->any() && ! \Illuminate\Support\Facades\View::hasSection('own-errors'))
     <div class="alert alert-danger" role="alert">
         <p class="fw-semibold mb-1">Popraw poniższe pola:</p>
         <ul class="mb-0">
