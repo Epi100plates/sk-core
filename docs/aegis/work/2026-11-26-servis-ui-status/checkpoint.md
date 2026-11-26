@@ -17,7 +17,7 @@ w panelu `sk.mati-it.pl/panel`. Praca rozdzielona na trzy subagentów (`ui-forms
 | Wydanie | podsumowanie (żółty docket) w kolumnie, formularz 2-kolumnowy od 1200 px; na 1366×768 i 1280×800 całość z przyciskiem widoczna bez poziomego scrolla; protokół A4 ~58% wysokości strony |
 | Kolejka | chipy etapów 44 px, obrys 1 px, zaznaczenie tłem `--ink` + żółta etykieta; brak pionowych linii tabeli; 44 px touch |
 | Przycisk | na `services.create` górny przycisk zmienia się w „Kolejka” (także na telefonie po korekcie leada), powrót jednym kliknięciem |
-| Karta zlecenia | sekcja „Status dla klienta”: link, Kopiuj, Otwórz, ręczne „Utwórz link statusu” przy błędzie, informacja o SMS-ach |
+| Karta zlecenia | sekcja „Status dla klienta”: link, Kopiuj, Otwórz, czas ostatniej synchronizacji, „Odśwież status” (ponawia sync także wtedy, gdy link już istnieje), ręczne „Utwórz link statusu” przy błędzie, informacja o SMS-ach |
 | Backend aplikacji | `planned_days` (1–365) → `planned_at` 15:00; `client_status_url`/`client_status_synced_at` w JSON i MySQL (migracja); klient HMAC; sync po accept/update/advance/release/cancel; `services:sync-status`; testy Pest |
 | CMS | `POST /api/service-sync.php` (HMAC, timestamp ±300 s, limit 60/min, idempotencja `external_ref`), mapowanie statusów, `client_accepted`/`client_ready`, status `cancelled`, krótkie tokeny (base36 + 16 B MAC), zgodność starych 43-znakowych, `status_base_url`, badge „Z serwisu”, self-check 151 warunków |
 | Dokumentacja | ADR 0019, plan + notatki UI/backend, README, instrukcja użytkownika, `docs/status-klienta.md` §11, AGENTS.md (L.7, historia) |
@@ -47,11 +47,11 @@ Self-checki CMS (lokalnie i na VPS): `75/75` (`self-check-status.php`) i `151/15
 
 | Element | Stan |
 |---|---|
-| Aplikacja `sk-core` | commit `27970b6`, wypchnięta na GitHub; VPS `/srv/sk-serwis` przez `deploy/deploy-vps.ps1` (źródła + kopia, bez composera i builda na VPS) |
+| Aplikacja `sk-core` | commity `27970b6`, `d3c88e1` (odświeżanie linku), wypchnięte na GitHub; VPS `/srv/sk-serwis` przez `deploy/deploy-vps.ps1` (źródła + kopia, bez composera i builda na VPS) |
 | CMS `sk-serwis` | commit `70b5c12`, wypchnięty na VPS (`/srv/studio-komp`) i GitHub (`_exports/studio-komp-www`) |
 | nginx-sk | `location = /api/service-sync.php` (tylko POST, 16k, `access_log off`); `nginx -t` OK, `systemctl reload nginx-sk` |
 | Sekrety | `service_sync_secret` w `/srv/studio-komp-cms/config.php` = `CLIENT_STATUS_SECRET` w `/srv/sk-serwis/.env`; wartość poza repozytorium |
-| `.env` aplikacji | `CLIENT_STATUS_ENABLED=true`, `CLIENT_STATUS_URL=http://127.0.0.1:8088`, timeout 5 s, `ASSET_VERSION=32` |
+| `.env` aplikacji | `CLIENT_STATUS_ENABLED=true`, `CLIENT_STATUS_URL=http://127.0.0.1:8088`, timeout 5 s, `ASSET_VERSION=33` |
 | Backfill | `php artisan services:sync-status` na VPS: 12 linków, 3 pominięte (wydane/anulowane), 0 błędów |
 | Baza CMS | 12 zgłoszeń `SRV-2026-000001…000012` z `external_ref`; `client_accepted`/test ×12, `client_ready`/test ×3 (tryb testowy, bez realnej wysyłki) |
 | Strona statusu | publiczny `GET /status/<token>/?format=json` i HTML: 200, `Cache-Control: no-store`, `X-Robots-Tag: noindex`, brak danych osobowych |
