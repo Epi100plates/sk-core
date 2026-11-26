@@ -114,6 +114,7 @@ final class ServiceController extends Controller
             'clientStatusUrl' => $service->clientStatusUrl,
             'clientStatusEnabled' => $clientStatus->enabled(),
             'clientStatusNumber' => null,
+            'clientStatusSyncedAt' => $service->clientStatusSyncedAt,
         ]);
     }
 

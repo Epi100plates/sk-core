@@ -35,11 +35,11 @@ final class ClientStatusController extends Controller
         if ($result['ok']) {
             return redirect()
                 ->route('services.show', $service)
-                ->with('status', 'Link statusu klienta został utworzony.');
+                ->with('status', 'Status klienta został zsynchronizowany.');
         }
 
         return redirect()
             ->route('services.show', $service)
-            ->with('warning', 'Nie udało się utworzyć linku statusu klienta: '.($result['error'] ?? 'nieznany błąd'));
+            ->with('warning', 'Nie udało się zsynchronizować statusu klienta: '.($result['error'] ?? 'nieznany błąd'));
     }
 }

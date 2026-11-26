@@ -184,6 +184,7 @@
                 $clientStatusUrl = $clientStatusUrl ?? null;
                 $clientStatusEnabled = $clientStatusEnabled ?? false;
                 $clientStatusNumber = $clientStatusNumber ?? null;
+                $clientStatusSyncedAt = $clientStatusSyncedAt ?? null;
                 $clientStatusRoute = \Illuminate\Support\Facades\Route::has('services.client-status.store');
             @endphp
 
@@ -216,6 +217,22 @@
                                 <span class="font-monospace">{{ $clientStatusNumber }}</span>
                             </p>
                         @endif
+                        <div class="client-status__footer">
+                            @if ($clientStatusSyncedAt instanceof \Carbon\CarbonInterface)
+                                <span class="service-meta">
+                                    Zaktualizowano {{ \App\Domain\FieldLabels::formatDate($clientStatusSyncedAt) }}
+                                </span>
+                            @endif
+                            @if ($clientStatusEnabled && $clientStatusRoute && ! $isFinal)
+                                {{-- A dropped connection leaves the old link in place; this re-sends
+                                     the current stage without touching the order itself. --}}
+                                <form method="post" action="{{ route('services.client-status.store', $service) }}"
+                                      data-guard-submit>
+                                    @csrf
+                                    <button class="btn btn-link btn-sm px-0" type="submit">Odśwież status</button>
+                                </form>
+                            @endif
+                        </div>
                     @elseif ($clientStatusEnabled)
                         <p class="service-meta">
                             Link jeszcze nie powstał — zlecenie zapisano, ale strona statusu nie odpowiedziała.

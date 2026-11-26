@@ -2740,6 +2740,20 @@ legend {
     flex: 0 0 auto;
 }
 
+/* Sync time and the quiet "refresh" action share one line under the link. */
+.client-status__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+    margin-top: 0.55rem;
+}
+
+.client-status__footer form {
+    margin: 0;
+}
+
 @media (max-width: 575.98px) {
     .copy-row .btn {
         flex: 1 1 auto;
