@@ -55,10 +55,32 @@ Self-checki CMS (lokalnie i na VPS): `75/75` (`self-check-status.php`) i `151/15
 | Backfill | `php artisan services:sync-status` na VPS: 12 linków, 3 pominięte (wydane/anulowane), 0 błędów |
 | Baza CMS | 12 zgłoszeń `SRV-2026-000001…000012` z `external_ref`; `client_accepted`/test ×12, `client_ready`/test ×3 (tryb testowy, bez realnej wysyłki) |
 | Strona statusu | publiczny `GET /status/<token>/?format=json` i HTML: 200, `Cache-Control: no-store`, `X-Robots-Tag: noindex`, brak danych osobowych |
-| App na żywo | `https://serwis.mati-it.pl/` 200; `app.css?v=32`, `app.js?v=32` |
+| App na żywo | `https://serwis.mati-it.pl/` 200; `app.css?v=34`, `app.js?v=34` |
 
 Przykładowy link ma postać `https://sk.mati-it.pl/status/<krótki-token>/` (token jest sekretem,
 dlatego w dokumentacji nie podajemy prawdziwych adresów klientów).
+
+## Przebudowa formularza przyjęcia i edycji (2026-11-26, po pierwszym wdrożeniu)
+
+Formularz nie jest już stosem sekcji i pól Bootstrapa. Przyjęcie i edycja używają
+tego samego układu co karta zlecenia: nagłówek z numerem/telefonem i badge'em
+statusu, rząd akcji, lewa kolumna `Dane zlecenia` z wierszami etykieta/wartość
+(na desktopie 8,5 rem na etykietę, hairline między wierszami) oraz prawa szyna
+`Termin realizacji` (duża data, presety 1/2/3/7, własne dni, inna data),
+`Rozliczenie` i `Status i opcje`. Na telefonie wiersze układają się w pionie,
+pola dostają jawną powierzchnię, a zapis jest w jednym rzędzie nad dolną
+nawigacją; fokus ma `scroll-margin`, żeby nie chował się pod paskiem.
+
+- commit `2df3778` (`Rebuild intake and edit screens as the order-card job sheet`),
+  GitHub `sk-core` + VPS `/srv/sk-serwis`; `ASSET_VERSION=34`.
+- Walidacja ma jedno podsumowanie na formularzu (globalny alert `x-flash` jest
+  pomijany przez `@section('own-errors')`), a nie dwa komunikaty o tym samym.
+- Weryfikacja: `php artisan test` 234 passed / 123 skipped (893 asercje),
+  `php artisan dusk` 17 passed (70 asercji, 6 axe), Pint PASS (166 plików),
+  PHPStan `[OK]`; axe bez naruszeń na create/edit; brak poziomego przewijania
+  320/360/390/768/1024/1366/1440 px.
+- Na żywo: login 200 z `app.css?v=34`, `/services/create` 302 do logowania,
+  wgrany CSS zawiera `.record-layout` i `.record-row`.
 
 ## Ograniczenia i następne kroki
 
