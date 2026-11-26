@@ -104,34 +104,20 @@
         @method($method)
     @endif
 
-    {{-- The job sheet header is deliberately two rows, not five: the context and
-         the title share a line, and the actions sit beside the title instead of
-         pushing the whole form down. --}}
+    {{-- The job sheet header is the title and the actions, nothing else: the
+         client context lives in the fields below, and the way back is the
+         "Anuluj" action next to the submit button. --}}
     <div class="page-head record-head">
-        <a class="link-back" href="{{ $cancelUrl }}">
-            <span class="link-back__icon" aria-hidden="true"><x-icon name="arrow-right" :size="14" /></span>
-            {{ $isEdit ? 'Karta zlecenia' : 'Wróć do kolejki' }}
-        </a>
-
-        <div class="record-head__meta-row">
-            <p class="record-head__lede">
-                <span class="eyebrow">{{ $isEdit ? 'Edycja zlecenia' : 'Nowe zlecenie' }}</span>
-                <span class="record-head__sep" aria-hidden="true">·</span>
-                <span class="page-head__meta record-head__meta">
-                    @if ($isEdit)
-                        {{ $service->reference }} · {{ $service->displayPhone() }}
-                    @else
-                        Telefon, model i usterka są obowiązkowe.
-                    @endif
-                </span>
-            </p>
-
-            @if ($isEdit)
+        @if ($isEdit)
+            {{-- Editing needs the reference and the customer, but not a second
+                 heading saying that this is the edit screen. --}}
+            <div class="record-head__meta-row">
+                <p class="record-head__meta">{{ $service->reference }} · {{ $service->displayPhone() }}</p>
                 <div class="page-head__aside record-head__aside">
                     <x-status-badge :status="$service->status" />
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
 
         <div class="record-head__title-row">
             <h1 class="page-title">

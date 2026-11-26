@@ -142,7 +142,7 @@
                              on the intake form "Przyjmij" would only reload the page,
                              so the same slot leads back to the queue. --}}
                         @if (request()->routeIs('services.create'))
-                            <a class="btn btn-primary btn-sm" href="{{ route('services.queue') }}" aria-label="Wróć do kolejki">
+                            <a class="btn btn-primary btn-sm" href="{{ route('services.queue') }}" aria-label="Kolejka">
                                 <x-icon name="queue" :size="16" />
                                 <span class="btn-label">Kolejka</span>
                             </a>

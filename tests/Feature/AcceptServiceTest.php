@@ -116,6 +116,21 @@ it('starts the acceptance form on a one working day promise', function (string $
         ->assertSee('pon 30.11, 15:00');
 })->with('stores');
 
+it('keeps the acceptance header to the title and the actions', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->get('/services/create')
+        ->assertOk()
+        ->assertSee('Przyjęcie laptopa')
+        ->assertSee('Przyjmij zlecenie')
+        ->assertSee('Anuluj')
+        ->assertDontSee('Wróć do kolejki')
+        ->assertDontSee('Nowe zlecenie')
+        ->assertDontSee('Telefon, model i usterka są obowiązkowe.');
+})->with('stores');
+
 it('hides the seal number when accepting and shows it when editing', function (string $store) {
     usingStore($this, $store);
 

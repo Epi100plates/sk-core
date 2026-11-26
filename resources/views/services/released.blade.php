@@ -6,9 +6,6 @@
     <div class="page-head">
         <div class="page-head__main">
             <h1 class="page-title">Wydane zlecenia</h1>
-            <p class="page-head__meta">
-                Zakończone naprawy — podgląd i wydruk protokołu.
-            </p>
         </div>
     </div>
 

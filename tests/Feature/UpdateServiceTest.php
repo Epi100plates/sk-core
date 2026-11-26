@@ -175,7 +175,7 @@ it('shows the edit form only for services that are still open', function (string
 
     $this->actingAsUser($user)->get('/services/'.$service->id.'/edit')
         ->assertOk()
-        ->assertSee('Edycja zlecenia')
+        ->assertSee($service->deviceModel)
         ->assertSee($service->reference);
 
     $released = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::Released->value]));

@@ -2958,35 +2958,12 @@ legend {
     padding-bottom: 0.7rem;
 }
 
-.record-head .link-back {
-    margin-bottom: 0.15rem;
-}
-
 .record-head__meta-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.35rem 0.75rem;
-}
-
-.record-head__lede {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem;
-    min-width: 0;
-    margin: 0;
-}
-
-.record-head__lede .eyebrow {
-    display: inline;
-}
-
-.record-head__sep {
-    color: var(--muted-2);
-    font-size: 0.75rem;
-    line-height: 1;
 }
 
 .record-head__meta {
@@ -3018,15 +2995,6 @@ legend {
 @media (max-width: 575.98px) {
     .record-head__meta-row {
         align-items: flex-start;
-    }
-
-    .record-head__lede {
-        flex-direction: column;
-        gap: 0.1rem;
-    }
-
-    .record-head__sep {
-        display: none;
     }
 }
 

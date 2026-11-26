@@ -54,6 +54,17 @@ function releasedArchiveFilterRegion(string $html): string
     return $matches[1] ?? '';
 }
 
+it('keeps the archive header to its title', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+
+    $this->actingAsUser($user)->get('/released')
+        ->assertOk()
+        ->assertSee('Wydane zlecenia')
+        ->assertDontSee('Zakończone naprawy');
+})->with('stores');
+
 it('shows released services for the chosen date range', function (string $store) {
     usingStore($this, $store);
 
