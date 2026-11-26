@@ -138,6 +138,22 @@ nawigacją; fokus ma `scroll-margin`, żeby nie chował się pod paskiem.
   360/390/1024/1280/1366 px bez poziomego przewijania; sidebar 1280×600
   i 1366×768 mieści dół bez przewijania szyny.
 
+### Nagłówki bez powtarzanych informacji (2026-11-26, noc III)
+
+- Przyjęcie: usunięty link „Wróć do kolejki”, wiersz „Nowe zlecenie ·
+  Telefon, model i usterka są obowiązkowe.” oraz nadmiarowy `aria-label`
+  przycisku „Kolejka”; nagłówek to tytuł `Przyjęcie laptopa` i akcje
+  `Przyjmij zlecenie` / `Anuluj`.
+- Edycja: bez „Edycja zlecenia” i linku „Karta zlecenia”; nad tytułem zostaje
+  numer zlecenia, telefon i badge statusu.
+- Wydane: usunięty opis „Zakończone naprawy — podgląd i wydruk protokołu.”;
+  zostaje tytuł `Wydane zlecenia`.
+- commit `3b4867a`; `ASSET_VERSION=41`.
+- Weryfikacja: `php artisan test` 248 passed / 129 skipped (936 asercji),
+  `php artisan dusk` 19 passed (74 asercje), Pint PASS (169 plików), PHPStan
+  `[OK]` (512M), `view:cache` OK; create 1366/390, edit 1366 i released 390
+  sprawdzone wizualnie bez poziomego przewijania.
+
 ## Ograniczenia i następne kroki
 
 1. **Realna wysyłka SMS** — wszystko działa w trybie testowym; potrzebne konto u dostawcy,
