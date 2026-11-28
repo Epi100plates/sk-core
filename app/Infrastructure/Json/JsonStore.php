@@ -22,7 +22,7 @@ final class JsonStore
     public const SCHEMA_VERSION = 1;
 
     /** @var list<string> */
-    public const COLLECTIONS = ['services', 'service_events', 'service_photos', 'users'];
+    public const COLLECTIONS = ['services', 'service_events', 'service_photos', 'users', 'intake_tickets'];
 
     private const SEPARATOR = DIRECTORY_SEPARATOR;
 

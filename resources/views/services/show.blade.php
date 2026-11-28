@@ -7,6 +7,7 @@
         $isFinal = $service->status->isFinal();
         $next = $service->status->nextStatus();
         $readyForPickup = $service->status === \App\Domain\Enums\ServiceStatus::ReadyForPickup;
+        $awaitingApproval = $service->status === \App\Domain\Enums\ServiceStatus::AwaitingApproval;
     @endphp
 
     <div class="page-head">
@@ -30,6 +31,14 @@
         </div>
     </div>
 
+    @if ($service->approvalRemarks !== null && ! $isFinal)
+        {{-- The boss's remarks are the first thing the technician reads. --}}
+        <div class="approval-note" role="note">
+            <span class="approval-note__label">Uwagi szefa</span>
+            <p class="approval-note__text">{{ $service->approvalRemarks }}</p>
+        </div>
+    @endif
+
     <div class="page-actions">
         @if (! $isFinal && $next instanceof \App\Domain\Enums\ServiceStatus)
             @can('advance', $service)
@@ -37,6 +46,17 @@
                     @csrf
                     <button class="btn btn-primary" type="submit">{{ $service->status->advanceLabel() }}</button>
                 </form>
+            @endcan
+        @endif
+
+        @if ($awaitingApproval)
+            @can('approveRelease', $service)
+                <form method="post" action="{{ route('services.approval.approve', $service) }}" data-guard-submit>
+                    @csrf
+                    <button class="btn btn-primary" type="submit">Potwierdź</button>
+                </form>
+            @else
+                <span class="service-meta">Czeka na akceptację szefa.</span>
             @endcan
         @endif
 
@@ -178,81 +198,6 @@
         </div>
 
         <div class="col-12 col-lg-5">
-            @php
-                // The card works before the backend ships the integration: missing
-                // variables fall back to "no link, integration off".
-                $clientStatusUrl = $clientStatusUrl ?? null;
-                $clientStatusEnabled = $clientStatusEnabled ?? false;
-                $clientStatusNumber = $clientStatusNumber ?? null;
-                $clientStatusSyncedAt = $clientStatusSyncedAt ?? null;
-                $clientStatusRoute = \Illuminate\Support\Facades\Route::has('services.client-status.store');
-            @endphp
-
-            <section class="app-card client-status mb-3" aria-labelledby="service-client-status">
-                <div class="app-card-header">
-                    <h2 class="h6" id="service-client-status">Status dla klienta</h2>
-                    @if (is_string($clientStatusUrl) && $clientStatusUrl !== '')
-                        <span class="badge text-bg-success">Link aktywny</span>
-                    @endif
-                </div>
-                <div class="app-card-body">
-                    @if (is_string($clientStatusUrl) && $clientStatusUrl !== '')
-                        <p class="service-meta">
-                            Ten sam link dostaje klient SMS-em przy przyjęciu i po zmianie etapu na „Do wydania”.
-                            Pokazuje tylko etap naprawy — bez telefonu, usterki i notatek.
-                        </p>
-                        <div class="copy-row">
-                            <label class="visually-hidden" for="client-status-url">Adres strony statusu</label>
-                            <input class="form-control copy-row__value" id="client-status-url" type="text"
-                                   value="{{ $clientStatusUrl }}" readonly spellcheck="false">
-                            <button class="btn btn-outline-primary" type="button"
-                                    data-copy-value="{{ $clientStatusUrl }}"
-                                    data-copy-target="client-status-url">Kopiuj</button>
-                            <a class="btn btn-outline-primary" href="{{ $clientStatusUrl }}"
-                               target="_blank" rel="noopener">Otwórz</a>
-                        </div>
-                        @if (is_string($clientStatusNumber) && $clientStatusNumber !== '')
-                            <p class="service-meta mb-0 mt-2">
-                                Numer zgłoszenia na stronie statusu:
-                                <span class="font-monospace">{{ $clientStatusNumber }}</span>
-                            </p>
-                        @endif
-                        <div class="client-status__footer">
-                            @if ($clientStatusSyncedAt instanceof \Carbon\CarbonInterface)
-                                <span class="service-meta">
-                                    Zaktualizowano {{ \App\Domain\FieldLabels::formatDate($clientStatusSyncedAt) }}
-                                </span>
-                            @endif
-                            @if ($clientStatusEnabled && $clientStatusRoute && ! $isFinal)
-                                {{-- A dropped connection leaves the old link in place; this re-sends
-                                     the current stage without touching the order itself. --}}
-                                <form method="post" action="{{ route('services.client-status.store', $service) }}"
-                                      data-guard-submit>
-                                    @csrf
-                                    <button class="btn btn-link btn-sm px-0" type="submit">Odśwież status</button>
-                                </form>
-                            @endif
-                        </div>
-                    @elseif ($clientStatusEnabled)
-                        <p class="service-meta">
-                            Link jeszcze nie powstał — zlecenie zapisano, ale strona statusu nie odpowiedziała.
-                            Możesz utworzyć go ponownie.
-                        </p>
-                        @if ($clientStatusRoute)
-                            <form method="post" action="{{ route('services.client-status.store', $service) }}"
-                                  data-guard-submit>
-                                @csrf
-                                <button class="btn btn-outline-primary" type="submit">Utwórz link statusu</button>
-                            </form>
-                        @endif
-                    @else
-                        <p class="service-meta mb-0">
-                            Strona statusu jest wyłączona w konfiguracji, więc klient nie dostaje linku ani SMS-a.
-                        </p>
-                    @endif
-                </div>
-            </section>
-
             <section class="app-card mb-3" aria-labelledby="service-history">
                 <div class="app-card-header">
                     <h2 class="h6" id="service-history">Historia zmian</h2>
@@ -340,6 +285,49 @@
                     @endif
                 </div>
             </section>
+
+            @php
+                // A stored fact, not a workflow: the link is only shown when it
+                // exists. Missing variables fall back to "no link, integration off"
+                // so the card never blocks the screen.
+                $clientStatusUrl = $clientStatusUrl ?? null;
+                $clientStatusEnabled = $clientStatusEnabled ?? false;
+            @endphp
+
+            @if (is_string($clientStatusUrl) && $clientStatusUrl !== '')
+                {{-- Small, quiet tile: the owner asked for the link to be stored and
+                     previewable, not for a card with a refresh/create workflow. --}}
+                <section class="client-status-tile" aria-labelledby="service-client-status">
+                    <span class="client-status-tile__label" id="service-client-status">Status klienta</span>
+                    <a class="client-status-tile__url" href="{{ $clientStatusUrl }}" target="_blank" rel="noopener">
+                        {{ $clientStatusUrl }}
+                    </a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ $clientStatusUrl }}"
+                       target="_blank" rel="noopener">Podgląd</a>
+                </section>
+            @elseif ($clientStatusEnabled)
+                <p class="service-meta">Linku statusu klienta brak.</p>
+            @endif
+
+            @if ($awaitingApproval)
+                @can('returnToQueue', $service)
+                    <details class="app-card disclosure">
+                        <summary class="disclosure__summary">Zwróć z uwagami</summary>
+                        <div class="disclosure__body">
+                            <form method="post" action="{{ route('services.approval.return', $service) }}"
+                                  data-guard-submit>
+                                @csrf
+                                <label class="form-label" for="approval_remarks">Uwagi do poprawy</label>
+                                <textarea class="form-control mb-2" id="approval_remarks" name="approval_remarks"
+                                          rows="3" maxlength="1000" required
+                                          placeholder="Krótko: co jeszcze poprawić.">{{ old('approval_remarks') }}</textarea>
+                                @error('approval_remarks')<p class="invalid-feedback d-block">{{ $message }}</p>@enderror
+                                <button class="btn btn-outline-primary btn-sm" type="submit">Zwróć do kolejki</button>
+                            </form>
+                        </div>
+                    </details>
+                @endcan
+            @endif
 
             @can('cancel', $service)
                 <details class="app-card disclosure">

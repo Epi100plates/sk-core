@@ -48,7 +48,7 @@ class UserRequest extends FormRequest
             'login.required' => 'Podaj login.',
             'login.regex' => 'Login może zawierać tylko litery, cyfry, kropkę, myślnik i podkreślenie.',
             'role.required' => 'Wybierz rolę.',
-            'role.in' => 'Wybierz jedną z trzech ról.',
+            'role.in' => 'Wybierz jedną z ról.',
             'password.required' => 'Podaj hasło startowe.',
             'password.min' => 'Hasło musi mieć co najmniej 12 znaków.',
             'password.confirmed' => 'Podane hasła nie są identyczne.',

@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Contracts\IntakeTicketRepository;
 use App\Contracts\ServicePhotoRepository;
 use App\Contracts\ServiceRepository;
 use App\Contracts\UserRepository;
+use App\Domain\Data\IntakeTicketRecord;
 use App\Domain\Data\ServicePhotoRecord;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
@@ -14,10 +16,12 @@ use App\Http\Controllers\AdvanceStatusController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CancelController;
 use App\Http\Controllers\ClientStatusController;
+use App\Http\Controllers\IntakeController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\OfflineController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\QueueController;
+use App\Http\Controllers\ReleaseApprovalController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\ReleasedController;
 use App\Http\Controllers\ServiceController;
@@ -55,6 +59,12 @@ Route::bind('user', static function (string $value): UserRecord {
     return $user ?? abort(404);
 });
 
+Route::bind('intake', static function (string $value): IntakeTicketRecord {
+    $ticket = is_numeric($value) ? app(IntakeTicketRepository::class)->find((int) $value) : null;
+
+    return $ticket ?? abort(404);
+});
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])
@@ -72,6 +82,18 @@ Route::middleware(['auth', RequirePasswordChange::class])->group(function (): vo
     Route::get('/', QueueController::class)->name('services.queue');
     Route::get('/released', ReleasedController::class)->name('services.released');
 
+    // Submissions from the public site form (owner request 2026-11-27): received
+    // over the signed API, processed here by the workshop.
+    Route::get('/intake', [IntakeController::class, 'index'])->name('intake.index');
+    Route::get('/intake/{intake}', [IntakeController::class, 'show'])->name('intake.show');
+    Route::get('/intake/{intake}/convert', [IntakeController::class, 'convert'])->name('intake.convert');
+    Route::post('/intake/{intake}/contact', [IntakeController::class, 'contact'])
+        ->middleware('throttle:mutations')
+        ->name('intake.contact');
+    Route::post('/intake/{intake}/reject', [IntakeController::class, 'reject'])
+        ->middleware('throttle:mutations')
+        ->name('intake.reject');
+
     Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
     Route::post('/services', [ServiceController::class, 'store'])
         ->middleware('throttle:mutations')
@@ -86,6 +108,15 @@ Route::middleware(['auth', RequirePasswordChange::class])->group(function (): vo
     Route::post('/services/{service}/advance', AdvanceStatusController::class)
         ->middleware('throttle:mutations')
         ->name('services.advance');
+
+    // Owner answers a release request (2026-11-27). The request itself is the
+    // normal "Gotowy do wydania" advance; these two close the loop.
+    Route::post('/services/{service}/release-approval', [ReleaseApprovalController::class, 'approve'])
+        ->middleware('throttle:mutations')
+        ->name('services.approval.approve');
+    Route::post('/services/{service}/release-return', [ReleaseApprovalController::class, 'returnToQueue'])
+        ->middleware('throttle:mutations')
+        ->name('services.approval.return');
 
     Route::get('/services/{service}/release', [ReleaseController::class, 'show'])->name('services.release');
     Route::post('/services/{service}/release', [ReleaseController::class, 'store'])

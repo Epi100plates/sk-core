@@ -6,12 +6,15 @@ namespace Database\Seeders;
 
 use App\Actions\AcceptService;
 use App\Actions\AdvanceServiceStatus;
+use App\Actions\ApproveRelease;
 use App\Actions\ReleaseDetails;
 use App\Actions\ReleaseService;
 use App\Actions\ServiceDetails;
 use App\Contracts\UserRepository;
 use App\Domain\Data\UserRecord;
+use App\Domain\Enums\Ability;
 use App\Domain\Enums\Role;
+use App\Domain\Enums\ServiceStatus;
 use App\Support\Audit\AuditContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -54,6 +57,7 @@ final class DemoSeeder extends Seeder
         AcceptService $accept,
         AdvanceServiceStatus $advance,
         ReleaseService $release,
+        ?ApproveRelease $approve = null,
         ?int $count = null,
     ): void {
         if (app()->isProduction()) {
@@ -65,15 +69,19 @@ final class DemoSeeder extends Seeder
         $admin = $users->findByLogin('admin');
 
         if (! $admin instanceof UserRecord) {
+            // The first account of a demo shop is the owner, so the demo data can
+            // pass the release approval flow (2026-11-27).
             $admin = $users->save(UserRecord::fromArray([
                 'name' => 'Administrator',
                 'login' => 'admin',
                 'password' => Hash::make(Str::password(16)),
-                'role' => Role::Admin->value,
+                'role' => Role::Owner->value,
                 'is_active' => true,
                 'must_change_password' => true,
             ]));
         }
+
+        $canApprove = $admin->can(Ability::APPROVE_RELEASE);
 
         $context = AuditContext::console();
         $now = CarbonImmutable::now('UTC')->startOfDay();
@@ -104,22 +112,45 @@ final class DemoSeeder extends Seeder
                 $service = $advance->handle($service, $admin, $context);
             }
 
-            if ($i % 4 === 0 && $service->status->isActive()) {
-                $release->handle(
-                    $service,
-                    new ReleaseDetails(
-                        releasedAt: CarbonImmutable::now('UTC')->subHours(2),
-                        price: $service->price,
-                        cost: $service->cost,
-                        notes: $service->notes,
-                        sealNumber: $service->sealNumber,
-                        devicePassword: $service->devicePassword,
-                        serialNumber: $service->serialNumber,
-                        printProtocol: false,
-                    ),
-                    $admin,
-                    $context,
-                );
+            // A demo order that is meant to be handed over has to pass the release
+            // approval flow first (2026-11-27): the owner accepts the request.
+            if ($i % 4 === 0 && $canApprove) {
+                while ($service->status->isActive()
+                    && $service->status !== ServiceStatus::ReadyForPickup) {
+                    if ($service->status === ServiceStatus::AwaitingApproval) {
+                        if (! $approve instanceof ApproveRelease) {
+                            break;
+                        }
+
+                        $service = $approve->handle($service, $admin, $context);
+
+                        continue;
+                    }
+
+                    if ($service->status->nextStatus() === null) {
+                        break;
+                    }
+
+                    $service = $advance->handle($service, $admin, $context);
+                }
+
+                if ($service->status === ServiceStatus::ReadyForPickup) {
+                    $release->handle(
+                        $service,
+                        new ReleaseDetails(
+                            releasedAt: CarbonImmutable::now('UTC')->subHours(2),
+                            price: $service->price,
+                            cost: $service->cost,
+                            notes: $service->notes,
+                            sealNumber: $service->sealNumber,
+                            devicePassword: $service->devicePassword,
+                            serialNumber: $service->serialNumber,
+                            printProtocol: false,
+                        ),
+                        $admin,
+                        $context,
+                    );
+                }
             }
         }
     }

@@ -53,6 +53,7 @@ final class ServiceRecord implements UrlRoutable
         public readonly ?CarbonImmutable $deletedAt = null,
         public readonly ?string $clientStatusUrl = null,
         public readonly ?CarbonImmutable $clientStatusSyncedAt = null,
+        public readonly ?string $approvalRemarks = null,
     ) {}
 
     /**
@@ -94,6 +95,7 @@ final class ServiceRecord implements UrlRoutable
             deletedAt: self::date($data, 'deleted_at'),
             clientStatusUrl: self::nullableString($data, 'client_status_url'),
             clientStatusSyncedAt: self::date($data, 'client_status_synced_at'),
+            approvalRemarks: self::nullableString($data, 'approval_remarks'),
         );
     }
 
@@ -133,6 +135,7 @@ final class ServiceRecord implements UrlRoutable
             'deleted_at' => self::formatDate($this->deletedAt),
             'client_status_url' => $this->clientStatusUrl,
             'client_status_synced_at' => self::formatDate($this->clientStatusSyncedAt),
+            'approval_remarks' => $this->approvalRemarks,
         ];
     }
 

@@ -144,6 +144,22 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
+    /**
+     * An accepted service moved directly to a given stage (test shortcut; the
+     * actions under test always move it through the workflow themselves).
+     *
+     * @param  array<string, mixed>  $overrides
+     */
+    protected function acceptServiceWithStatus(
+        UserRecord $actor,
+        ServiceStatus $status,
+        array $overrides = [],
+    ): ServiceRecord {
+        $service = $this->acceptService($actor, $overrides);
+
+        return app(ServiceRepository::class)->save($service->with(['status' => $status->value]));
+    }
+
     /** Is a MySQL/MariaDB server reachable for the `mysql` dataset? */
     public function mysqlAvailable(): bool
     {

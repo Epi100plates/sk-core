@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Contracts\ServiceEventRepository;
+use App\Contracts\ServiceRepository;
 use App\Domain\Enums\Role;
+use App\Domain\Enums\ServiceStatus;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,6 +61,8 @@ it('includes a CSRF token in every form', function (string $store) {
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user);
+    // The release form only exists for a laptop on the "Do wydania" counter.
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     foreach ([
         '/services/create',

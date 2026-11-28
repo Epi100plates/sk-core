@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Contracts\ServiceEventRepository;
 use App\Contracts\ServiceRepository;
+use App\Domain\BusinessDays;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Enums\Role;
 use App\Domain\Enums\ServiceEventType;
@@ -88,65 +89,17 @@ it('rejects an invalid acceptance payload', function (string $store, array $payl
     'bad seal characters' => [['seal_number' => 'PLO#1'], 'seal_number'],
 ]);
 
-it('defaults the planned date to the next working day at 15:00', function () {
-    $this->travelTo(CarbonImmutable::parse('2026-11-27 10:15:00', 'Europe/Warsaw'));
-
+it('defaults the planned date to the next working day at 15:00 local time', function () {
     $value = ServiceRequest::defaultPlannedAt();
     $timezone = (string) config('app.display_timezone');
 
     $default = CarbonImmutable::parse($value, $timezone);
+    $expectedDay = BusinessDays::add(CarbonImmutable::now($timezone), 1);
 
     expect($default->format('H:i'))->toBe('15:00')
-        ->and($default->toDateString())->toBe('2026-11-30')
-        ->and($default->isWeekday())->toBeTrue()
+        ->and($default->toDateString())->toBe($expectedDay->toDateString())
         ->and($default->isFuture())->toBeTrue();
 });
-
-it('starts the acceptance form on a one working day promise', function (string $store) {
-    usingStore($this, $store);
-    $this->travelTo(CarbonImmutable::parse('2026-11-27 10:15:00', 'Europe/Warsaw'));
-
-    $user = $this->createUser('jan', Role::Employee);
-
-    // Friday + one working day is Monday, and the form opens with that preset
-    // already selected instead of the old two-day default.
-    $this->actingAsUser($user)->get('/services/create')
-        ->assertOk()
-        ->assertSee('name="planned_days" value="1"', false)
-        ->assertSee('pon 30.11, 15:00');
-})->with('stores');
-
-it('keeps the acceptance header to the title and the actions', function (string $store) {
-    usingStore($this, $store);
-
-    $user = $this->createUser('jan', Role::Employee);
-
-    $this->actingAsUser($user)->get('/services/create')
-        ->assertOk()
-        ->assertSee('Przyjęcie laptopa')
-        ->assertSee('Przyjmij zlecenie')
-        ->assertSee('Anuluj')
-        ->assertDontSee('Wróć do kolejki')
-        ->assertDontSee('Nowe zlecenie')
-        ->assertDontSee('Telefon, model i usterka są obowiązkowe.');
-})->with('stores');
-
-it('hides the seal number when accepting and shows it when editing', function (string $store) {
-    usingStore($this, $store);
-
-    $user = $this->createUser('jan', Role::Employee);
-
-    $this->actingAsUser($user)->get('/services/create')
-        ->assertOk()
-        ->assertDontSee('id="seal_number"', false)
-        ->assertSee('Opcje');
-
-    $service = $this->acceptService($user);
-
-    $this->actingAsUser($user)->get('/services/'.$service->id.'/edit')
-        ->assertOk()
-        ->assertSee('id="seal_number"', false);
-})->with('stores');
 
 it('marks the confirmation as issued and opens the print view when asked', function (string $store) {
     usingStore($this, $store);

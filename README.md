@@ -84,6 +84,7 @@ Dane demonstracyjne (30 zleceń, tylko poza produkcją): `php artisan db:seed --
 | `php artisan backup:database` | ZIP z danymi JSON i zdjęciami albo zrzut SQL + zdjęcia |
 | `php artisan bench:queue [--services=200]` | pomiar czasu renderowania kolejki (p95) na danych tymczasowych |
 | `php artisan services:sync-status [--all] [--service=ID]` | brakujące linki statusu klienta w CMS (bezpieczne do powtarzania) |
+| `php artisan users:owner <login>` | nadaje istniejącemu kontu rolę Szef (zatwierdza wydanie) |
 
 ## Status dla klienta (integracja z CMS)
 
@@ -107,19 +108,87 @@ a link można utworzyć ponownie z karty zlecenia (`POST /services/{id}/client-s
 albo komendą `services:sync-status`. Decyzja: [ADR 0019](docs/aegis/decisions/0019-integracja-statusu.md);
 pełna dokumentacja strony statusu: `docs/status-klienta.md` w repozytorium `sk-serwis`.
 
+## Akceptacja wydania (Szef i Serwisant admin)
+
+Serwisant kończy naprawę i klika **Gotowy do wydania** (`in_progress` → `awaiting_approval`,
+„Oczekuje na akceptację”). Laptop trafia do normalnego panelu edycji z przyciskiem
+**Potwierdź**; tylko rola **Szef** (`owner`) może zatwierdzić wydanie albo zwrócić je
+do kolejki z krótkimi uwagami (`with_remarks`, „Z uwagami”). Po potwierdzeniu status
+zmienia się na `ready_for_pickup` („Do wydania”) i wydanie działa jak dotąd.
+
+| Rola | Etykieta | Zatwierdza wydanie | Uwagi |
+|---|---|---|---|
+| `owner` | Szef | tak | pełny zakres + konta |
+| `admin` | Serwisant admin | nie | pełny zakres pracy + konta (dotychczasowy `admin` działa bez zmian) |
+| `technician` | Technik | nie | pełny zakres pracy |
+| `employee` | Pracownik | nie | pełny zakres pracy |
+
+Po wdrożeniu na istniejącej instalacji trzeba **raz** nadać jedno konto jako Szef:
+
+```bash
+php artisan users:owner admin        # albo inny login właściciela
+```
+
+Bez tego nikt nie może zatwierdzić wydania (aplikacja działa, ale kolejka „Oczekuje na
+akceptację” nie ma osoby decyzyjnej). Konto `admin` pozostaje w pełni sprawne — zmienia
+się tylko jego etykieta i brak prawa akceptacji. Role można też zmienić w panelu
+Użytkownicy. Przebieg: historia zmian zapisuje `Zgłoszono do wydania`, `Zatwierdzono
+wydanie`, `Zwrócono z uwagami` i `Wznowiono naprawę`. Powiadomienia są w aplikacji
+(plakietka przy „Kolejka”, licznik etapów, znacznik w tytule strony); e-mail/push
+wymagają osobnej integracji — patrz `docs/aegis/work/2026-11-27-release-approval-and-intake/checkpoint.md`.
+
+## Zgłoszenia z formularza strony publicznej
+
+Formularz na `sk.mati-it.pl` zapisuje zgłoszenie w SQLite CMS, a następnie wysyła je
+podpisane do aplikacji. Aplikacja pokazuje je pod „Wydane” → **Zgłoszenia** (z liczbą
+nowych) i pozwala oznaczyć kontakt, odrzucić z powodem albo przyjąć do serwisu —
+formularz przyjęcia otwiera się wypełniony telefonem, modelem i opisem usterki,
+a po zapisaniu zgłoszenie dostaje status „Przyjęte” i link do zlecenia.
+
+Kontrakt (ten sam po stronie CMS):
+
+```text
+POST /api/intake-tickets
+Content-Type: application/json
+X-SK-Timestamp: <unix seconds>
+X-SK-Signature: base64url(HMAC-SHA256(secret, timestamp . "\n" . rawBody))
+
+{"number":"SK-2026-000123","name":"Jan","phone":"600100200",
+ "device":"Lenovo IdeaPad 5","problem":"...","source_page":"/kontakt/",
+ "created_at":"2026-11-27 10:00:00"}
+
+200 {"ok":true,"status":"created"}     # nowe zgłoszenie
+200 {"ok":true,"status":"duplicate"}   # ten sam numer, bez drugiego wiersza
+400 {"ok":false,"error":"invalid_json"|"invalid_payload"|"payload_too_large"}
+401 {"ok":false,"error":"invalid_signature"|"stale_timestamp"}
+429                                    # limit żądań
+503 {"ok":false,"error":"integration_disabled"}  # pusty INTAKE_SYNC_SECRET
+```
+
+Wymagane: `number`, `phone`, `problem`. Idempotencja po `number`. Endpoint jest poza
+sesją i CSRF, ma limit rozmiaru ciała, okno czasu i throttling; nie loguje imienia,
+telefonu ani treści problemu.
+
+| Zmienna | Znaczenie |
+|---|---|
+| `INTAKE_SYNC_SECRET` | wspólny sekret HMAC (ten sam w CMS); pusty = endpoint zwraca 503 |
+| `INTAKE_SYNC_MAX_BODY` | maksymalny rozmiar ciała w bajtach (domyślnie 20000) |
+| `INTAKE_SYNC_CLOCK_SKEW` | dopuszczalna różnica czasu w sekundach (domyślnie 300) |
+| `INTAKE_SYNC_RATE_LIMIT` | limit żądań na minutę z jednego IP (domyślnie 60) |
+
 ## Bramki jakości
 
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=1G
-php artisan test                 # 357 testów: json + mysql
+php artisan test                 # 388 przypadków: json + mysql
 php artisan dusk                 # 17 scenariuszy przeglądarkowych + axe (ADR 0011)
 ```
 
-Stan na 2026-11-26: **234 passed (893 asercje) lokalnie** — warianty `mysql` są
-pomijane, gdy baza nie jest dostępna; CI uruchamia oba magazyny (357 przypadków).
-Dusk: **17 passed (70 asercji)**, w tym 6 audytów axe. Pint czysty (166 plików),
-PHPStan poziom 6 bez błędów.
+Stan na 2026-11-27: **249 passed (1004 asercje) lokalnie** — warianty `mysql` są
+pomijane, gdy baza nie jest dostępna (136 skipped); CI uruchamia oba magazyny
+(388 przypadków). Dusk: **17 passed (70 asercji)**, w tym 6 audytów axe. Pint czysty
+(192 pliki), PHPStan poziom 6 bez błędów.
 Raport parzystości (F-01…F-57, D-01…D-58): [`docs/aegis/verification/parity-report.md`](docs/aegis/verification/parity-report.md).
 Wyrównanie wizualne ze stroną firmową: [docs/aegis/verification/visual-alignment.md](docs/aegis/verification/visual-alignment.md).
 Przyjęcie, wydanie i status klienta (2026-11-26): [plan i notatki](docs/aegis/work/2026-11-26-servis-ui-status/plan.md).
@@ -127,6 +196,7 @@ Treść, przepływy i bezpieczeństwo (przebudowa ekranów): [docs/aegis/verific
 Kolejka, filtr etapów i jedno wyszukiwanie: [docs/aegis/verification/queue-usability-pass.md](docs/aegis/verification/queue-usability-pass.md).
 Aktualizacje w miejscu (filtr, paginacja, „Dalej”, zdjęcia): [docs/aegis/verification/async-ui-pass.md](docs/aegis/verification/async-ui-pass.md).
 Jeden pasek zamiast nagłówka (szukanie, akcje i filtr etapów w jednej karcie): [ADR 0018](docs/aegis/decisions/0018-jeden-pasek-zamiast-naglowka.md).
+Zgłoszenia z formularza + akceptacja wydania (2026-11-27): [notatki i decyzje](docs/aegis/work/2026-11-27-release-approval-and-intake/checkpoint.md), [ADR 0020](docs/aegis/decisions/0020-akceptacja-wydania-i-zgloszenia.md).
 
 ### Testy przeglądarkowe (Dusk)
 
@@ -182,7 +252,18 @@ projektu, wysyła przez scp i rozpakowuje w `/srv/sk-serwis`; **nie rusza** `ven
 `storage/`, `.env` ani nie uruchamia composera. Po zmianie CSS/JS podbij
 `ASSET_VERSION` w `/srv/sk-serwis/.env` (cache service workera). Wpisy
 `CLIENT_STATUS_*` opisano wyżej; przy `DATA_STORE=mysql` uruchom dodatkowo
-`php artisan migrate --force` (kolumny statusu klienta są nullable).
+`php artisan migrate --force` (kolumny statusu klienta i uwag akceptacji są nullable).
+
+Wdrożenie z akceptacją wydania i zgłoszeniami (2026-11-27) wymaga jeszcze:
+
+```bash
+php artisan migrate --force            # tylko DATA_STORE=mysql: approval_remarks + intake_tickets
+php artisan users:owner admin          # raz: konto właściciela zatwierdza wydanie
+# .env: INTAKE_SYNC_SECRET=<ten sam sekret co w CMS>; pusty = endpoint zgłoszeń wyłączony
+```
+
+Nowe kolekcje JSON (`intake_tickets.json`) tworzą się same przy pierwszym zapisie
+(`store:check` również je dopełnia), więc instalacja na plikach nie wymaga migracji.
 
 ## Bezpieczeństwo w skrócie
 

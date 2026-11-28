@@ -2846,6 +2846,42 @@ legend {
     margin-top: 0.55rem;
 }
 
+/* The customer status link after the owner's request: a stored fact in one
+   quiet line, not a card. It only appears when a link exists. */
+.client-status-tile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.client-status-tile__label {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.client-status-tile__url {
+    flex: 1 1 12rem;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.client-status-tile .btn {
+    flex: none;
+}
+
 .client-status__footer form {
     margin: 0;
 }
@@ -3667,3 +3703,163 @@ legend {
         justify-content: flex-start;
     }
 }
+
+/* ------------------- release approval + submissions inbox (2026-11-27) */
+
+/* In-app notification badge in the sidebar and the bottom navigation. */
+.nav-link__badge {
+    display: inline-block;
+    min-width: 1.35rem;
+    margin-left: 0.3rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.35rem;
+    text-align: center;
+}
+
+.app-bottom-nav .nav-link__badge {
+    position: absolute;
+    top: 0.15rem;
+    right: 50%;
+    margin-left: 0.6rem;
+    line-height: 1.2rem;
+}
+
+.app-bottom-nav a {
+    position: relative;
+}
+
+/* The owner's remarks on the queue card. */
+.ticket__remarks {
+    margin: 0.45rem 0 0;
+    padding: 0.4rem 0.55rem;
+    border-left: 3px solid var(--yellow);
+    background: var(--surface);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
+.ticket__remarks-label {
+    display: block;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Remarks / rejection reason banner on the service and submission cards. */
+.approval-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.6rem;
+    margin: 0 0 0.75rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--yellow);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.approval-note--ok {
+    border-left-color: var(--stage-success, #2f7d4f);
+}
+
+.approval-note__label {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.approval-note__text {
+    flex: 1 1 14rem;
+    min-width: 0;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Owner acceptance in the normal edit panel: the decision is the primary action,
+   saving the fields stays available in the form below. */
+.approval-panel {
+    border-left: 3px solid var(--yellow);
+}
+
+.approval-panel__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1rem;
+}
+
+.approval-panel__text .eyebrow {
+    display: block;
+    margin-bottom: 0.15rem;
+}
+
+.approval-panel__actions form {
+    margin: 0;
+}
+
+.approval-panel__return {
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.55rem;
+}
+
+.approval-panel__return-summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Source submission shown above the acceptance form. */
+.record-intake-source {
+    margin: 0 0 0.75rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--yellow);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 0.8125rem;
+}
+
+/* One submission in the inbox list. */
+.intake-row {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+}
+
+.intake-row__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.5rem;
+    min-width: 0;
+}
+
+.intake-row__number {
+    font-family: var(--font-mono);
+    font-weight: 600;
+}
+
+.intake-row__side {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+

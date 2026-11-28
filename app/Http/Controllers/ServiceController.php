@@ -6,14 +6,18 @@ namespace App\Http\Controllers;
 
 use App\Actions\AcceptService;
 use App\Actions\AttachServicePhotos;
+use App\Actions\ConvertIntakeTicket;
 use App\Actions\MarkConfirmationIssued;
 use App\Actions\ServiceDetails;
 use App\Actions\UpdateService;
+use App\Contracts\IntakeTicketRepository;
 use App\Contracts\ServiceEventRepository;
 use App\Contracts\ServicePhotoRepository;
 use App\Contracts\UserRepository;
+use App\Domain\Data\IntakeTicketRecord;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
+use App\Domain\Enums\IntakeStatus;
 use App\Domain\ServiceWorkflow;
 use App\Http\Requests\ServiceRequest;
 use App\Support\Audit\AuditContext;
@@ -30,13 +34,28 @@ use Illuminate\View\View;
  */
 final class ServiceController extends Controller
 {
-    public function create(): View
+    public function create(Request $request, IntakeTicketRepository $intakes): View
     {
         $this->authorize('create', ServiceRecord::class);
+
+        $intake = null;
+        $rawIntake = $request->query('intake');
+
+        if (is_numeric($rawIntake)) {
+            $record = $intakes->find((int) $rawIntake);
+
+            // Only a submission that is still open can prefill the form; a
+            // converted or rejected one would silently reopen old data.
+            if ($record instanceof IntakeTicketRecord && ! $record->status->isFinal()) {
+                $this->authorize('view', $record);
+                $intake = $record;
+            }
+        }
 
         return view('services.create', [
             'service' => null,
             'defaultPlannedAt' => ServiceRequest::defaultPlannedAt(),
+            'intake' => $intake,
         ]);
     }
 
@@ -46,6 +65,8 @@ final class ServiceController extends Controller
         AttachServicePhotos $attachPhotos,
         MarkConfirmationIssued $markConfirmation,
         ClientStatusSync $clientStatus,
+        IntakeTicketRepository $intakes,
+        ConvertIntakeTicket $convertIntake,
     ): RedirectResponse {
         $this->authorize('create', ServiceRecord::class);
 
@@ -75,6 +96,21 @@ final class ServiceController extends Controller
         // warning: the acceptance itself is already saved (decision D19/0019).
         if ($clientStatus->enabled() && ! $clientStatus->sync($service, ClientStatusSync::EVENT_ACCEPTED)['ok']) {
             session()->flash('warning', 'Zlecenie '.$service->reference.' zostało zapisane, ale nie udało się utworzyć linku statusu klienta. Link można utworzyć ponownie z karty zlecenia.');
+        }
+
+        // The acceptance form was opened from the submissions inbox: link the
+        // submission to the order it produced (2026-11-27).
+        $rawIntake = $request->input('intake_id');
+
+        if (is_numeric($rawIntake)) {
+            $intake = $intakes->find((int) $rawIntake);
+
+            if ($intake instanceof IntakeTicketRecord
+                && $intake->status !== IntakeStatus::Converted
+                && $intake->status !== IntakeStatus::Rejected) {
+                $this->authorize('manage', $intake);
+                $convertIntake->handle($intake, $service);
+            }
         }
 
         if ($printConfirmation) {

@@ -8,6 +8,7 @@
         'plus' => '<path d="M12 5v14M5 12h14"/>',
         'search' => '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
         'package' => '<path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z"/><path d="m4 7 8 4 8-4M12 11v10"/>',
+        'inbox' => '<path d="M4 4h16v10H4z"/><path d="M4 14h4l1.5 3h5L16 14h4"/><path d="M8 8h8M8 11h5"/>',
         'users' => '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><path d="M16 5.6A3 3 0 0 1 16 11M17.5 20c0-2.4-.8-4.2-2.2-5.3"/>',
         'key' => '<circle cx="8" cy="12" r="4"/><path d="M12 12h9M17.5 12v3.5M20.5 12v2.5"/>',
         'print' => '<path d="M7 8V4h10v4"/><path d="M7 17H5a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-2"/><path d="M7 13h10v7H7z"/>',

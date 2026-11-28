@@ -49,7 +49,11 @@
                         @endforeach
                     </select>
                     @error('role')<p class="invalid-feedback">{{ $message }}</p>@enderror
-                    <p class="service-meta mb-0">Administrator zarządza też kontami; pracownik i technik mają ten sam zakres pracy.</p>
+                    <p class="service-meta mb-0">
+                        Szef zatwierdza wydanie i zarządza kontami. Serwisant admin ma pełny zakres pracy
+                        i zarządza kontami, ale nie zatwierdza wydania. Technik i pracownik mają ten sam
+                        zakres pracy.
+                    </p>
                 </div>
 
                 <div class="col-12 col-md-6">

@@ -5,7 +5,7 @@ telefonie (menu przeglądarki → „Dodaj do ekranu głównego”).
 
 ## Logowanie
 
-1. Wejdź na `https://serwis.mati-it.pl`.
+1. Wejdź na `https://epii.pl/serwis`.
 2. Podaj login i hasło otrzymane od administratora.
 3. Przy pierwszym logowaniu ustaw własne hasło (min. 12 znaków).
 
@@ -14,41 +14,18 @@ Po 5 nieudanych próbach logowanie jest zablokowane na 15 minut.
 ## Przyjęcie laptopa (3 dotknięcia)
 
 1. Przycisk **Przyjmij** w nagłówku (na telefonie: „Przyjmij” na dolnym pasku) albo
-   pozycja **Przyjmij laptopa** w lewym menu. Na ekranie przyjęcia ten sam przycisk
-   w nagłówku zmienia się w **Kolejka** — jednym kliknięciem wracasz do listy.
-2. Wypełnij: telefon klienta, model, usterkę. Opcjonalnie: numer seryjny, hasło do
-   urządzenia, numer plomby, uwagi, cena i koszt części.
-3. **Termin realizacji** wybierz jednym dotknięciem: **1 / 2 / 3 / 7 dni**, wpisz
-   własną liczbę dni albo wskaż **inną datę**. Pod spodem od razu widać wyliczony
-   termin (np. „sob 28.11, 15:00”). Domyślnie ustawione są 2 dni.
-4. Zaznacz **Express**, jeśli zlecenie ma priorytet. **Potwierdzenie przyjęcia**
-   zaznacz tylko wtedy, gdy klient chce wydruk — większość klientów go nie chce.
-5. **Przyjmij zlecenie**.
+   pozycja **Przyjmij laptopa** w lewym menu.
+2. Wypełnij: telefon klienta, model, usterkę, termin realizacji (domyślnie jutro 15:00).
+   Opcjonalnie: numer seryjny, hasło do urządzenia, numer plomby, uwagi, cena, koszt części.
+3. Zaznacz **Express**, jeśli zlecenie ma priorytet, oraz **Wydrukuj potwierdzenie przyjęcia**,
+   jeśli chcesz od razu wydrukować potwierdzenie dla klienta.
+4. **Przyjmij zlecenie**.
 
-Zdjęcia: w tym samym formularzu (sekcja „Zdjęcia i wydruk”) albo później na karcie
-zlecenia.
+Zdjęcia: w tym samym formularzu (pole „Zdjęcia”) albo później na karcie zlecenia.
 
 > Hasło do laptopa jest zaszyfrowane w bazie i **widoczne od razu** na kafelku i na karcie
 > zlecenia. Przycisk **Ukryj** chowa je na czas rozmowy z klientem. W historii zmian widać
 > tylko, że hasło jest ustawione — nigdy jego treść.
-
-## Status dla klienta
-
-Po przyjęciu zlecenia aplikacja tworzy bezpieczny link do strony statusu i pokazuje go
-na karcie zlecenia w sekcji **Status dla klienta**. Ten sam link dostaje klient SMS-em:
-
-- po przyjęciu sprzętu („przyjęliśmy sprzęt”),
-- po zmianie etapu na **Do wydania** („sprzęt gotowy do odbioru”).
-
-Karta zlecenia ma przycisk **Kopiuj** (wklej link do SMS-a lub wiadomości) i **Otwórz**
-(podejrzyj, co widzi klient). Link pokazuje tylko etap naprawy i daty — bez telefonu,
-opisu usterki i notatek wewnętrznych. Zmiana etapu w aplikacji od razu aktualizuje stronę
-klienta. Jeśli linku nie udało się utworzyć (np. chwilowy brak połączenia), na karcie
-pojawi się przycisk **Utwórz link statusu** — zlecenie nie przepada.
-
-SMS-y wychodzą z panelu CMS (`sk.mati-it.pl/panel` → Ustawienia → Formularz). Domyślnie
-działają w **trybie testowym** (bez realnej wysyłki i kosztów); treści obu wiadomości
-można tam edytować.
 
 ## Kolejka
 
@@ -100,8 +77,7 @@ Wydanie i anulowanie mają osobne przyciski (nie da się ich zrobić przez edycj
 4. Zaznacz **Wydrukuj protokół wydania**, jeśli klient ma dostać wydruk.
 5. **Potwierdź wydanie** → potwierdź w okienku.
 
-Podsumowanie zlecenia (żółta karta) jest obok formularza, więc na 13–14-calowym laptopie
-wszystko widać bez przewijania w poziomie. Zlecenie znika z kolejki i pojawia się w **Wydane**.
+Zlecenie znika z kolejki i pojawia się w **Wydane**.
 
 ## Anulowanie
 
@@ -144,7 +120,5 @@ są ukryte, żeby historia czytała się jak zdania, a nie jak zrzut bazy.
 | „Nieprawidłowy login lub hasło” | sprawdź login (bez wielkich liter), potem odczekaj 15 min po 5 próbach |
 | Konto zablokowane | poproś administratora o odblokowanie |
 | Brak przycisku „Wydaj” | zlecenie nie jest w statusie „Do wydania” — użyj „Oznacz do odbioru” |
-| Brak linku w „Status dla klienta” | kliknij **Utwórz link statusu** na karcie zlecenia; jeśli nadal nie działa, sprawdź połączenie z CMS i poproś administratora o `php artisan services:sync-status` |
-| Klient nie dostał SMS-a | w panelu CMS sprawdź Ustawienia → Formularz (tryb testowy, token dostawcy, numer) i kolejkę w Zgłoszeniach |
 | Numer telefonu „nie znajduje” | wpisz fragment (3 znaki) albo inny format — wyszukiwanie normalizuje numer |
 | Wydruk nie wychodzi | sprawdź, czy przeglądarka nie blokuje okien pop-up; użyj `Ctrl+P` na otwartym wydruku |

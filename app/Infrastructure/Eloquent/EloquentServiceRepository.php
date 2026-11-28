@@ -200,17 +200,20 @@ final class EloquentServiceRepository implements ServiceRepository
             return;
         }
 
-        // Final states always last, then status priority, express first, then
-        // the promised date — identical to the JSON store (F-22, defect D-46).
+        // Stages that wait for one person to act sort first (remarks, boss
+        // acceptance), then active repairs, then the release counter. Final
+        // states always last — identical to the JSON store (F-22, defect D-46).
         $builder->orderByRaw("CASE WHEN status IN ('released','cancelled') THEN 1 ELSE 0 END")
             ->orderByRaw(
                 "CASE status
-                    WHEN 'in_progress' THEN 1
-                    WHEN 'pending' THEN 2
-                    WHEN 'awaiting_parts' THEN 3
-                    WHEN 'ready_for_pickup' THEN 4
-                    WHEN 'released' THEN 5
-                    ELSE 6 END"
+                    WHEN 'with_remarks' THEN 1
+                    WHEN 'in_progress' THEN 2
+                    WHEN 'awaiting_approval' THEN 3
+                    WHEN 'pending' THEN 4
+                    WHEN 'awaiting_parts' THEN 5
+                    WHEN 'ready_for_pickup' THEN 6
+                    WHEN 'released' THEN 7
+                    ELSE 8 END"
             )
             ->orderByDesc('is_express')
             ->orderBy('planned_at')

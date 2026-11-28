@@ -20,11 +20,18 @@ final class Ability
 
     public const RELEASE_SERVICE = 'services.release';
 
+    /** Owner only: accept or return a release request (2026-11-27). */
+    public const APPROVE_RELEASE = 'services.approve_release';
+
     public const CANCEL_SERVICE = 'services.cancel';
 
     public const MANAGE_PHOTOS = 'services.photos';
 
     public const MANAGE_USERS = 'users.manage';
+
+    public const VIEW_INTAKE = 'intake.view';
+
+    public const MANAGE_INTAKE = 'intake.manage';
 
     /** @return list<string> */
     public static function all(): array
@@ -35,9 +42,12 @@ final class Ability
             self::UPDATE_SERVICE,
             self::ADVANCE_STATUS,
             self::RELEASE_SERVICE,
+            self::APPROVE_RELEASE,
             self::CANCEL_SERVICE,
             self::MANAGE_PHOTOS,
             self::MANAGE_USERS,
+            self::VIEW_INTAKE,
+            self::MANAGE_INTAKE,
         ];
     }
 

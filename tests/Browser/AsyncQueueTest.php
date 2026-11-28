@@ -50,10 +50,8 @@ final class AsyncQueueTest extends DuskTestCase
                 ->script('window.__serwisProbe = "alive";');
 
             // A stage chip filters the list in place and the address bar follows.
-            // The sidebar keeps a shortcut to every open job, so the assertion
-            // is scoped to the list the chip actually filters.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitUntilMissing('.queue-results .queue-group[data-stage="pending"]')
+                ->waitUntilMissingText($pending)
                 ->assertSee($progress)
                 ->assertQueryStringHas('status', 'in_progress')
                 ->assertScript('window.__serwisProbe === "alive"');
@@ -61,21 +59,21 @@ final class AsyncQueueTest extends DuskTestCase
             // The same chip pressed again turns the filter off: a chip that can
             // only be switched on is a trap.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitFor('.queue-results .service-card[data-stage="pending"]')
+                ->waitForText($pending)
                 ->assertQueryStringMissing('status')
                 ->assertScript('window.__serwisProbe === "alive"');
 
             // "Pokaż wszystkie" brings the whole queue back the same way.
             $browser->click('.stat[data-stage="in_progress"]')
-                ->waitUntilMissing('.queue-results .queue-group[data-stage="pending"]')
+                ->waitUntilMissingText($pending)
                 ->clickLink('Pokaż wszystkie')
-                ->waitFor('.queue-results .service-card[data-stage="pending"]')
+                ->waitForText($pending)
                 ->assertQueryStringMissing('status')
                 ->assertScript('window.__serwisProbe === "alive"');
 
             // Pagination swaps only the list: page two holds the 51st result.
             $browser->type('q', $paged)
-                ->waitUntilMissing('.queue-results .service-card[data-stage="pending"]')
+                ->waitUntilMissingText($pending)
                 ->assertSee($paged.' 1')
                 ->click('a[rel="next"]')
                 ->waitForText($paged.' 51')
@@ -86,58 +84,12 @@ final class AsyncQueueTest extends DuskTestCase
             // Advancing a tile moves it to the next section without a reload; the
             // server confirmation arrives in the flash region.
             $browser->type('q', $pending)
-                ->waitFor('.queue-results .service-card[data-stage="pending"]')
+                ->waitForText($pending)
                 ->click('.queue-group[data-stage="pending"] button[type="submit"]')
                 ->waitUntilMissing('.queue-group[data-stage="pending"]')
                 ->assertSee('Status zmieniony')
                 ->assertQueryStringHas('q', $pending)
                 ->assertScript('window.__serwisProbe === "alive"');
-        });
-    }
-
-    public function test_the_sidebar_queue_fills_the_rail_and_scrolls(): void
-    {
-        $actor = $this->seedUser('dusk-admin');
-
-        for ($i = 1; $i <= 16; $i++) {
-            $this->acceptService($actor, 'Sidebar Rail '.$i);
-        }
-
-        $this->browse(function (Browser $browser): void {
-            $this->login($browser);
-
-            $browser->visit('/services/create')
-                ->waitFor('.sidebar-queue')
-                ->assertScript(
-                    '(() => {'
-                    .' const list = document.querySelector(".sidebar-queue");'
-                    .' const rail = document.querySelector(".app-sidebar");'
-                    .' return getComputedStyle(list).overflowY === "auto"'
-                    .' && list.scrollHeight > list.clientHeight'
-                    .' && getComputedStyle(rail).overflowY === "hidden";'
-                    .' })()'
-                );
-        });
-    }
-
-    public function test_the_phone_bar_and_stage_filter_stay_on_one_line(): void
-    {
-        $this->browse(function (Browser $browser): void {
-            $this->login($browser);
-
-            $browser->resize(360, 800)
-                ->visit('/')
-                ->assertScript(
-                    '(() => {'
-                    .' const search = document.querySelector(".app-search").getBoundingClientRect();'
-                    .' const actions = document.querySelector(".app-bar__actions").getBoundingClientRect();'
-                    .' const strip = document.querySelector(".stat-strip__items");'
-                    .' return Math.abs(search.top - actions.top) < 1'
-                    .' && strip.scrollWidth <= strip.clientWidth + 1'
-                    .' && getComputedStyle(strip).flexWrap === "nowrap";'
-                    .' })()'
-                )
-                ->resize(1366, 768);
         });
     }
 

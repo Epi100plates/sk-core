@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Kolejka') · {{ config('app.name') }}</title>
+    <title>@yield('title', 'Kolejka') · {{ config('app.name') }}@if (! empty($sidebarTitleMarker)) · {{ $sidebarTitleMarker }}@endif</title>
     <link rel="manifest" href="{{ route('manifest') }}">
     <meta name="theme-color" content="#2d343a">
     <meta name="color-scheme" content="light">
@@ -23,6 +23,23 @@
     Brak połączenia z internetem — zmiany są zablokowane. Wróć do zasięgu i odśwież stronę.
 </div>
 
+@php
+    // In-app notifications of the release approval flow (2026-11-27): the owner
+    // watches the acceptance queue, the technician watches returned repairs.
+    $queueBadge = null;
+    $queueBadgeLabel = '';
+
+    if (($sidebarCanApprove ?? false) && ($sidebarAwaitingApproval ?? 0) > 0) {
+        $queueBadge = $sidebarAwaitingApproval;
+        $queueBadgeLabel = ' do akceptacji';
+    } elseif (! ($sidebarCanApprove ?? false) && ($sidebarWithRemarks ?? 0) > 0) {
+        $queueBadge = $sidebarWithRemarks;
+        $queueBadgeLabel = ' z uwagami';
+    }
+
+    $intakeBadge = ($sidebarIntakeNew ?? 0) > 0 ? $sidebarIntakeNew : null;
+@endphp
+
 {{-- No dark header and no logo: everything the header carried (search, the way
      in, the way out) lives in one compact bar above the content. The queue adds
      its stage filter as a second row of that bar, so the counts and the controls
@@ -35,6 +52,10 @@
                 <a class="nav-link {{ request()->routeIs('services.queue') ? 'active' : '' }}"
                    href="{{ route('services.queue') }}" @if(request()->routeIs('services.queue')) aria-current="page" @endif>
                     <x-icon name="queue" :size="17" /> Kolejka
+                    @if ($queueBadge !== null)
+                        <span class="nav-link__badge">{{ $queueBadge }}</span>
+                        <span class="visually-hidden">{{ $queueBadgeLabel }}</span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item">
@@ -47,6 +68,16 @@
                 <a class="nav-link {{ request()->routeIs('services.released') ? 'active' : '' }}"
                    href="{{ route('services.released') }}" @if(request()->routeIs('services.released')) aria-current="page" @endif>
                     <x-icon name="package" :size="17" /> Wydane
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('intake.*') ? 'active' : '' }}"
+                   href="{{ route('intake.index') }}" @if(request()->routeIs('intake.*')) aria-current="page" @endif>
+                    <x-icon name="inbox" :size="17" /> Zgłoszenia
+                    @if ($intakeBadge !== null)
+                        <span class="nav-link__badge">{{ $intakeBadge }}</span>
+                        <span class="visually-hidden"> nowe zgłoszenia</span>
+                    @endif
                 </a>
             </li>
         </ul>
@@ -171,6 +202,17 @@
             @endif
         </div>
 
+        @if ($sidebarMissingOwner ?? false)
+            {{-- An upgrade without the one-time `users:owner` step would leave the
+                 acceptance queue without a decision maker; say it instead of
+                 silently showing a stage nobody can move. --}}
+            <div class="alert alert-warning m-3 mb-0" role="alert">
+                <strong>Brak konta Szef.</strong> Nikt nie może zatwierdzić wydania.
+                Nadaj rolę Szef w <a href="{{ route('admin.users.index') }}">Użytkownicy</a>
+                albo uruchom <code>php artisan users:owner &lt;login&gt;</code>.
+            </div>
+        @endif
+
         {{-- The async layer swaps this region, so a message from the previous
              action never stays on screen next to the result of the new one. --}}
         <div data-async-region="flash">
@@ -193,6 +235,12 @@
     </a>
     <a href="{{ route('services.released') }}" class="{{ request()->routeIs('services.released') ? 'active' : '' }}" @if(request()->routeIs('services.released')) aria-current="page" @endif>
         <x-icon name="package" :size="18" /> Wydane
+    </a>
+    <a href="{{ route('intake.index') }}" class="{{ request()->routeIs('intake.*') ? 'active' : '' }}" @if(request()->routeIs('intake.*')) aria-current="page" @endif>
+        <x-icon name="inbox" :size="18" /> Zgłoszenia
+        @if ($intakeBadge !== null)
+            <span class="nav-link__badge">{{ $intakeBadge }}</span>
+        @endif
     </a>
     @can('viewAny', App\Domain\Data\UserRecord::class)
         <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>

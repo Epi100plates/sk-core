@@ -5,25 +5,30 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Auth\RepositoryUserProvider;
+use App\Contracts\IntakeTicketRepository;
 use App\Contracts\ServiceEventRepository;
 use App\Contracts\ServicePhotoRepository;
 use App\Contracts\ServiceRepository;
 use App\Contracts\TransactionManager;
 use App\Contracts\UserRepository;
+use App\Domain\Data\IntakeTicketRecord;
 use App\Domain\Data\ServicePhotoRecord;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
+use App\Infrastructure\Eloquent\EloquentIntakeTicketRepository;
 use App\Infrastructure\Eloquent\EloquentServiceEventRepository;
 use App\Infrastructure\Eloquent\EloquentServicePhotoRepository;
 use App\Infrastructure\Eloquent\EloquentServiceRepository;
 use App\Infrastructure\Eloquent\EloquentTransactionManager;
 use App\Infrastructure\Eloquent\EloquentUserRepository;
+use App\Infrastructure\Json\JsonIntakeTicketRepository;
 use App\Infrastructure\Json\JsonServiceEventRepository;
 use App\Infrastructure\Json\JsonServicePhotoRepository;
 use App\Infrastructure\Json\JsonServiceRepository;
 use App\Infrastructure\Json\JsonStore;
 use App\Infrastructure\Json\JsonTransactionManager;
 use App\Infrastructure\Json\JsonUserRepository;
+use App\Policies\IntakeTicketPolicy;
 use App\Policies\ServicePhotoPolicy;
 use App\Policies\ServicePolicy;
 use App\Policies\UserPolicy;
@@ -88,6 +93,12 @@ class AppServiceProvider extends ServiceProvider
                 : new JsonUserRepository($this->app->make(JsonStore::class));
         });
 
+        $this->app->bind(IntakeTicketRepository::class, function (): IntakeTicketRepository {
+            return $this->usesMySql()
+                ? new EloquentIntakeTicketRepository
+                : new JsonIntakeTicketRepository($this->app->make(JsonStore::class));
+        });
+
         $this->app->bind(TransactionManager::class, function (): TransactionManager {
             return $this->usesMySql()
                 ? new EloquentTransactionManager
@@ -139,6 +150,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ServiceRecord::class, ServicePolicy::class);
         Gate::policy(ServicePhotoRecord::class, ServicePhotoPolicy::class);
         Gate::policy(UserRecord::class, UserPolicy::class);
+        Gate::policy(IntakeTicketRecord::class, IntakeTicketPolicy::class);
     }
 
     private function registerRateLimiters(): void
@@ -158,6 +170,14 @@ class AppServiceProvider extends ServiceProvider
             $user = $request->user();
 
             return Limit::perMinute((int) config('security.mutation_attempts_per_minute', 60))->by($user instanceof UserRecord ? (string) $user->id : (string) $request->ip());
+        });
+
+        // Signed deliveries from the public CMS: no session, so the only key is
+        // the caller address. The limit is configurable for the shared host.
+        RateLimiter::for('intake', static function (Request $request): Limit {
+            $perMinute = (int) config('intake.rate_limit', 60);
+
+            return Limit::perMinute($perMinute > 0 ? $perMinute : 60)->by('intake|'.$request->ip());
         });
     }
 }

@@ -9,6 +9,7 @@
     $next = $nextStatus instanceof \App\Domain\Enums\ServiceStatus ? $nextStatus : $service->status->nextStatus();
     $isFinal = $service->status->isFinal();
     $readyForPickup = $service->status === \App\Domain\Enums\ServiceStatus::ReadyForPickup;
+    $awaitingApproval = $service->status === \App\Domain\Enums\ServiceStatus::AwaitingApproval;
     // The whole tile opens the edit form, where every field of this laptop can be
     // changed; a handed-over order has no edit form, so it opens its card.
     $target = \Illuminate\Support\Facades\Gate::allows('update', $service)
@@ -65,6 +66,15 @@
                      from reading as yet another grey metadata line. --}}
                 <p class="ticket__issue">{{ \Illuminate\Support\Str::limit($service->issue, 160) }}</p>
             @endunless
+
+            @if ($service->approvalRemarks !== null && ! $isFinal)
+                {{-- The boss's remarks stay visible to the technician until the
+                     release is accepted. --}}
+                <p class="ticket__remarks">
+                    <span class="ticket__remarks-label">Uwagi szefa</span>
+                    {{ \Illuminate\Support\Str::limit($service->approvalRemarks, 200) }}
+                </p>
+            @endif
         </div>
 
         <div class="ticket__side">
@@ -90,6 +100,18 @@
                         <form method="post" action="{{ route('services.advance', $service) }}" data-async-form>
                             @csrf
                             <button class="btn btn-sm btn-outline-primary" type="submit">{{ $service->status->advanceLabel() }}</button>
+                        </form>
+                    @endcan
+                @endif
+
+                @if ($awaitingApproval)
+                    @can('approveRelease', $service)
+                        {{-- The owner's short answer, advanced in place like the
+                             "next stage" button. Returning with remarks needs the
+                             details screen, so remarks are not typed in a card. --}}
+                        <form method="post" action="{{ route('services.approval.approve', $service) }}" data-async-form>
+                            @csrf
+                            <button class="btn btn-sm btn-primary" type="submit">Potwierdź</button>
                         </form>
                     @endcan
                 @endif

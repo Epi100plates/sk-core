@@ -276,12 +276,14 @@ final class JsonServiceRepository implements ServiceRepository
         $status = (string) ($row['status'] ?? '');
 
         return match ($status) {
-            'in_progress' => 1,
-            'pending' => 2,
-            'awaiting_parts' => 3,
-            'ready_for_pickup' => 4,
-            'released' => 5,
-            default => 6,
+            'with_remarks' => 1,
+            'in_progress' => 2,
+            'awaiting_approval' => 3,
+            'pending' => 4,
+            'awaiting_parts' => 5,
+            'ready_for_pickup' => 6,
+            'released' => 7,
+            default => 8,
         };
     }
 

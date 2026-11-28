@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Domain\Data\IntakeTicketRecord;
 use App\Domain\Data\UserRecord;
+use App\Infrastructure\Eloquent\EloquentIntakeTicketRepository;
 use App\Infrastructure\Eloquent\EloquentServiceEventRepository;
 use App\Infrastructure\Eloquent\EloquentServicePhotoRepository;
 use App\Infrastructure\Eloquent\EloquentServiceRepository;
 use App\Infrastructure\Eloquent\EloquentUserRepository;
+use App\Infrastructure\Json\JsonIntakeTicketRepository;
 use App\Infrastructure\Json\JsonServiceEventRepository;
 use App\Infrastructure\Json\JsonServicePhotoRepository;
 use App\Infrastructure\Json\JsonServiceRepository;
@@ -38,11 +41,15 @@ final class JsonToMysql extends Command
             return self::FAILURE;
         }
 
-        if (! $store->isInitialized()) {
+        // A data directory from before the submissions inbox only misses the new
+        // empty collection file; initialize() is idempotent and adds it.
+        if (! is_file($store->metaFile())) {
             $this->error('Brak katalogu z danymi JSON: '.$store->path());
 
             return self::FAILURE;
         }
+
+        $store->initialize();
 
         try {
             DB::connection()->getPdo();
@@ -56,13 +63,15 @@ final class JsonToMysql extends Command
         $jsonEvents = new JsonServiceEventRepository($store);
         $jsonPhotos = new JsonServicePhotoRepository($store);
         $jsonUsers = new JsonUserRepository($store);
+        $jsonIntakes = new JsonIntakeTicketRepository($store);
 
         $mysqlServices = new EloquentServiceRepository;
         $mysqlEvents = new EloquentServiceEventRepository;
         $mysqlPhotos = new EloquentServicePhotoRepository;
         $mysqlUsers = new EloquentUserRepository;
+        $mysqlIntakes = new EloquentIntakeTicketRepository;
 
-        $counts = ['users' => 0, 'services' => 0, 'events' => 0, 'photos' => 0];
+        $counts = ['users' => 0, 'services' => 0, 'events' => 0, 'photos' => 0, 'intakes' => 0];
 
         foreach ($jsonUsers->all() as $user) {
             $existing = $mysqlUsers->findByLogin($user->login);
@@ -115,11 +124,20 @@ final class JsonToMysql extends Command
             $counts['photos']++;
         }
 
+        foreach ($jsonIntakes->all() as $intake) {
+            $existing = $mysqlIntakes->findByNumber($intake->number);
+            $mysqlIntakes->save($existing instanceof IntakeTicketRecord
+                ? $existing->with($intake->toArray())
+                : $intake->with(['id' => 0]));
+            $counts['intakes']++;
+        }
+
         $this->table(['Kolekcja', 'Przeniesione'], [
             ['Konta', $counts['users']],
             ['Zlecenia', $counts['services']],
             ['Zdarzenia', $counts['events']],
             ['Zdjęcia', $counts['photos']],
+            ['Zgłoszenia', $counts['intakes']],
         ]);
 
         if ($this->option('verify')) {
@@ -130,6 +148,7 @@ final class JsonToMysql extends Command
                 'zlecenia' => [$jsonServices->count(), $mysqlServices->count()],
                 'zdarzenia' => [$jsonEvents->count(), $mysqlEvents->count()],
                 'zdjęcia' => [$jsonPhotos->count(), $mysqlPhotos->count()],
+                'zgłoszenia' => [$jsonIntakes->count(), $mysqlIntakes->count()],
             ];
 
             foreach ($pairs as $label => [$json, $mysql]) {

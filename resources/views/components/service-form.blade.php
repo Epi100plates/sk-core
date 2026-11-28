@@ -1,7 +1,8 @@
-@props(['service' => null, 'plannedAtInput' => '', 'submitLabel' => 'Zapisz', 'action' => '', 'method' => 'POST'])
+@props(['service' => null, 'plannedAtInput' => '', 'submitLabel' => 'Zapisz', 'action' => '', 'method' => 'POST', 'intake' => null, 'approvalPending' => false])
 
 @php
     $isEdit = $service !== null;
+    $intake = $intake instanceof \App\Domain\Data\IntakeTicketRecord ? $intake : null;
 
     // A form field name is not always the record property name (device_model vs
     // deviceModel). One map keeps the edit form pre-filled with real values.
@@ -17,12 +18,21 @@
         'cost' => 'cost',
     ];
 
-    $value = function (string $key, string $default = '') use ($service, $isEdit, $properties): string {
+    $value = function (string $key, string $default = '') use ($service, $isEdit, $properties, $intake): string {
         $current = null;
 
         if ($isEdit) {
             $property = $properties[$key] ?? $key;
             $current = is_scalar($service->{$property}) ? (string) $service->{$property} : null;
+        } elseif ($intake instanceof \App\Domain\Data\IntakeTicketRecord) {
+            // A submission from the public site form prefills the customer data;
+            // the employee still confirms the order with the normal form.
+            $current = match ($key) {
+                'phone' => $intake->phone,
+                'device_model' => $intake->device,
+                'issue' => $intake->problem,
+                default => null,
+            };
         }
 
         if (in_array($key, ['price', 'cost'], true) && $current !== null) {
@@ -104,6 +114,16 @@
         @method($method)
     @endif
 
+    @if ($intake instanceof \App\Domain\Data\IntakeTicketRecord)
+        {{-- The submission is only marked as converted after this form saves. --}}
+        <input type="hidden" name="intake_id" value="{{ $intake->id }}">
+        <p class="record-intake-source">
+            Zgłoszenie <span class="font-monospace">{{ $intake->number }}</span>
+            z formularza {{ $intake->sourcePage !== null ? '('.$intake->sourcePage.')' : '' }}
+            — uzupełnij dane i przyjmij zlecenie.
+        </p>
+    @endif
+
     {{-- The job sheet header is the title and the actions, nothing else: the
          client context lives in the fields below, and the way back is the
          "Anuluj" action next to the submit button. --}}
@@ -130,7 +150,7 @@
             {{-- The same actions as the order card, now in the title line. On
                  phones the row gives way to the sticky bar at the end. --}}
             <div class="page-actions record-actions">
-                <button class="btn btn-primary" type="submit">{{ $submitLabel }}</button>
+                <button class="btn {{ $approvalPending ? 'btn-outline-primary' : 'btn-primary' }}" type="submit">{{ $submitLabel }}</button>
                 <a class="btn btn-outline-secondary" href="{{ $cancelUrl }}">Anuluj</a>
                 @if ($isEdit)
                     @can('print', $service)
@@ -351,7 +371,6 @@
                         </div>
 
                         @error('planned_at')<p class="record-row__error" id="planned_at-error">{{ $message }}</p>@enderror
-                        <p class="form-hint">Dni robocze (pon.–pt.); presety kończą się o 15:00.</p>
                     </div>
                 </div>
             </section>
@@ -471,6 +490,6 @@
 
     <div class="form-actions record-foot">
         <a class="btn btn-link form-actions__cancel" href="{{ $cancelUrl }}">Anuluj</a>
-        <button class="btn btn-primary form-actions__primary" type="submit">{{ $submitLabel }}</button>
+        <button class="btn {{ $approvalPending ? 'btn-outline-primary' : 'btn-primary' }} form-actions__primary" type="submit">{{ $submitLabel }}</button>
     </div>
 </form>

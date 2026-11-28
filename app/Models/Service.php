@@ -30,6 +30,7 @@ class Service extends Model
         'issue',
         'device_password',
         'notes',
+        'approval_remarks',
         'is_express',
         'planned_at',
         'price',

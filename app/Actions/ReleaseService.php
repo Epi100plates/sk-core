@@ -42,7 +42,7 @@ final class ReleaseService
         AuditContext $context,
     ): ServiceRecord {
         if (! $this->workflow->canRelease($service)) {
-            throw new DomainException('To zlecenie zostało już wydane lub anulowane.');
+            throw new DomainException('Wydać można tylko zlecenie na etapie „Do wydania”. Najpierw szef musi zatwierdzić wydanie.');
         }
 
         if ($details->releasedAt->isFuture()) {

@@ -16,10 +16,15 @@ use App\Support\Audit\AuditContext;
 use DomainException;
 
 /**
- * "Następny etap" button (F-24, F-33).
+ * The one "next stage" button (F-24, F-33).
  *
  * The status can only move along the workflow; a released or cancelled service
  * has no next step at all (defect D-46: dead "Next" button on released orders).
+ *
+ * Two transitions carry their own audit event so the history reads the release
+ * approval flow instead of a generic "status changed" (owner request 2026-11-27):
+ *  - in_progress/awaiting_parts → awaiting_approval: "Zgłoszono do wydania",
+ *  - with_remarks → in_progress: "Wznowiono naprawę".
  */
 final class AdvanceServiceStatus
 {
@@ -49,16 +54,34 @@ final class AdvanceServiceStatus
             $this->recordEvent(
                 $this->events,
                 $stored->id,
-                ServiceEventType::StatusChanged,
+                $this->eventType($from, $next),
                 $actor,
                 $context,
                 [],
                 $from->value,
                 $next->value,
-                'Status: '.$from->label().' → '.$next->label(),
+                $this->description($from, $next),
             );
 
             return $stored;
         });
+    }
+
+    private function eventType(ServiceStatus $from, ServiceStatus $to): ServiceEventType
+    {
+        return match (true) {
+            $to === ServiceStatus::AwaitingApproval => ServiceEventType::ReleaseRequested,
+            $from === ServiceStatus::WithRemarks && $to === ServiceStatus::InProgress => ServiceEventType::ResumedRepair,
+            default => ServiceEventType::StatusChanged,
+        };
+    }
+
+    private function description(ServiceStatus $from, ServiceStatus $to): string
+    {
+        return match (true) {
+            $to === ServiceStatus::AwaitingApproval => 'Zgłoszono gotowość do wydania — czeka na akceptację szefa.',
+            $from === ServiceStatus::WithRemarks && $to === ServiceStatus::InProgress => 'Wznowiono naprawę po uwagach szefa.',
+            default => 'Status: '.$from->label().' → '.$to->label(),
+        };
     }
 }

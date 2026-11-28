@@ -15,7 +15,7 @@ use Carbon\CarbonImmutable;
 |--------------------------------------------------------------------------
 */
 
-it('advances a service to the next workflow stage', function (string $store) {
+it('advances a service through the workflow stages', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Employee);
@@ -25,14 +25,18 @@ it('advances a service to the next workflow stage', function (string $store) {
 
     expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::InProgress);
 
+    // "Gotowy do wydania": the technician asks the owner to accept the release.
     $this->actingAsUser($user)->post('/services/'.$service->id.'/advance')->assertRedirect();
 
-    expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::ReadyForPickup);
+    expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::AwaitingApproval);
+
+    // The acceptance has its own action; the generic next stage is exhausted.
+    $this->actingAsUser($user)->post('/services/'.$service->id.'/advance')->assertStatus(422);
 
     $events = app(ServiceEventRepository::class)->forService($service->id)->items;
     $statusEvents = array_values(array_filter(
         $events,
-        static fn ($event): bool => $event->type === ServiceEventType::StatusChanged,
+        static fn ($event): bool => in_array($event->type, [ServiceEventType::StatusChanged, ServiceEventType::ReleaseRequested], true),
     ));
 
     expect($statusEvents)->toHaveCount(2);
@@ -65,6 +69,7 @@ it('releases a laptop with the date from the form and the current employee', fun
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user, ['price' => '100.00', 'cost' => '30.00']);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $response = $this->actingAsUser($user)->post('/services/'.$service->id.'/release', [
         'released_at' => '2026-11-01T12:30',
@@ -94,7 +99,7 @@ it('releases a laptop with the date from the form and the current employee', fun
     $events = app(ServiceEventRepository::class)->forService($service->id)->items;
 
     expect($events[0]->type)->toBe(ServiceEventType::Released)
-        ->and($events[0]->fromStatus)->toBe('pending')
+        ->and($events[0]->fromStatus)->toBe('ready_for_pickup')
         ->and($events[0]->toStatus)->toBe('released');
 })->with('stores');
 
@@ -103,6 +108,7 @@ it('allows releasing from a phone user agent (regression D-10)', function (strin
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $this->actingAsUser($user)
         ->withHeaders(['User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148'])
@@ -121,6 +127,7 @@ it('rejects a release date from the future', function (string $store) {
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $future = CarbonImmutable::now('Europe/Warsaw')->addDays(3)->format('Y-m-d\TH:i');
 
@@ -132,7 +139,7 @@ it('rejects a release date from the future', function (string $store) {
         ])
         ->assertSessionHasErrors('released_at');
 
-    expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::Pending);
+    expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::ReadyForPickup);
 })->with('stores');
 
 it('refuses to release the same laptop twice', function (string $store) {
@@ -140,6 +147,7 @@ it('refuses to release the same laptop twice', function (string $store) {
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $payload = ['released_at' => '2026-11-01T12:30', 'price' => '100', 'cost' => '30'];
 
@@ -147,11 +155,31 @@ it('refuses to release the same laptop twice', function (string $store) {
     $this->actingAsUser($user)->post('/services/'.$service->id.'/release', $payload)->assertStatus(422);
 })->with('stores');
 
+it('refuses to release a laptop that still waits for the owner acceptance', function (string $store) {
+    usingStore($this, $store);
+
+    $user = $this->createUser('jan', Role::Employee);
+    $service = $this->acceptService($user);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::AwaitingApproval->value]));
+
+    // The workflow rule lives in the action, not only in the hidden button.
+    $this->actingAsUser($user)
+        ->post('/services/'.$service->id.'/release', [
+            'released_at' => '2026-11-01T12:30',
+            'price' => '100',
+            'cost' => '30',
+        ])
+        ->assertStatus(422);
+
+    expect(app(ServiceRepository::class)->find($service->id)?->status)->toBe(ServiceStatus::AwaitingApproval);
+})->with('stores');
+
 it('renders the release form with the service data and a "now" default', function (string $store) {
     usingStore($this, $store);
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user, ['price' => '199.99', 'cost' => '50.00']);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $this->actingAsUser($user)->get('/services/'.$service->id.'/release')
         ->assertOk()
@@ -165,6 +193,7 @@ it('prints the release protocol after releasing when asked', function (string $s
 
     $user = $this->createUser('jan', Role::Employee);
     $service = $this->acceptService($user);
+    $service = app(ServiceRepository::class)->save($service->with(['status' => ServiceStatus::ReadyForPickup->value]));
 
     $this->actingAsUser($user)
         ->post('/services/'.$service->id.'/release', [

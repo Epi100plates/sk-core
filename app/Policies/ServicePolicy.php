@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Actions\ApproveRelease;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
 use App\Domain\Enums\Ability;
@@ -43,8 +44,25 @@ final class ServicePolicy
 
     public function release(UserRecord $user, ServiceRecord $service): bool
     {
-        // Like `advance`: role right here, state rules in the action (422).
+        // Like `advance`: role right here, state rules in the action (422). The
+        // screen hides the button unless the workflow says the laptop is ready.
         return $user->can(Ability::RELEASE_SERVICE);
+    }
+
+    /**
+     * The owner accepts a requested release. Enforced both here (403 on the
+     * routes) and in {@see ApproveRelease} so no controller can be
+     * the only gate.
+     */
+    public function approveRelease(UserRecord $user, ServiceRecord $service): bool
+    {
+        return $user->can(Ability::APPROVE_RELEASE) && $this->workflow->canApproveRelease($service);
+    }
+
+    /** The owner sends the laptop back with remarks. */
+    public function returnToQueue(UserRecord $user, ServiceRecord $service): bool
+    {
+        return $user->can(Ability::APPROVE_RELEASE) && $this->workflow->canReturnToQueue($service);
     }
 
     public function cancel(UserRecord $user, ServiceRecord $service): bool

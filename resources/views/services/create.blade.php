@@ -6,6 +6,7 @@
 @section('content')
     <x-service-form
         :service="null"
+        :intake="$intake ?? null"
         :planned-at-input="$defaultPlannedAt"
         action="{{ route('services.store') }}"
         method="POST"

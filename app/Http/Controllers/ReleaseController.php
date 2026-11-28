@@ -9,9 +9,11 @@ use App\Actions\ReleaseService;
 use App\Contracts\ServicePhotoRepository;
 use App\Domain\Data\ServiceRecord;
 use App\Domain\Data\UserRecord;
+use App\Domain\ServiceWorkflow;
 use App\Http\Requests\ReleaseServiceRequest;
 use App\Support\Audit\AuditContext;
 use App\Support\ClientStatus\ClientStatusSync;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -22,9 +24,15 @@ use Illuminate\View\View;
  */
 final class ReleaseController extends Controller
 {
-    public function show(ServiceRecord $service, ServicePhotoRepository $photos): View
+    public function show(ServiceRecord $service, ServicePhotoRepository $photos, ServiceWorkflow $workflow): View
     {
         $this->authorize('release', $service);
+
+        // Only the release counter can be handed over: the owner must have
+        // accepted the request first (2026-11-27).
+        if (! $workflow->canRelease($service)) {
+            throw new DomainException('Wydać można tylko zlecenie na etapie „Do wydania”.');
+        }
 
         return view('services.release', [
             'service' => $service,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Contracts\IntakeTicketRepository;
 use App\Contracts\ServiceEventRepository;
 use App\Contracts\ServicePhotoRepository;
 use App\Contracts\ServiceRepository;
@@ -28,6 +29,7 @@ final class StoreCheck extends Command
         ServiceEventRepository $events,
         ServicePhotoRepository $photos,
         UserRepository $users,
+        IntakeTicketRepository $intakes,
         JsonStore $store,
     ): int {
         $driver = (string) config('persistence.driver', 'json');
@@ -35,10 +37,10 @@ final class StoreCheck extends Command
         $this->info('Aktywny magazyn: '.$driver);
 
         if ($driver === 'mysql') {
-            return $this->checkMySql($services, $events, $photos, $users);
+            return $this->checkMySql($services, $events, $photos, $users, $intakes);
         }
 
-        return $this->checkJson($services, $events, $photos, $users, $store);
+        return $this->checkJson($services, $events, $photos, $users, $intakes, $store);
     }
 
     private function checkJson(
@@ -46,10 +48,15 @@ final class StoreCheck extends Command
         ServiceEventRepository $events,
         ServicePhotoRepository $photos,
         UserRepository $users,
+        IntakeTicketRepository $intakes,
         JsonStore $store,
     ): int {
         $path = $store->path();
         $this->line('Katalog danych: '.$path);
+
+        // Idempotent: an installation created before the submissions inbox gets
+        // the new empty collection file here, without touching existing rows.
+        $store->initialize();
 
         if (! $store->isInitialized()) {
             $this->error('Magazyn nie jest zainicjalizowany. Uruchom: php artisan app:install');
@@ -66,7 +73,7 @@ final class StoreCheck extends Command
         $this->line('Wersja schematu: '.$store->readMeta()['schema_version']);
         $this->line('Blokada zapisu (flock): '.(config('persistence.json.lock') ? 'tak' : 'nie'));
 
-        $this->reportCounts($services, $events, $photos, $users);
+        $this->reportCounts($services, $events, $photos, $users, $intakes);
 
         $count = $services->count();
         $limit = (int) config('persistence.json.scale_warning', 5000);
@@ -87,6 +94,7 @@ final class StoreCheck extends Command
         ServiceEventRepository $events,
         ServicePhotoRepository $photos,
         UserRepository $users,
+        IntakeTicketRepository $intakes,
     ): int {
         try {
             DB::connection()->getPdo();
@@ -99,7 +107,7 @@ final class StoreCheck extends Command
         $this->line('Połączenie: '.config('database.default'));
 
         try {
-            $this->reportCounts($services, $events, $photos, $users);
+            $this->reportCounts($services, $events, $photos, $users, $intakes);
         } catch (Throwable $exception) {
             $this->error('Tabele nie są gotowe — uruchom `php artisan migrate --force`.');
             $this->line($exception->getMessage());
@@ -115,11 +123,13 @@ final class StoreCheck extends Command
         ServiceEventRepository $events,
         ServicePhotoRepository $photos,
         UserRepository $users,
+        IntakeTicketRepository $intakes,
     ): void {
         $this->line('Zlecenia: '.$services->count());
         $this->line('Zdarzenia audytu: '.$events->count());
         $this->line('Zdjęcia: '.$photos->count());
         $this->line('Konta: '.$users->count());
+        $this->line('Zgłoszenia z formularza: '.$intakes->count());
 
         $byStatus = $services->countsByStatus();
 

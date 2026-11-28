@@ -28,6 +28,7 @@ final class FieldLabels
         'issue' => 'Usterka',
         'device_password' => 'Hasło do urządzenia',
         'notes' => 'Uwagi',
+        'approval_remarks' => 'Uwagi szefa',
         'is_express' => 'Express',
         'planned_at' => 'Termin realizacji',
         'price' => 'Cena dla klienta',
