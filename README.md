@@ -43,6 +43,16 @@ Aplikacja używa tokenów marki ze strony **studio-komp.pl** (decyzja
 | Logo i znak marki | `public/brand`: wersja na ciemnym tle (nagłówek, logowanie) i znak SK (ikony PWA, wydruki) |
 | Ikony interfejsu | inline SVG w `resources/views/components/icon.blade.php` (1,5 px kreska, `currentColor`) |
 | Wydruki A4 | `public/css/print.css` z tymi samymi tokenami i fontami |
+| Tryb ciemny | `public/js/theme.js` + blok `:root[data-theme='dark']` w `app.css` |
+
+### Tryb ciemny
+
+Wzorowany na wizytówce serwisu, z tą samą paletą co strona marketingowa
+(grafit `#101417`/`#1a2126`, żółty `#ffd400`, mikro-siatka). Przełącznik jest w
+pasku akcji, wybór (`localStorage: sk-theme`) ma pierwszeństwo przed preferencją
+systemową, a motyw ustawia `public/js/theme.js` przed pierwszym malowaniem —
+CSP zabrania skryptów inline, więc to osobny plik. Zasady dla nowych komponentów
+i testy: [`docs/tryb-ciemny-serwis.md`](docs/tryb-ciemny-serwis.md).
 
 Zmiana CSS/JS wymaga podbicia `ASSET_VERSION` w `.env` — od tego zależą `?v=` w adresach oraz
 cache service workera. Wizualne zasady i granice: [`docs/aegis/verification/visual-alignment.md`](docs/aegis/verification/visual-alignment.md).

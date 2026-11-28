@@ -105,6 +105,14 @@ są ukryte, żeby historia czytała się jak zdania, a nie jak zrzut bazy.
 - Bez internetu aplikacja pokaże stronę „Brak połączenia” — **nie zapisuj wtedy zmian**;
   dane klientów nie są przechowywane w pamięci telefonu (to celowe).
 
+## Tryb ciemny
+
+- Przełącznik jest w prawym górnym pasku (ikona księżyca w jasnym motywie,
+  słońca w ciemnym).
+- Wybór zapamiętuje się w tej przeglądarce. Bez wyboru aplikacja idzie za
+  ustawieniem systemowym (np. tryb ciemny w Windows czy Androida).
+- Wydruki zawsze wychodzą na białym papierze, niezależnie od motywu.
+
 ## Role
 
 | Rola | Co może |

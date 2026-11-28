@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logowanie · {{ config('app.name') }}</title>
-    <meta name="theme-color" content="#2d343a">
-    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#2d343a" data-theme-color-light="#2d343a" data-theme-color-dark="#0c1012">
+    <meta name="color-scheme" content="light dark">
+    <script src="{{ asset('js/theme.js') }}?v={{ config('app.asset_version') }}"></script>
     <link rel="icon" href="{{ asset('icons/icon-96.png') }}">
     <link rel="preload" href="{{ asset('fonts/schibsted-grotesk-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">

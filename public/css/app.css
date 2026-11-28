@@ -75,6 +75,10 @@
 /* ----------------------------------------------------------------- tokens */
 
 :root {
+    /* Motyw jasny jest domyślny: meta `color-scheme: light dark` mówi
+       przeglądarce, że oba są wspierane, więc wybór musi paść tutaj. */
+    color-scheme: light;
+
     --ink: #242a30;
     --graphite: #2d343a;
     --graphite-2: #3a424a;
@@ -94,6 +98,21 @@
     --dark-line: #434c54;
     --error: #b42318;
     --ok: #1f7a3f;
+
+    /* Fixed-meaning tokens (nie zmieniają się między motywami): opisują rolę
+       koloru, nie powierzchnię. Tekst na żółtym jest ciemny w obu motywach,
+       dlatego nie może korzystać z --ink, który w ciemnym motywie jest jasny. */
+    --on-yellow: #242a30;
+    --on-light: #242a30;
+    --on-error: #ffffff;
+    --error-soft: #fff7f5;
+    --error-press: #8f1c13;
+    --link-hover: #2d343a;
+    /* Obramowanie kontrolek: musi być widoczne na powierzchni pola, a nie tylko
+       dekoracyjne — w ciemnym motywie ma własną, jaśniejszą wartość. */
+    --control-line: var(--line-strong);
+    /* Pasek ostrzeżenia w alertach: grafit w jasnym motywie, jasna linia w ciemnym. */
+    --alert-bar: var(--graphite);
 
     /* Stage language for the queue: one accent per workflow step, always paired
        with the stage name so colour is never the only signal. */
@@ -124,13 +143,17 @@
     --bs-border-radius-sm: var(--radius);
     --bs-border-radius-lg: var(--radius);
     --bs-link-color: var(--ink);
-    --bs-link-hover-color: var(--graphite);
+    --bs-link-hover-color: var(--link-hover);
     --bs-link-color-rgb: 36, 42, 48;
     --bs-link-hover-color-rgb: 45, 52, 58;
     --bs-emphasis-color: var(--ink);
     --bs-secondary-color: var(--muted);
     --bs-tertiary-bg: var(--surface);
+    --bs-secondary-bg: var(--surface-2);
     --bs-focus-ring-color: rgba(36, 42, 48, 0.25);
+    /* Bootstrap zostawia dla inline `code` własny róż (#d63384), który nie ma
+       kontrastu ani na jasnym, ani na ciemnym tle — kod dostaje kolor treści. */
+    --bs-code-color: var(--ink);
 
     /* Legacy aliases kept for templates that still reference them. */
     --serwis-brand: var(--graphite);
@@ -140,6 +163,81 @@
     --serwis-border: var(--line);
     --serwis-shadow: none;
     --serwis-bottom-nav-height: var(--bottom-nav-height);
+}
+
+/* ---------------------------------------------------------- tryb ciemny
+   Paleta wzorowana na wizytówce serwisu: prawie czarny grafit, mikro-siatka,
+   żółty akcent. Wartości są te same co na stronie marketingowej, więc oba
+   produkty wyglądają jak jedna firma. Zmieniają się wyłącznie tokeny — układ,
+   komponenty i typografia zostają bez zmian.
+
+   Motyw ustawia js/theme.js (atrybut data-theme na <html>) przed pierwszym
+   malowaniem. Bez JS zostaje motyw jasny. */
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --ink: #f3f5f2;
+    --graphite: #1a2126;
+    --graphite-2: #232c32;
+    --paper: #151a1e;
+    --paper-hover: #1b2227;
+    --surface: #101417;
+    --surface-2: #1b2227;
+    --line: #242c31;
+    --line-strong: #364048;
+    --muted: #a7aea9;
+    --muted-2: #8d958f;
+    --yellow-soft: rgba(255, 212, 0, 0.16);
+    --on-dark: #f5f6f3;
+    --on-dark-muted: #b0b8b3;
+    --dark-line: #313a41;
+    --error: #ff9a91;
+    --error-press: #ffb3ab;
+    --error-soft: rgba(255, 154, 145, 0.12);
+    --on-error: #101417;
+    --ok: #6ccf95;
+    --link-hover: #ffffff;
+    --control-line: #5f6a73;
+    --alert-bar: var(--line-strong);
+
+    /* Stage language, jasna odmiana: kropka i etykieta etapu leżą teraz na
+       prawie czarnym tle, więc ciemny grafit byłby nieczytelny. */
+    --stage-pending: #ffd400;
+    --stage-progress: #b9c4cc;
+    --stage-parts: #f0a35e;
+    --stage-ready: #6ccf95;
+    --stage-released: #7d8880;
+    --stage-cancelled: #ff9a91;
+
+    /* Mikro-siatka jak na wizytówce — tylko dekoracja ciemnych paneli. */
+    --grid-line: rgba(255, 255, 255, 0.05);
+    --grid-size: 28px;
+
+    /* Bootstrap contract: wartości wpisane tam na sztywno (rgb/hex). */
+    --bs-body-color: var(--ink);
+    --bs-body-bg: var(--surface);
+    --bs-border-color: var(--line);
+    --bs-link-color: var(--ink);
+    --bs-link-hover-color: var(--link-hover);
+    --bs-link-color-rgb: 243, 245, 242;
+    --bs-link-hover-color-rgb: 255, 255, 255;
+    --bs-emphasis-color: var(--ink);
+    --bs-emphasis-color-rgb: 243, 245, 242;
+    --bs-body-bg-rgb: 16, 20, 23;
+    --bs-secondary-color: var(--muted);
+    --bs-secondary-color-rgb: 167, 174, 169;
+    --bs-tertiary-color: var(--muted-2);
+    --bs-tertiary-bg: var(--surface);
+    --bs-secondary-bg: var(--surface-2);
+    --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+    --bs-highlight-bg: rgba(255, 212, 0, 0.24);
+    --bs-highlight-color: var(--ink);
+    --bs-danger-rgb: 255, 154, 145;
+    --bs-form-valid-color: var(--ok);
+    --bs-form-valid-border-color: var(--ok);
+    --bs-form-invalid-color: var(--error);
+    --bs-form-invalid-border-color: var(--error);
+    --bs-focus-ring-color: rgba(255, 212, 0, 0.35);
 }
 
 /* ------------------------------------------------------------------- base */
@@ -160,6 +258,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    transition: background-color var(--fast) var(--ease-out), color var(--fast) var(--ease-out);
 }
 
 h1,
@@ -219,7 +318,7 @@ a {
 }
 
 a:hover {
-    color: var(--graphite);
+    color: var(--link-hover);
     text-decoration-color: currentColor;
 }
 
@@ -235,7 +334,7 @@ hr {
 
 ::selection {
     background: var(--yellow);
-    color: var(--ink);
+    color: var(--on-yellow);
 }
 
 :focus-visible {
@@ -281,6 +380,12 @@ pre {
     color: var(--muted);
 }
 
+/* Bootstrap ma tu własny czerwony (#dc3545), który na ciemnym tle nie ma
+   kontrastu; kolor błędu bierzemy z tokenu, więc działa w obu motywach. */
+.text-danger {
+    color: var(--error) !important;
+}
+
 .text-pre-wrap {
     white-space: pre-line;
 }
@@ -320,16 +425,16 @@ pre {
 }
 
 .btn-primary {
-    --bs-btn-color: var(--ink);
+    --bs-btn-color: var(--on-yellow);
     --bs-btn-bg: var(--yellow);
     --bs-btn-border-color: var(--yellow);
     --bs-btn-hover-color: var(--paper);
     --bs-btn-hover-bg: var(--ink);
     --bs-btn-hover-border-color: var(--ink);
-    --bs-btn-active-color: var(--paper);
+    --bs-btn-active-color: var(--on-dark);
     --bs-btn-active-bg: var(--graphite);
     --bs-btn-active-border-color: var(--graphite);
-    --bs-btn-disabled-color: var(--ink);
+    --bs-btn-disabled-color: var(--on-yellow);
     --bs-btn-disabled-bg: var(--yellow);
     --bs-btn-disabled-border-color: var(--yellow);
 }
@@ -341,7 +446,7 @@ pre {
     --bs-btn-hover-color: var(--paper);
     --bs-btn-hover-bg: var(--ink);
     --bs-btn-hover-border-color: var(--ink);
-    --bs-btn-active-color: var(--paper);
+    --bs-btn-active-color: var(--on-dark);
     --bs-btn-active-bg: var(--graphite);
     --bs-btn-active-border-color: var(--graphite);
 }
@@ -350,10 +455,10 @@ pre {
     --bs-btn-color: var(--paper);
     --bs-btn-bg: var(--ink);
     --bs-btn-border-color: var(--ink);
-    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-color: var(--on-yellow);
     --bs-btn-hover-bg: var(--yellow);
     --bs-btn-hover-border-color: var(--yellow);
-    --bs-btn-active-color: var(--ink);
+    --bs-btn-active-color: var(--on-yellow);
     --bs-btn-active-bg: var(--yellow-press);
     --bs-btn-active-border-color: var(--yellow-press);
 }
@@ -384,8 +489,8 @@ pre {
     --bs-btn-bg: var(--error);
     --bs-btn-border-color: var(--error);
     --bs-btn-hover-color: var(--paper);
-    --bs-btn-hover-bg: #8f1c13;
-    --bs-btn-hover-border-color: #8f1c13;
+    --bs-btn-hover-bg: var(--error-press);
+    --bs-btn-hover-border-color: var(--error-press);
 }
 
 .btn-outline-danger {
@@ -410,10 +515,10 @@ pre {
     --bs-btn-color: var(--on-dark);
     --bs-btn-bg: transparent;
     --bs-btn-border-color: var(--dark-line);
-    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-color: var(--on-yellow);
     --bs-btn-hover-bg: var(--yellow);
     --bs-btn-hover-border-color: var(--yellow);
-    --bs-btn-active-color: var(--ink);
+    --bs-btn-active-color: var(--on-yellow);
     --bs-btn-active-bg: var(--yellow-press);
     --bs-btn-active-border-color: var(--yellow-press);
 }
@@ -473,7 +578,7 @@ pre {
 .form-control,
 .form-select {
     min-height: 2.75rem;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--control-line);
     border-radius: var(--radius);
     background-color: var(--paper);
     color: var(--ink);
@@ -543,7 +648,7 @@ pre {
 .form-check-input {
     width: 1.125rem;
     height: 1.125rem;
-    border: 1px solid var(--muted-2);
+    border: 1px solid var(--control-line);
     border-radius: var(--radius);
     background-color: var(--paper);
 }
@@ -577,7 +682,7 @@ input[type='file'].form-control {
 input[type='file']::file-selector-button {
     margin-inline-end: 0.75rem;
     padding: 0.3rem 0.75rem;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--control-line);
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--ink);
@@ -622,7 +727,7 @@ legend {
 .text-bg-primary {
     background-color: var(--graphite) !important;
     border-color: var(--graphite);
-    color: var(--paper) !important;
+    color: var(--on-dark) !important;
 }
 
 .text-bg-warning {
@@ -640,13 +745,22 @@ legend {
 .text-bg-success {
     background-color: var(--yellow) !important;
     border-color: var(--yellow);
-    color: var(--ink) !important;
+    color: var(--on-yellow) !important;
 }
 
 .text-bg-dark {
     background-color: transparent !important;
     border-color: var(--line);
     color: var(--muted) !important;
+}
+
+/* Bootstrap rysuje tu białą płytkę z czarnym tekstem: w ciemnym motywie dziura
+   w karcie, a w jasnym jedyny element poza paletą. Zostaje cichy, wypełniony
+   chip systemu („dodano zdjęcie” w historii). */
+.text-bg-light {
+    background-color: var(--surface-2) !important;
+    border-color: var(--line-strong);
+    color: var(--ink) !important;
 }
 
 .text-bg-danger {
@@ -678,7 +792,7 @@ legend {
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
     border: 1px solid var(--line);
-    border-left: 3px solid var(--graphite);
+    border-left: 3px solid var(--alert-bar);
     border-radius: var(--radius);
     background: var(--paper);
     color: var(--ink);
@@ -701,7 +815,7 @@ legend {
 }
 
 .alert-info {
-    border-left-color: var(--graphite);
+    border-left-color: var(--alert-bar);
     background: var(--surface);
 }
 
@@ -915,6 +1029,54 @@ legend {
 .app-bar__logout:hover {
     border-color: var(--ink);
     color: var(--ink);
+}
+
+/* Theme switch: the same rhythm as "Wyloguj", a moon in the light theme and a
+   sun in the dark one. The state lives in aria-pressed (js/theme.js), so the
+   icon pair is purely decorative. */
+.theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color var(--fast) var(--ease-out), color var(--fast) var(--ease-out),
+        border-color var(--fast) var(--ease-out);
+}
+
+.theme-toggle:hover {
+    border-color: var(--yellow);
+    background: var(--yellow);
+    color: var(--on-yellow);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.theme-toggle__icon {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+}
+
+.theme-toggle__icon--sun {
+    display: none;
+}
+
+:root[data-theme='dark'] .theme-toggle__icon--moon {
+    display: none;
+}
+
+:root[data-theme='dark'] .theme-toggle__icon--sun {
+    display: grid;
 }
 
 /* The stage filter form fills the second row; chips, reset link and the
@@ -1139,7 +1301,7 @@ legend {
 .offline-banner {
     padding: 0.4rem 0.75rem;
     background: var(--error);
-    color: #fff;
+    color: var(--on-error);
     font-size: 0.8125rem;
     font-weight: 500;
     text-align: center;
@@ -1735,7 +1897,7 @@ legend {
     position: relative;
     padding: 1rem 1.1rem 1.15rem;
     background: var(--yellow);
-    color: var(--ink);
+    color: var(--on-yellow);
 }
 
 .docket__label {
@@ -1997,7 +2159,10 @@ legend {
 .photo-remove {
     min-height: 1.75rem;
     padding: 0.15rem 0.3rem;
+    /* Leży na zdjęciu, więc zostaje jasną płytką w obu motywach — tekst musi
+       być wtedy ciemny na stałe, nie „kolorem treści”. */
     background: rgba(255, 255, 255, 0.92);
+    color: var(--on-light);
 }
 
 .photo-thumb {
@@ -3237,7 +3402,7 @@ legend {
 .record-input.is-invalid,
 .record-input[aria-invalid="true"] {
     border-color: var(--error);
-    background: #fff7f5;
+    background: var(--error-soft);
 }
 
 .record-input.is-invalid:focus,
@@ -3472,6 +3637,7 @@ legend {
 
 .record-file::file-selector-button:hover {
     background: var(--yellow);
+    color: var(--on-yellow);
 }
 
 .record-foot {
@@ -3714,7 +3880,7 @@ legend {
     padding: 0 0.3rem;
     border-radius: 999px;
     background: var(--yellow);
-    color: var(--ink);
+    color: var(--on-yellow);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     font-weight: 600;
@@ -3768,7 +3934,7 @@ legend {
 }
 
 .approval-note--ok {
-    border-left-color: var(--stage-success, #2f7d4f);
+    border-left-color: var(--ok);
 }
 
 .approval-note__label {
@@ -3861,5 +4027,117 @@ legend {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.4rem;
+}
+
+/* ------------------------------------------------- dark mode: components
+   Tylko to, czego nie da się wyrazić tokenami: akcenty na odwróconym (jasnym)
+   wypełnieniu, znacznik checkboxa Bootstrapa i dekoracyjna mikro-siatka. */
+
+/* Wybrany kafelek terminu i statystyka filtra mają w jasnym motywie ciemne
+   wypełnienie; w ciemnym odwracają się na jasne — i to jest czytelne, więc
+   zostaje. Ciemny musi być tylko żółty akcent wydrukowany na tym wypełnieniu. */
+:root[data-theme='dark'] .choice__input:checked + .choice__body .choice__unit,
+:root[data-theme='dark'] .stat__input:checked + .stat__body .stat__label {
+    color: var(--on-yellow);
+}
+
+/* Bootstrap rysuje znaczek checkboxa białym SVG: na ciemnym motywie pole
+   wypełnia się żółtym, więc znaczek musi być ciemny. */
+:root[data-theme='dark'] .form-check-input:checked {
+    border-color: var(--yellow);
+    background-color: var(--yellow);
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23242a30' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+:root[data-theme='dark'] .form-check-input[type='checkbox']:indeterminate {
+    border-color: var(--yellow);
+    background-color: var(--yellow);
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23242a30' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
+
+/* Obrysy grafitowe zlewają się z ciemną kartą: w ciemnym motywie dostają
+   jaśniejszą linię, żeby badge i paski alertów były widoczne jako kształt. */
+:root[data-theme='dark'] .badge-express {
+    background-color: var(--graphite-2);
+    border-color: var(--dark-line);
+}
+
+:root[data-theme='dark'] .text-bg-primary {
+    border-color: var(--dark-line);
+}
+
+/* Przyciski lightboxa leżą na stałym, ciemnym overlayu — jak plakietka „×” na
+   zdjęciu zostają jasną płytką z ciemnym tekstem. */
+:root[data-theme='dark'] .lightbox .btn-light {
+    border-color: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--on-light);
+}
+
+/* Zabezpieczenie: gdyby w przyszłości pojawiło się natywne radio, kropka musi
+   być ciemna na żółtym wypełnieniu (Bootstrap rysuje ją na biało). */
+:root[data-theme='dark'] .form-check-input[type='radio']:checked {
+    border-color: var(--yellow);
+    background-color: var(--yellow);
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23242a30'/%3e%3c/svg%3e");
+}
+
+/* Ekran logowania niesie wizytówkę serwisu: drobna siatka na grafitowym panelu. */
+:root[data-theme='dark'] .auth-aside {
+    background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+}
+
+/* Tło aplikacji: ta sama mikro-siatka co na wizytówce. Karty i panele są
+   nieprzezroczyste, więc siatka zostaje w tle i nie rusza czytelności. */
+:root[data-theme='dark'] .app-body {
+    background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+}
+
+/* ------------------------------------------------------------------ print
+   Papier jest zawsze jasny: wydruk nie może zależeć od wybranego motywu.
+   Dedykowane ekrany wydruku (css/print.css) w ogóle nie ładują app.css, więc
+   ten blok dotyczy Ctrl+P z normalnego ekranu aplikacji. */
+@media print {
+    :root,
+    :root[data-theme='dark'] {
+        color-scheme: light;
+
+        --ink: #242a30;
+        --graphite: #2d343a;
+        --graphite-2: #3a424a;
+        --paper: #ffffff;
+        --paper-hover: #fbfbf8;
+        --surface: #f4f5f2;
+        --surface-2: #e9ebe6;
+        --line: #dcdfd9;
+        --line-strong: #c6cabf;
+        --muted: #5f645e;
+        --muted-2: #6c716b;
+        --yellow-soft: #fff4b8;
+        --error: #b42318;
+        --error-press: #8f1c13;
+        --error-soft: #fff7f5;
+        --ok: #1f7a3f;
+        --link-hover: #2d343a;
+        --stage-pending: #d3ac00;
+        --stage-progress: #2d343a;
+        --stage-parts: #b26a1e;
+        --stage-ready: #1f7a3f;
+        --stage-released: #97a09a;
+        --stage-cancelled: #b42318;
+
+        --bs-link-color-rgb: 36, 42, 48;
+        --bs-link-hover-color-rgb: 45, 52, 58;
+    }
+
+    .theme-toggle {
+        display: none;
+    }
 }
 

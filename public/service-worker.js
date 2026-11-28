@@ -24,6 +24,7 @@ var PRECACHE_URLS = [
     '/fonts/ibm-plex-mono-latin-500.woff2',
     '/js/bootstrap.bundle.min.js',
     '/js/app.js',
+    '/js/theme.js',
     '/js/lightbox.js',
     '/js/pwa.js',
     '/js/print.js',

@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Kolejka') · {{ config('app.name') }}@if (! empty($sidebarTitleMarker)) · {{ $sidebarTitleMarker }}@endif</title>
     <link rel="manifest" href="{{ route('manifest') }}">
-    <meta name="theme-color" content="#2d343a">
-    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#2d343a" data-theme-color-light="#2d343a" data-theme-color-dark="#0c1012">
+    <meta name="color-scheme" content="light dark">
+    {{-- Tryb ciemny: motyw ustawiany przed pierwszym malowaniem (bez migotania).
+         CSP jest ścisłe, więc inicjalizacja jest osobnym plikiem, nie inline. --}}
+    <script src="{{ asset('js/theme.js') }}?v={{ config('app.asset_version') }}"></script>
     <link rel="icon" href="{{ asset('icons/icon-96.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
     <link rel="preload" href="{{ asset('fonts/schibsted-grotesk-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -183,6 +186,16 @@
                                 <span class="btn-label">Przyjmij</span>
                             </a>
                         @endif
+
+                        {{-- Przełącznik motywu: stan (aria-pressed) i ikona zależą od
+                             data-theme, ustawianego przez js/theme.js zaraz po
+                             wczytaniu. Bez JS zostaje motyw jasny. --}}
+                        <button class="theme-toggle" type="button" data-theme-toggle
+                                aria-pressed="false" aria-label="Włącz tryb ciemny" title="Tryb ciemny">
+                            <span class="theme-toggle__icon theme-toggle__icon--moon"><x-icon name="moon" :size="16" /></span>
+                            <span class="theme-toggle__icon theme-toggle__icon--sun"><x-icon name="sun" :size="16" /></span>
+                        </button>
+
                         @auth
                             <span class="app-user">{{ auth()->user()->getAuthName() }}</span>
                             <form method="post" action="{{ route('logout') }}" data-clear-cache-on-submit>

@@ -46,3 +46,6 @@ packages.json
 /storage/app/dusk-data
 /storage/app/private
 
+# Skrypty QA (Playwright) i notatki z audytu — narzędzia lokalne, nie część aplikacji.
+/storage/qa
+
