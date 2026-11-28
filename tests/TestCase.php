@@ -77,6 +77,7 @@ abstract class TestCase extends BaseTestCase
         DB::table('service_photos')->delete();
         DB::table('services')->delete();
         DB::table('users')->delete();
+        DB::table('intake_tickets')->delete();
     }
 
     private function forgetStoreBindings(): void
